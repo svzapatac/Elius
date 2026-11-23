@@ -17,6 +17,11 @@ flowchart TD
   J -- Suspender --> K[estado = suspendido<br/>sus usuarios dejan de ver datos]
   J -- Cancelar --> L[estado = cancelado]
   H --> M([Exporta el reporte])
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class B,D,J dec
+  class A,M,X ok
 ```
 
 ## Soporte
@@ -40,6 +45,11 @@ flowchart TD
   L --> M{¿Terminó?}
   M -- Sí --> N[El Administrador revoca<br/>o la autorización vence sola]
   M -- No --> G
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class E,G,M dec
+  class A,C,F ok
 ```
 
 **Reglas que aplican:** RN-P16 (acceso con autorización y vencimiento), RN-P06 (tenant suspendido no opera), RN-P15 (auditoría).

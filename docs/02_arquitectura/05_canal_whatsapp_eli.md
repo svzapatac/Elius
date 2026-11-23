@@ -26,6 +26,9 @@ flowchart TB
   A3 -->|"comprobante"| A4
   EF -->|"7. respuesta"| WA
   DB -->|"eventos_salida"| N8N["n8n: avisos al equipo,<br/>Calendar, recordatorios"]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
 ```
 
 ## Cómo se identifica el tenant sin un usuario conectado

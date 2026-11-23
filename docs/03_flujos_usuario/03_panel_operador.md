@@ -14,6 +14,11 @@ flowchart TD
   H -- No --> G
   H -- Sí --> I[Devolver a Eli]
   I --> J[Se cierra el escalamiento<br/>Eli vuelve a atender]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class H dec
+  class A ok
 ```
 
 ## Revisar un comprobante de pago (cobro tradicional)
@@ -34,6 +39,11 @@ flowchart TD
   J -- No --> L[Pago parcial registrado<br/>Eli pide el resto]
   I --> M([Pasa a cocina o a la reserva])
   K --> M
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class C,F,H,J dec
+  class A,M ok
 ```
 
 ## Reservas del día
@@ -46,6 +56,11 @@ flowchart TD
   D -- No --> B
   D -- Sí --> E[Tarea programada: no asistió<br/>se liberan las mesas]
   C --> F[Registrar novedades y salida]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class B,D dec
+  class A ok
 ```
 
 ## Cocina y domicilios (restaurante)
@@ -61,6 +76,10 @@ flowchart LR
   G --> H[En camino]
   H --> I[Cobra el saldo en efectivo si lo hay]
   I --> F
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class E dec
 ```
 
 **Reglas que aplican:** RN-C16, RN-C17, RN-C18, RN-C19, RN-C21, RN-C12, RN-R07, RN-R09.

@@ -19,6 +19,10 @@ flowchart LR
   EF -->|"token"| VA["Supabase Vault"]
   PA -->|"Activar Factus Pay"| EF2["Edge Function"]
   EF2 -->|"credenciales y clave del webhook"| VA
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Procedimientos que llama

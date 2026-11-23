@@ -1,5 +1,7 @@
 # Modelo entidad-relación
 
+> Los diagramas por módulo, más legibles, están en [modelo_er.md](modelo_er.md).
+
 ## Las tres reglas obligatorias y cómo se cumplen
 
 | Regla del curso | Cómo se cumple | Cómo se verifica |

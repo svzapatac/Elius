@@ -24,6 +24,8 @@ Plataforma SaaS multi-tenant que centraliza los datos de **Eli**, el agente de i
 - **3 usuarios de conexión** sin superusuario: `elius_admin`, `elius_app`, `elius_consulta`.
 - RLS en las 80 tablas propias (288 políticas), 179 triggers, 20 vistas, 24 procedimientos de negocio.
 
+**Modelo E/R completo:** [`docs/05_base_de_datos/modelo_er.md`](docs/05_base_de_datos/modelo_er.md) (diagrama de las 81 tablas y uno por módulo).
+
 Para sustentar, empezar por [`docs/05_base_de_datos/00_indice.md`](docs/05_base_de_datos/00_indice.md).
 
 ## Cómo ejecutar

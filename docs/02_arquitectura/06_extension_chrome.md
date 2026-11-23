@@ -16,6 +16,10 @@ flowchart LR
   EF --> E["ext.evidencias_patron"]
   AD["Administrador"] -->|"aprueba"| P
   P -->|"solo aprobados"| ELI["Eli los usa como conocimiento"]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Privacidad

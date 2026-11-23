@@ -25,6 +25,11 @@ flowchart TD
   P --> Q
   F --> R{¿Queja, emergencia<br/>o pide una persona?}
   R -- Sí --> S([Escala a un Operador])
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class C,I,K,R dec
+  class A,Q,S ok
 ```
 
 ## Reservar
@@ -43,6 +48,11 @@ flowchart TD
   G -- No --> I[Cobra la consignación]
   H --> I
   I --> J([Pago aprobado: reserva confirmada<br/>evento a Google Calendar])
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class C,D,G dec
+  class A,J ok
 ```
 
 **Reglas que aplican:** RN-C03 (consentimiento), RN-C22, RN-C23 (cobro), RN-C07, RN-R01, RN-R02, RN-R08, RN-R10 (reservas), RN-C18 (escalamiento).

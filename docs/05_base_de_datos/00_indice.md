@@ -4,6 +4,7 @@ Cada documento explica una parte por separado: qué se hizo, cómo y por qué. L
 
 | # | Documento | Qué responde |
 | --- | --- | --- |
+| 00 | [**Modelo E/R completo (diagramas)**](modelo_er.md) | Las 81 tablas con columnas y relaciones, completo y por módulo |
 | 01 | [Modelo entidad-relación](01_modelo_entidad_relacion.md) | Qué tablas hay, cómo se relacionan y cómo se cumplen las 3 reglas del curso |
 | 02 | [Diccionario de datos](02_diccionario_datos.md) ⚙ | Cada columna: tipo, nulos, valor por defecto, restricción, descripción y privacidad |
 | 03 | [Relaciones](03_relaciones.md) ⚙ | Las 191 relaciones con su cardinalidad y qué pasa al borrar |

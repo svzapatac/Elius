@@ -18,6 +18,11 @@ flowchart TD
   K --> M[Invita a su equipo]
   L --> M
   M --> N([Eli empieza a atender])
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class J dec
+  class A,N ok
 ```
 
 ## Día a día del Administrador
@@ -43,6 +48,11 @@ flowchart TD
   G --> G1[Revisar comprobantes con alerta]
   G --> G2[Ver saldos y recaudos de Factus]
   H --> H1[Ver quién cambió qué y cuándo]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class C,E2 dec
+  class A ok
 ```
 
 **Reglas que aplican:** RN-P04 (último Administrador), RN-P08 (crear tenant), RN-P10 (límite del plan), RN-P12 (invitaciones), RN-C20 (apagar a Eli), RN-R11 (menú confirmado), RN-V03 (acceso especial).

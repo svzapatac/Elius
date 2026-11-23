@@ -21,6 +21,11 @@ flowchart TD
   K -- Sí --> L([Descarga CSV])
   K -- No --> C
   C -.->|"intenta editar"| M([La base lo rechaza:<br/>rol analista = solo lectura])
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class C,K dec
+  class A,L,M ok
 ```
 
 **Qué no puede hacer:** escribir, ver la auditoría, ver datos sensibles ni la configuración. Lo bloquea RLS, no solo el panel (prueba 4 de `database/tests`).

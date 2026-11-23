@@ -17,6 +17,10 @@ flowchart LR
   SEC --> V7["Vistas del plugin<br/>v_ocupacion_vuelos · v_vacunas_por_vencer"]
   SEC -.->|"no puede"| NO["escribir · auditoría<br/>datos sensibles · configuración"]
   PN -->|"exportar CSV"| CSV["Archivo descargado"]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Por qué las vistas son seguras para este rol

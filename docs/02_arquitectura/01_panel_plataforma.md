@@ -15,6 +15,10 @@ flowchart LR
   SEC -.->|"sin autorización: 0 filas"| NEG
   NEG -->|"t02_auditoria<br/>origen = soporte"| AUD["audit.registros_auditoria"]
   ERR["elius.errores_agente"] --> PP
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Qué ve y qué puede hacer

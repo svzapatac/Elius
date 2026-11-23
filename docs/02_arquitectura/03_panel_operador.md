@@ -18,6 +18,10 @@ flowchart LR
   SEC --> PL["Plugin<br/>cocina: v_cocina_pendiente<br/>vet: atenciones · vacunas"]
   SEC -.->|"solo con acceso especial"| SEN["Historia clínica<br/>reversos · documentos"]
   SEC -.->|"no puede"| NO["usuarios · configuración<br/>borrar registros · apagar a Eli"]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Pantallas según el cargo (mismo rol, mismos permisos)

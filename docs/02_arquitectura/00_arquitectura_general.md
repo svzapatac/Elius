@@ -65,6 +65,10 @@ flowchart LR
   N8N --> WA
   N8N --> GC
   PAN --> ST
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class SEC dec
 ```
 
 ## Cómo viaja una petición
