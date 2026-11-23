@@ -1,0 +1,1470 @@
+// Elius · modelo entidad-relación
+// Generado desde modelo/modelo.py
+
+Table platform.planes [note: 'Planes de suscripción y sus límites (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  codigo "text" [unique, not null, note: 'free, starter, pro, enterprise']
+  nombre "text" [not null, note: 'Nombre comercial']
+  precio_mensual "numeric(12,2)" [not null, note: 'Precio mensual']
+  moneda "char(3)" [not null, note: 'Moneda ISO 4217']
+  max_usuarios "int" [not null, note: 'Usuarios permitidos por tenant']
+  max_conversaciones_mes "int" [not null, note: 'Conversaciones de Eli por mes']
+  max_tokens_mes "bigint" [not null, note: 'Tokens de LLM por mes']
+  activo "boolean" [not null, note: 'Disponible para nuevos tenants']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.tenants [note: 'Cada negocio cliente de Elius (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  plan_id "uuid" [not null, note: 'Plan contratado']
+  slug "text" [unique, not null, note: 'Identificador corto único']
+  nombre "text" [not null, note: 'Nombre comercial']
+  vertical "text" [not null, note: 'veterinaria, restaurante, aerolinea, otro']
+  estado "text" [not null, note: 'prueba, activo, suspendido, cancelado']
+  fin_prueba "date" [null, note: 'Último día del periodo de prueba']
+  razon_social "text" [null, note: 'Nombre legal']
+  nit "text" [null, note: 'Identificación tributaria']
+  pais "char(2)" [not null, note: 'País ISO 3166']
+  zona_horaria "text" [not null, note: 'Ej. America/Bogota']
+  moneda "char(3)" [not null, note: 'Moneda de operación']
+  eliminado_en "timestamptz" [null, note: 'Borrado lógico']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.usuarios [note: 'Usuarios de la plataforma. Tabla auth.users administrada por Supabase Auth (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  email "text" [unique, not null, note: 'Correo de acceso [PERSONAL]']
+  telefono "text" [null, note: 'Teléfono E.164 [PERSONAL]']
+  nombre_completo "text" [not null, note: 'Nombre para mostrar [PERSONAL]']
+  ultimo_ingreso "timestamptz" [null, note: 'Último inicio de sesión']
+}
+
+Table platform.roles [note: 'Los 6 roles generales y fijos (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  codigo "text" [unique, not null, note: 'super_admin, soporte, administrador, operador, analista, eli']
+  nombre "text" [not null, note: 'Nombre visible']
+  nivel "text" [not null, note: 'plataforma o tenant']
+  descripcion "text" [not null, note: 'Qué hace el rol']
+  orden "int" [not null, note: 'Orden de presentación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.plugins [note: 'Catálogo de plugins (microkernel) (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  codigo "text" [unique, not null, note: 'vet, restaurant, airline']
+  nombre "text" [not null, note: 'Nombre visible']
+  esquema "text" [unique, not null, note: 'Esquema de la BD del plugin']
+  version "text" [not null, note: 'Versión semántica']
+  verticales "text[]" [not null, note: 'Verticales a las que se instala por defecto']
+  manifiesto "jsonb" [not null, note: 'Módulos, permisos y configuración que aporta']
+  activo "boolean" [not null, note: 'Disponible para instalar']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.permisos [note: 'Módulos y accesos que se pueden otorgar (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  plugin_id "uuid" [null, note: 'Plugin que lo aporta; vacío = núcleo']
+  codigo "text" [unique, not null, note: 'Ej. contactos, vet.historia_clinica']
+  modulo "text" [not null, note: 'Módulo funcional']
+  descripcion "text" [not null, note: 'Qué permite']
+  es_acceso_especial "boolean" [not null, note: 'Se otorga por usuario con un interruptor']
+  protege_dato_sensible "boolean" [not null, note: 'Da acceso a datos sensibles']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.rol_permisos [note: 'Qué puede hacer cada rol en cada módulo (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  rol_id "uuid" [not null, note: 'Rol']
+  permiso_id "uuid" [not null, note: 'Permiso']
+  nivel "text" [not null, note: 'lectura, escritura, total, con_autorizacion']
+  origen "text" [not null, note: 'nucleo o código del plugin que lo asignó']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (rol_id, permiso_id) [unique]
+  }
+}
+
+Table platform.membresias [note: 'Usuario dentro de un tenant con su rol (tenantUser) (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  usuario_id "uuid" [not null, note: 'Usuario']
+  rol_id "uuid" [not null, note: 'Rol general dentro del tenant']
+  estado "text" [not null, note: 'invitado, activo, inactivo']
+  cargo "text" [null, note: 'Etiqueta visible: Veterinario, Mesero… (no da permisos)']
+  es_predeterminada "boolean" [not null, note: 'Tenant que se carga en el JWT al iniciar sesión']
+  invitado_por "uuid" [null, note: 'Quién lo invitó']
+  fecha_ingreso "timestamptz" [not null, note: 'Cuándo aceptó']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, usuario_id) [unique]
+  }
+}
+
+Table platform.accesos_especiales [note: 'Accesos especiales del plugin otorgados a un usuario (ej. historia clínica) (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  membresia_id "uuid" [not null, note: 'Usuario en el tenant']
+  permiso_id "uuid" [not null, note: 'Acceso especial']
+  otorgado_por "uuid" [not null, note: 'Administrador que lo activó']
+  motivo "text" [null, note: 'Justificación']
+  vence_en "timestamptz" [null, note: 'Vencimiento opcional']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (membresia_id, permiso_id) [unique]
+  }
+}
+
+Table platform.asignaciones_plataforma [note: 'Roles de plataforma del equipo Elius (Super Admin, Soporte) (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  usuario_id "uuid" [not null, note: 'Persona del equipo Elius']
+  rol_id "uuid" [not null, note: 'super_admin o soporte']
+  asignado_por "uuid" [not null, note: 'Quién lo asignó']
+  desde "timestamptz" [not null, note: 'Inicio']
+  hasta "timestamptz" [null, note: 'Fin; vacío = vigente']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.tenant_plugins [note: 'Plugins instalados en cada tenant (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  plugin_id "uuid" [not null, note: 'Plugin']
+  habilitado "boolean" [not null, note: 'Activo para el tenant']
+  configuracion "jsonb" [not null, note: 'Configuración propia del tenant']
+  version_instalada "text" [not null, note: 'Versión instalada']
+  instalado_por "uuid" [not null, note: 'Quién lo instaló']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, plugin_id) [unique]
+  }
+}
+
+Table platform.accesos_soporte [note: 'Autorización temporal del Administrador para que Soporte entre al tenant (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  usuario_soporte_id "uuid" [not null, note: 'Persona de soporte']
+  autorizado_por "uuid" [not null, note: 'Administrador que autoriza']
+  motivo "text" [not null, note: 'Para qué se necesita el acceso']
+  inicio "timestamptz" [not null, note: 'Desde cuándo']
+  vence_en "timestamptz" [not null, note: 'Vence solo']
+  revocado_en "timestamptz" [null, note: 'Revocación anticipada']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.invitaciones [note: 'Invitaciones por correo a un tenant (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  rol_id "uuid" [not null, note: 'Rol que tendrá']
+  invitado_por "uuid" [not null, note: 'Quién invita']
+  email "text" [not null, note: 'Correo invitado [PERSONAL]']
+  hash_token "text" [unique, not null, note: 'Hash del token (nunca el token)']
+  vence_en "timestamptz" [not null, note: '7 días después de creada']
+  aceptada_en "timestamptz" [null, note: 'Cuándo se aceptó']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.llaves_api [note: 'Llaves de API por tenant (n8n, integraciones) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  creado_por "uuid" [not null, note: 'Quién la creó']
+  nombre "text" [not null, note: 'Nombre descriptivo']
+  prefijo "text" [not null, note: 'Primeros caracteres visibles']
+  hash_llave "text" [unique, not null, note: 'Hash SHA-256 de la llave']
+  alcances "text[]" [not null, note: 'Permisos de la llave']
+  ultimo_uso "timestamptz" [null, note: 'Último uso']
+  vence_en "timestamptz" [null, note: 'Vencimiento']
+  revocada_en "timestamptz" [null, note: 'Revocación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.consumos_periodo [note: 'Consumo por mes para límites del plan y cobro (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  periodo "date" [not null, note: 'Primer día del mes']
+  metrica "text" [not null, note: 'conversaciones, mensajes, tokens_llm, almacenamiento_mb']
+  valor "bigint" [not null, note: 'Cantidad acumulada']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, periodo, metrica) [unique]
+  }
+}
+
+Table audit.registros_auditoria [note: 'Bitácora de cambios de todas las tablas (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [null, note: 'Tenant afectado']
+  usuario_id "uuid" [null, note: 'Quién hizo el cambio']
+  rol "text" [not null, note: 'Rol con el que actuó']
+  origen "text" [not null, note: 'app, eli, soporte, sistema']
+  esquema "text" [not null, note: 'Esquema de la tabla']
+  tabla "text" [not null, note: 'Tabla afectada']
+  registro_id "uuid" [not null, note: 'Fila afectada']
+  operacion "text" [not null, note: 'INSERT, UPDATE, DELETE']
+  datos_anteriores "jsonb" [null, note: 'Valores antes [RESTRINGIDO]']
+  datos_nuevos "jsonb" [null, note: 'Valores después [RESTRINGIDO]']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.contactos [note: 'Cliente final: propietario, comensal, pasajero o comprador (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  tipo "text" [not null, note: 'persona o empresa']
+  nombres "text" [not null, note: 'Nombres [PERSONAL]']
+  apellidos "text" [null, note: 'Apellidos [PERSONAL]']
+  email "text" [null, note: 'Correo [PERSONAL]']
+  telefono "text" [null, note: 'Teléfono E.164 [PERSONAL]']
+  tipo_documento "text" [null, note: 'CC, CE, PA, NIT…']
+  numero_documento "text" [null, note: 'Número de documento [RESTRINGIDO, PERSONAL]']
+  fecha_nacimiento "date" [null, note: 'Fecha de nacimiento [RESTRINGIDO, PERSONAL]']
+  etiquetas "text[]" [not null, note: 'Segmentación libre']
+  origen "text" [not null, note: 'whatsapp, web, presencial, chrome…']
+  eliminado_en "timestamptz" [null, note: 'Borrado lógico']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, telefono) [unique]
+    (tenant_id, email) [unique]
+  }
+}
+
+Table elius.direcciones [note: 'Direcciones de un contacto (domicilios) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [not null, note: 'Contacto']
+  etiqueta "text" [not null, note: 'Casa, oficina…']
+  direccion "text" [not null, note: 'Dirección [PERSONAL]']
+  ciudad "text" [not null, note: 'Ciudad']
+  barrio "text" [null, note: 'Barrio']
+  indicaciones "text" [null, note: 'Cómo llegar [PERSONAL]']
+  latitud "numeric(9,6)" [null, note: 'Ubicación compartida por WhatsApp [PERSONAL]']
+  longitud "numeric(9,6)" [null, note: 'Ubicación compartida por WhatsApp [PERSONAL]']
+  es_principal "boolean" [not null, note: 'Dirección por defecto']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.consentimientos [note: 'Autorizaciones de tratamiento de datos (Ley 1581, art. 9) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [not null, note: 'Titular']
+  finalidad "text" [not null, note: 'Para qué se autoriza']
+  canal "text" [not null, note: 'Por dónde se obtuvo']
+  texto_aceptado "text" [not null, note: 'Texto exacto que aceptó']
+  aceptado_en "timestamptz" [not null, note: 'Fecha de aceptación']
+  revocado_en "timestamptz" [null, note: 'Fecha de revocación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.agentes [note: 'Configuración de Eli por tenant (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Nombre del agente']
+  modelo_llm "text" [not null, note: 'Modelo de lenguaje']
+  prompt_sistema "text" [not null, note: 'Instrucciones base']
+  tono "text" [not null, note: 'Ej. empático, cercano, formal']
+  temperatura "numeric(3,2)" [not null, note: 'Creatividad del modelo']
+  version "int" [not null, note: 'Versión de la configuración']
+  activo "boolean" [not null, note: 'En uso']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.canales [note: 'Canales del tenant: número de WhatsApp, widget web, extensión (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  agente_id "uuid" [not null, note: 'Agente que atiende el canal']
+  tipo "text" [not null, note: 'whatsapp, web, chrome, api']
+  nombre "text" [not null, note: 'Nombre visible']
+  identificador_externo "text" [not null, note: 'Ej. phone_number_id de WhatsApp']
+  estado "text" [not null, note: 'activo, pausado, error']
+  referencia_secreto "uuid" [null, note: 'Llave en Supabase Vault']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.identidades_contacto [note: 'Cómo se identifica un contacto en cada canal (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [not null, note: 'Contacto']
+  canal_id "uuid" [not null, note: 'Canal']
+  id_externo "text" [not null, note: 'Ej. número de WhatsApp [PERSONAL]']
+  nombre_en_canal "text" [null, note: 'Nombre que muestra el canal (perfil de WhatsApp) [PERSONAL]']
+  verificado "boolean" [not null, note: 'Identidad confirmada']
+  primer_contacto_en "timestamptz" [not null, note: 'Primera vez por este canal']
+  ultimo_contacto_en "timestamptz" [not null, note: 'Última vez por este canal']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, canal_id, id_externo) [unique]
+  }
+}
+
+Table elius.conversaciones [note: 'Conversación de un contacto con Eli por un canal (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  identidad_id "uuid" [not null, note: 'Contacto en el canal']
+  asignado_a "uuid" [null, note: 'Humano que la atiende']
+  flujo "text" [not null, note: 'Flujo de Eli: ventas, reservas, menu_dia, carta…']
+  estado "text" [not null, note: 'en_progreso, humano, pausa, cerrada']
+  borrador "jsonb" [not null, note: 'Pedido o reserva que Eli va armando antes de guardarlo']
+  bloqueada_en "timestamptz" [null, note: 'Un proceso la está atendiendo (evita respuestas dobles)']
+  intencion "text" [null, note: 'Intención detectada']
+  sentimiento "text" [null, note: 'positivo, neutro, negativo']
+  resumen "text" [null, note: 'Resumen generado por Eli']
+  iniciada_en "timestamptz" [not null, note: 'Inicio']
+  ultimo_mensaje_en "timestamptz" [not null, note: 'Último mensaje']
+  cerrada_en "timestamptz" [null, note: 'Cierre']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.mensajes [note: 'Mensajes de cada conversación (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [not null, note: 'Conversación']
+  emisor "text" [not null, note: 'cliente, eli, humano, sistema']
+  tipo_contenido "text" [not null, note: 'texto, imagen, audio, documento, plantilla']
+  contenido "text" [not null, note: 'Texto del mensaje [PERSONAL]']
+  url_adjunto "text" [null, note: 'Archivo adjunto']
+  id_externo "text" [null, note: 'Id del mensaje en WhatsApp']
+  estado_entrega "text" [not null, note: 'recibido, enviado, entregado, leido, fallido']
+  procesado "boolean" [not null, note: 'Eli ya lo procesó (agrupa mensajes seguidos)']
+  enviado_en "timestamptz" [not null, note: 'Hora del mensaje']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.consumos_llm [note: 'Cada llamada a un modelo de lenguaje (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [not null, note: 'Conversación']
+  mensaje_id "uuid" [null, note: 'Mensaje que la originó']
+  proveedor "text" [not null, note: 'Proveedor del modelo']
+  modelo "text" [not null, note: 'Modelo usado']
+  tokens_entrada "int" [not null, note: 'Tokens enviados']
+  tokens_salida "int" [not null, note: 'Tokens recibidos']
+  tokens_cache "int" [not null, note: 'Tokens leídos de caché']
+  costo_usd "numeric(12,6)" [not null, note: 'Costo estimado']
+  latencia_ms "int" [not null, note: 'Tiempo de respuesta']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.categorias_catalogo [note: 'Categorías del catálogo: secciones del menú, tipos de servicio… (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Nombre']
+  descripcion "text" [null, note: 'Descripción']
+  orden "int" [not null, note: 'Orden de presentación']
+  disponible_desde "time" [null, note: 'Ej. desayunos desde 7:00']
+  disponible_hasta "time" [null, note: 'Ej. desayunos hasta 11:00']
+  activa "boolean" [not null, note: 'Visible']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.items_catalogo [note: 'Todo lo que se vende: platos, productos, servicios, vacunas, tarifas aéreas (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  categoria_id "uuid" [not null, note: 'Categoría']
+  tipo "text" [not null, note: 'producto, servicio, paquete, adicional, tarifa']
+  sku "text" [null, note: 'Código interno']
+  nombre "text" [not null, note: 'Nombre']
+  descripcion "text" [null, note: 'Descripción']
+  incluye "text" [null, note: 'Qué incluye un paquete']
+  precio "numeric(14,2)" [not null, note: 'Precio base']
+  impuesto_pct "numeric(5,2)" [not null, note: 'IVA o impoconsumo']
+  duracion_min "int" [null, note: 'Duración, para servicios']
+  disponible "boolean" [not null, note: 'false = agotado']
+  atributos "jsonb" [not null, note: 'Datos propios de la vertical']
+  eliminado_en "timestamptz" [null, note: 'Borrado lógico']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, sku) [unique]
+  }
+}
+
+Table elius.recursos [note: 'Lo que se reserva: mesas, consultorios, salas (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  tipo "text" [not null, note: 'mesa, consultorio, sala, equipo']
+  nombre "text" [not null, note: 'Ej. Mesa 12, Consultorio 2']
+  capacidad "int" [not null, note: 'Personas o cupos']
+  ubicacion "text" [null, note: 'Zona: terraza, salón…']
+  activo "boolean" [not null, note: 'Disponible']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.horarios_atencion [note: 'Horario de atención del negocio o de un recurso (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  recurso_id "uuid" [null, note: 'Vacío = horario general']
+  dia_semana "smallint" [not null, note: '1 lunes … 7 domingo']
+  abre "time" [not null, note: 'Hora de apertura']
+  cierra "time" [not null, note: 'Hora de cierre']
+  vigente_desde "date" [not null, note: 'Desde']
+  vigente_hasta "date" [null, note: 'Hasta']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.reservas [note: 'Citas, reservas de mesa y reservas aéreas (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [not null, note: 'Titular de la reserva']
+  conversacion_id "uuid" [null, note: 'Conversación donde se creó']
+  codigo "text" [not null, note: 'Código o localizador visible al cliente']
+  tipo "text" [not null, note: 'cita, mesa, vuelo']
+  estado "text" [not null, note: 'pendiente_pago, confirmada, asistio, no_asistio, cancelada']
+  inicio "timestamptz" [not null, note: 'Inicio']
+  fin "timestamptz" [null, note: 'Fin']
+  personas "int" [not null, note: 'Número de personas']
+  responsable_id "uuid" [null, note: 'Quién la está gestionando']
+  urgente "boolean" [not null, note: 'Marcada como urgente']
+  visto "boolean" [not null, note: 'Ya la vio el equipo']
+  llegada_en "timestamptz" [null, note: 'Hora real de llegada']
+  salida_en "timestamptz" [null, note: 'Hora real de salida']
+  novedades "text" [null, note: 'Novedades de la visita']
+  notas "text" [null, note: 'Observaciones']
+  creada_por_eli "boolean" [not null, note: 'La creó el agente']
+  id_evento_calendario "text" [null, note: 'Evento en Google Calendar']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, codigo) [unique]
+  }
+}
+
+Table elius.asignaciones_recurso [note: 'Recursos ocupados por una reserva y en qué horario (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_id "uuid" [not null, note: 'Reserva']
+  recurso_id "uuid" [not null, note: 'Recurso']
+  inicio "timestamptz" [not null, note: 'Desde']
+  fin "timestamptz" [not null, note: 'Hasta']
+  estado "text" [not null, note: 'activa, liberada']
+  notas "text" [null, note: 'Ej. mesas unidas para grupo']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.ordenes [note: 'Ventas: pedidos, compras de productos, tiquetes (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [null, note: 'Cliente; vacío = venta de mostrador']
+  reserva_id "uuid" [null, note: 'Reserva asociada']
+  conversacion_id "uuid" [null, note: 'Conversación donde se tomó']
+  direccion_entrega_id "uuid" [null, note: 'Para domicilios']
+  numero "bigint" [not null, note: 'Consecutivo por tenant']
+  canal_venta "text" [not null, note: 'presencial, whatsapp, web, app']
+  responsable_id "uuid" [null, note: 'Quién la está gestionando']
+  tipo_entrega "text" [not null, note: 'sitio, recoger, domicilio, no_aplica']
+  estado "text" [not null, note: 'cotizando, esperando_pago, confirmada, en_preparacion, en_camino, entregada, cancelada']
+  urgente "boolean" [not null, note: 'Marcada como urgente']
+  visto "boolean" [not null, note: 'Ya la vio el equipo']
+  subtotal "numeric(14,2)" [not null, note: 'Suma de líneas']
+  descuento "numeric(14,2)" [not null, note: 'Descuentos']
+  impuestos "numeric(14,2)" [not null, note: 'Impuestos']
+  total "numeric(14,2)" [not null, note: 'Total calculado']
+  colocada_en "timestamptz" [not null, note: 'Hora del pedido']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, numero) [unique]
+  }
+}
+
+Table elius.orden_items [note: 'Líneas de una orden: qué ítems del catálogo y cuánto (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [not null, note: 'Orden']
+  item_id "uuid" [not null, note: 'Ítem vendido']
+  cantidad "numeric(10,2)" [not null, note: 'Cantidad']
+  precio_unitario "numeric(14,2)" [not null, note: 'Precio al momento de la venta']
+  recargos "numeric(14,2)" [not null, note: 'Recargos de opciones y adicionales (los suma el plugin)']
+  descuento "numeric(14,2)" [not null, note: 'Descuento de la línea']
+  total_linea "numeric(14,2)" [not null, note: 'Total de la línea']
+  notas "text" [null, note: 'Ej. sin cebolla']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.pagos [note: 'Pagos y reversos de una orden (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [not null, note: 'Orden']
+  pago_original_id "uuid" [null, note: 'Si es reverso, el pago que reversa']
+  comprobante_id "uuid" [null, note: 'Comprobante que lo respalda']
+  recaudo_id "uuid" [null, note: 'Recaudo de Factus Pay que lo respalda']
+  metodo "text" [not null, note: 'efectivo, transferencia, breb_factus, nequi, daviplata, tarjeta, link']
+  proveedor "text" [null, note: 'Pasarela']
+  referencia_externa "text" [null, note: 'Id en la pasarela']
+  monto "numeric(14,2)" [not null, note: 'Monto (negativo en reversos)']
+  estado "text" [not null, note: 'pendiente, aprobado, rechazado']
+  pagado_en "timestamptz" [not null, note: 'Fecha del pago']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.comprobantes_pago [note: 'Comprobantes de pago que el cliente envía por WhatsApp y Eli lee (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [null, note: 'Orden que paga, si ya se identificó']
+  conversacion_id "uuid" [not null, note: 'Conversación donde llegó']
+  decidido_por "uuid" [null, note: 'Quién aprobó o rechazó']
+  monto_leido "numeric(14,2)" [null, note: 'Monto que Eli leyó en la imagen']
+  monto_esperado "numeric(14,2)" [null, note: 'Monto que debía pagar']
+  coincide "boolean" [null, note: 'El monto leído coincide con el esperado']
+  remitente "text" [null, note: 'Quién envía el dinero [PERSONAL]']
+  destinatario "text" [null, note: 'A quién llegó el dinero']
+  app_origen "text" [null, note: 'Nequi, Daviplata, Bancolombia, Bre-B…']
+  referencia "text" [null, note: 'Número de la transacción']
+  fecha_texto "text" [null, note: 'Fecha y hora como aparece en el comprobante']
+  hash_archivo "text" [null, note: 'Huella del archivo para detectar repetidos']
+  url_archivo "text" [null, note: 'Imagen en Supabase Storage']
+  media_id "text" [null, note: 'Id del archivo en WhatsApp']
+  veredicto "text" [not null, note: 'pendiente, aprobado, rechazado']
+  motivo "text" [null, note: 'Razón del veredicto o de la alerta']
+  decidido_en "timestamptz" [null, note: 'Cuándo se decidió']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.pasarelas_pago [note: 'Pasarelas de pago del negocio (Factus Pay con llave Bre-B) y su configuración (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  proveedor "text" [not null, note: 'factus_pay']
+  ambiente "text" [not null, note: 'sandbox o produccion']
+  email_cuenta "text" [not null, note: 'Usuario de la cuenta en Factus Pay']
+  referencia_credenciales "uuid" [not null, note: 'Contraseña y token guardados en Supabase Vault']
+  referencia_clave_webhook "uuid" [not null, note: 'Clave secreta del webhook (?key=) en Supabase Vault']
+  monto_minimo "numeric(14,2)" [not null, note: 'Factus: 1.000 COP']
+  monto_maximo "numeric(14,2)" [not null, note: 'Factus: 12.100.000 COP']
+  expiracion_segundos "int" [not null, note: 'Vigencia del QR y la llave; Factus por defecto 86.400 (24 h)']
+  activa "boolean" [not null, note: 'Si está activa se cobra por llave; si no, por comprobante']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, proveedor, ambiente) [unique]
+  }
+}
+
+Table elius.recaudos [note: 'Cobros creados en la pasarela: llave Bre-B y QR por el monto exacto (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [not null, note: 'Orden que se cobra']
+  pasarela_id "uuid" [not null, note: 'Pasarela usada']
+  codigo_referencia "text" [not null, note: 'reference_code enviado a Factus (único por empresa)']
+  monto "numeric(14,2)" [not null, note: 'Monto exacto: Factus no acepta parciales ni montos distintos']
+  llave_breb "text" [null, note: 'breb_key que Eli envía al cliente']
+  url_qr "text" [null, note: 'Imagen del QR en Supabase Storage']
+  expira_en "timestamptz" [null, note: 'qr_expires_at']
+  estado "text" [not null, note: 'listo, pagado, vencido, anulado']
+  cobrado_en "timestamptz" [null, note: 'collected_at']
+  pagador_nombre "text" [null, note: 'payer.name del webhook [PERSONAL]']
+  pagador_documento "text" [null, note: 'payer.document_type y document_number [PERSONAL]']
+  confirmado_por_api "boolean" [not null, note: 'Se verificó con GET /v1/collections/{reference}']
+  renovaciones "int" [not null, note: 'Veces que se renovó la expiración']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (pasarela_id, codigo_referencia) [unique]
+  }
+}
+
+Table elius.notificaciones_pasarela [note: 'Bandeja de webhooks recibidos de la pasarela (se guardan antes de responder 2xx) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  pasarela_id "uuid" [not null, note: 'Pasarela que envía']
+  recaudo_id "uuid" [null, note: 'Recaudo identificado']
+  codigo_referencia "text" [not null, note: 'reference_code recibido']
+  carga "jsonb" [not null, note: 'Cuerpo completo del webhook']
+  clave_valida "boolean" [not null, note: 'La clave ?key= coincidió (comparación de tiempo constante)']
+  recibida_en "timestamptz" [not null, note: 'Hora de llegada']
+  procesada_en "timestamptz" [null, note: 'Cuándo se aplicó']
+  resultado "text" [null, note: 'aplicado, duplicado, rechazado, sin_recaudo']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.entregas [note: 'Domicilios: quién lleva la orden y cómo va (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [not null, note: 'Orden']
+  repartidor_id "uuid" [null, note: 'Domiciliario']
+  estado "text" [not null, note: 'pendiente, en_camino, entregada, fallida']
+  cobro_contra_entrega "numeric(14,2)" [not null, note: 'Saldo que se cobra en efectivo al entregar']
+  tomada_en "timestamptz" [null, note: 'Cuándo la tomó el domiciliario']
+  entregada_en "timestamptz" [null, note: 'Cuándo se entregó']
+  notas "text" [null, note: 'Novedades de la entrega']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.item_adicionales [note: 'Adicionales que se pueden sumar a cada producto o paquete (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  item_id "uuid" [not null, note: 'Producto o paquete principal']
+  adicional_id "uuid" [not null, note: 'Ítem adicional (tipo adicional)']
+  precio_especial "numeric(14,2)" [null, note: 'Precio del adicional con este producto']
+  cantidad_maxima "int" [null, note: 'Máximo que se puede agregar']
+  orden "int" [not null, note: 'Orden de presentación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (item_id, adicional_id) [unique]
+  }
+}
+
+Table elius.medios_item [note: 'Fotos y videos de cada ítem que Eli envía al cliente (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  item_id "uuid" [not null, note: 'Ítem']
+  tipo_archivo "text" [not null, note: 'foto, video']
+  url "text" [not null, note: 'Archivo']
+  descripcion "text" [null, note: 'Texto que acompaña el envío']
+  orden "int" [not null, note: 'Orden de envío']
+  activo "boolean" [not null, note: 'Se envía']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.escalamientos [note: 'Casos que Eli pasa a una persona (pendientes) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [not null, note: 'Conversación']
+  asignado_a "uuid" [null, note: 'Operador asignado por turnos']
+  resuelto_por "uuid" [null, note: 'Quién lo resolvió']
+  motivo "text" [not null, note: 'Por qué Eli lo escaló']
+  mensaje_cliente "text" [null, note: 'Mensaje que lo disparó [PERSONAL]']
+  resumen "text" [null, note: 'Resumen de Eli para el humano']
+  resuelto_en "timestamptz" [null, note: 'Cuándo se resolvió']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.eventos_embudo [note: 'Fases por las que pasa cada conversación (métricas de conversión) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [not null, note: 'Conversación']
+  fase "text" [not null, note: 'mensaje_recibido, cotizo, pedido_guardado, pago_enviado, escalado…']
+  detalle "jsonb" [not null, note: 'Datos de la fase']
+  ocurrido_en "timestamptz" [not null, note: 'Cuándo']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.errores_agente [note: 'Errores de Eli o de los flujos de n8n, para Soporte (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [null, note: 'Conversación afectada']
+  resuelto_por "uuid" [null, note: 'Quién lo resolvió (Soporte)']
+  origen "text" [not null, note: 'Nodo o paso donde ocurrió']
+  mensaje "text" [not null, note: 'Mensaje de error']
+  detalle "jsonb" [not null, note: 'Datos técnicos']
+  resuelto_en "timestamptz" [null, note: 'Cuándo se resolvió']
+  notas "text" [null, note: 'Notas de Soporte']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.parametros_negocio [note: 'Reglas configurables del negocio (umbral de grupo, tolerancia, cuentas de pago…) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  clave "text" [not null, note: 'Ej. umbral_grupo_grande, tolerancia_minutos_llegada']
+  valor "text" [not null, note: 'Valor actual']
+  tipo_dato "text" [not null, note: 'numero, texto, booleano, porcentaje']
+  descripcion "text" [not null, note: 'Qué controla, en palabras del dueño']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, clave) [unique]
+  }
+}
+
+Table elius.suscripciones_push [note: 'Dispositivos que reciben notificaciones push (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  membresia_id "uuid" [not null, note: 'Usuario que las recibe']
+  endpoint "text" [unique, not null, note: 'Endpoint del navegador']
+  p256dh "text" [not null, note: 'Llave pública del navegador']
+  auth "text" [not null, note: 'Secreto de autenticación del navegador']
+  dispositivo "text" [null, note: 'Celular, computador…']
+  activa "boolean" [not null, note: 'Recibe notificaciones']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.documentos_conocimiento [note: 'Documentos que Eli usa para responder (RAG) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  titulo "text" [not null, note: 'Título']
+  tipo_fuente "text" [not null, note: 'archivo, url, faq, manual']
+  url_fuente "text" [null, note: 'Origen']
+  ruta_archivo "text" [null, note: 'Ruta en Supabase Storage']
+  estado "text" [not null, note: 'procesando, listo, error']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.fragmentos_conocimiento [note: 'Fragmentos de los documentos con su embedding (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  documento_id "uuid" [not null, note: 'Documento']
+  orden "int" [not null, note: 'Posición en el documento']
+  contenido "text" [not null, note: 'Texto del fragmento']
+  tokens "int" [not null, note: 'Tamaño en tokens']
+  embedding "vector(1536)" [not null, note: 'Vector para búsqueda semántica']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.eventos_salida [note: 'Eventos para n8n: reserva creada, vuelo cancelado… (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  tipo_evento "text" [not null, note: 'Ej. reserva.creada']
+  entidad "text" [not null, note: 'Tabla de origen']
+  entidad_id "uuid" [not null, note: 'Fila de origen']
+  carga "jsonb" [not null, note: 'Datos del evento']
+  estado "text" [not null, note: 'pendiente, enviado, fallido']
+  intentos "int" [not null, note: 'Reintentos']
+  procesado_en "timestamptz" [null, note: 'Cuándo se envió']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table ext.instalaciones_extension [note: 'Extensión instalada por un usuario del tenant (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  membresia_id "uuid" [not null, note: 'Usuario en el tenant']
+  navegador "text" [not null, note: 'Chrome, Edge…']
+  version_extension "text" [not null, note: 'Versión']
+  ultimo_uso_en "timestamptz" [null, note: 'Última actividad']
+  activa "boolean" [not null, note: 'En uso']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table ext.sitios_autorizados [note: 'Sitios donde el tenant permite capturar (RN-E03) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  autorizado_por "uuid" [not null, note: 'Administrador']
+  dominio "text" [not null, note: 'Ej. web.whatsapp.com']
+  nombre "text" [not null, note: 'Nombre visible']
+  activo "boolean" [not null, note: 'Vigente']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, dominio) [unique]
+  }
+}
+
+Table ext.conversaciones_capturadas [note: 'Conversaciones capturadas desde el navegador (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  instalacion_id "uuid" [not null, note: 'Quién la capturó']
+  sitio_id "uuid" [not null, note: 'Dónde']
+  contacto_id "uuid" [null, note: 'Contacto reconocido']
+  id_hilo_externo "text" [not null, note: 'Id del chat en el sitio']
+  titulo "text" [null, note: 'Título del hilo']
+  capturada_en "timestamptz" [not null, note: 'Fecha de captura']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table ext.mensajes_capturados [note: 'Mensajes de una conversación capturada (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  conversacion_id "uuid" [not null, note: 'Conversación']
+  autor_rol "text" [not null, note: 'cliente, agente, desconocido']
+  autor_nombre "text" [null, note: 'Nombre del autor [PERSONAL]']
+  contenido "text" [not null, note: 'Texto [PERSONAL]']
+  enviado_en "timestamptz" [not null, note: 'Hora del mensaje']
+  embedding "vector(1536)" [null, note: 'Vector para detectar patrones']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table ext.patrones [note: 'Patrones detectados: preguntas frecuentes, objeciones, intenciones (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  aprobado_por "uuid" [null, note: 'Quién lo aprobó']
+  tipo "text" [not null, note: 'faq, objecion, intencion, plantilla']
+  nombre "text" [not null, note: 'Nombre']
+  descripcion "text" [not null, note: 'Descripción']
+  respuesta_sugerida "text" [null, note: 'Respuesta para Eli']
+  frecuencia "int" [not null, note: 'Veces observado']
+  confianza "numeric(4,3)" [not null, note: '0 a 1']
+  estado "text" [not null, note: 'sugerido, aprobado, rechazado']
+  embedding "vector(1536)" [null, note: 'Vector del patrón']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table ext.evidencias_patron [note: 'Mensajes que respaldan cada patrón (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  patron_id "uuid" [not null, note: 'Patrón']
+  mensaje_id "uuid" [not null, note: 'Mensaje']
+  relevancia "numeric(4,3)" [not null, note: 'Qué tanto lo respalda, 0 a 1']
+  fragmento "text" [not null, note: 'Parte del mensaje que lo evidencia']
+  detectado_en "timestamptz" [not null, note: 'Cuándo se asoció']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (patron_id, mensaje_id) [unique]
+  }
+}
+
+Table plugin_vet.mascotas [note: 'Pacientes de la clínica (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Nombre']
+  especie "text" [not null, note: 'perro, gato, ave, exótico, otro']
+  raza "text" [null, note: 'Raza']
+  sexo "text" [not null, note: 'macho, hembra']
+  fecha_nacimiento "date" [null, note: 'Nacimiento aproximado']
+  peso_kg "numeric(6,2)" [null, note: 'Último peso']
+  microchip "text" [null, note: 'Número de microchip']
+  esterilizada "boolean" [not null, note: 'Esterilizada']
+  alergias "text[]" [not null, note: 'Alergias conocidas [RESTRINGIDO]']
+  fallecida_en "date" [null, note: 'Fecha de fallecimiento']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_vet.propietarios_mascota [note: 'Personas responsables de cada mascota (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  contacto_id "uuid" [not null, note: 'Propietario']
+  mascota_id "uuid" [not null, note: 'Mascota']
+  tipo "text" [not null, note: 'principal, secundario']
+  puede_autorizar "boolean" [not null, note: 'Puede autorizar procedimientos']
+  desde "date" [not null, note: 'Desde cuándo es responsable']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (mascota_id, contacto_id) [unique]
+  }
+}
+
+Table plugin_vet.atenciones [note: 'Atención de una mascota dentro de una cita (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_id "uuid" [not null, note: 'Cita']
+  mascota_id "uuid" [not null, note: 'Mascota atendida']
+  servicio_id "uuid" [not null, note: 'Servicio del catálogo']
+  profesional_id "uuid" [not null, note: 'Veterinario que atiende']
+  motivo "text" [not null, note: 'Motivo de consulta']
+  estado "text" [not null, note: 'programada, en_curso, finalizada']
+  peso_kg "numeric(6,2)" [null, note: 'Peso en la atención']
+  temperatura_c "numeric(4,1)" [null, note: 'Temperatura [RESTRINGIDO]']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_vet.registros_clinicos [note: 'Historia clínica: anotaciones de cada atención (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  atencion_id "uuid" [not null, note: 'Atención']
+  autor_id "uuid" [not null, note: 'Veterinario']
+  corrige_a "uuid" [null, note: 'Registro que corrige (RN-V04)']
+  tipo "text" [not null, note: 'anamnesis, examen, diagnostico, tratamiento, correccion']
+  contenido "text" [not null, note: 'Texto clínico [RESTRINGIDO]']
+  registrado_en "timestamptz" [not null, note: 'Fecha del registro']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_vet.aplicaciones_vacuna [note: 'Vacunas aplicadas a cada mascota (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  mascota_id "uuid" [not null, note: 'Mascota']
+  vacuna_id "uuid" [not null, note: 'Vacuna del catálogo']
+  atencion_id "uuid" [null, note: 'Atención en que se aplicó']
+  aplicada_por "uuid" [not null, note: 'Quién la aplicó']
+  lote "text" [not null, note: 'Lote del biológico']
+  aplicada_en "date" [not null, note: 'Fecha de aplicación']
+  proxima_dosis_en "date" [null, note: 'Próxima dosis (RN-V05)']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.alergenos [note: 'Alérgenos que el restaurante informa (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Ej. maní, gluten, lácteos']
+  descripcion "text" [null, note: 'Descripción']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.item_alergenos [note: 'Alérgenos de cada plato (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  item_id "uuid" [not null, note: 'Plato']
+  alergeno_id "uuid" [not null, note: 'Alérgeno']
+  nivel "text" [not null, note: 'contiene, trazas']
+  nota "text" [null, note: 'Aclaración']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (item_id, alergeno_id) [unique]
+  }
+}
+
+Table plugin_restaurant.grupos_modificador [note: 'Grupos de opciones: término de la carne, acompañante… (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Nombre']
+  descripcion "text" [null, note: 'Descripción']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.opciones_modificador [note: 'Opciones de un grupo: término medio, papas… (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  grupo_id "uuid" [not null, note: 'Grupo']
+  nombre "text" [not null, note: 'Nombre']
+  precio_adicional "numeric(14,2)" [not null, note: 'Recargo']
+  disponible "boolean" [not null, note: 'false = agotado']
+  orden "int" [not null, note: 'Orden de presentación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.item_grupos_modificador [note: 'Qué grupos de opciones aplica cada plato (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  item_id "uuid" [not null, note: 'Plato']
+  grupo_id "uuid" [not null, note: 'Grupo']
+  minimo "int" [not null, note: 'Mínimo de opciones (RN-R04)']
+  maximo "int" [not null, note: 'Máximo de opciones (RN-R04)']
+  orden "int" [not null, note: 'Orden en pantalla']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (item_id, grupo_id) [unique]
+  }
+}
+
+Table plugin_restaurant.orden_item_opciones [note: 'Opciones elegidas en cada línea del pedido (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_item_id "uuid" [not null, note: 'Línea del pedido']
+  opcion_id "uuid" [not null, note: 'Opción']
+  cantidad "int" [not null, note: 'Cantidad']
+  precio_aplicado "numeric(14,2)" [not null, note: 'Recargo cobrado']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.estaciones_cocina [note: 'Estaciones de producción: parrilla, bar, fríos (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  nombre "text" [not null, note: 'Nombre']
+  tiempo_objetivo_min "int" [not null, note: 'Tiempo objetivo de preparación']
+  activa "boolean" [not null, note: 'En uso']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.comandas [note: 'Envíos de un pedido a cocina, por estación y por ronda (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  orden_id "uuid" [not null, note: 'Pedido']
+  estacion_id "uuid" [not null, note: 'Estación']
+  ronda "int" [not null, note: '1, 2, 3… en la misma mesa']
+  estado "text" [not null, note: 'recibida, en_preparacion, lista, entregada']
+  enviada_en "timestamptz" [not null, note: 'Cuándo se envió']
+  lista_en "timestamptz" [null, note: 'Cuándo quedó lista']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.comanda_items [note: 'Qué líneas del pedido van en cada comanda (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  comanda_id "uuid" [not null, note: 'Comanda']
+  orden_item_id "uuid" [not null, note: 'Línea del pedido']
+  cantidad "numeric(10,2)" [not null, note: 'Cantidad enviada en esta comanda']
+  estado "text" [not null, note: 'pendiente, preparando, listo']
+  nota_cocina "text" [null, note: 'Indicación para cocina']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_restaurant.menus_dia [note: 'Menú del día: uno por fecha, confirmado por el dueño (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  confirmado_por "uuid" [null, note: 'Quién lo confirmó']
+  fecha "date" [not null, note: 'Día del menú']
+  precio_base "numeric(14,2)" [not null, note: 'Precio del menú']
+  url_foto "text" [null, note: 'Foto del menú que Eli envía']
+  confirmado_en "timestamptz" [null, note: 'Eli solo lo ofrece si está confirmado']
+  activo "boolean" [not null, note: 'Disponible ese día']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, fecha) [unique]
+  }
+}
+
+Table plugin_restaurant.menu_dia_items [note: 'Platos que componen el menú de cada día (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  menu_id "uuid" [not null, note: 'Menú del día']
+  item_id "uuid" [not null, note: 'Plato']
+  seccion "text" [not null, note: 'entrada, principal, bebida, postre']
+  posicion "int" [not null, note: 'Posición en la sección (Eli lee en este orden)']
+  disponible "boolean" [not null, note: 'false = se acabó hoy']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (menu_id, item_id) [unique]
+  }
+}
+
+Table plugin_restaurant.celebraciones [note: 'Celebraciones dentro de una reserva (cumpleaños, aniversarios) (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_id "uuid" [not null, note: 'Reserva']
+  tipo_celebracion "text" [not null, note: 'cumpleaños, aniversario, grado…']
+  festejado "text" [not null, note: 'Nombre del festejado [PERSONAL]']
+  decoracion "text" [null, note: 'Decoración solicitada']
+  notas "text" [null, note: 'Indicaciones']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_airline.aeropuertos [note: 'Aeropuertos con código IATA, comunes a todos los tenants (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  codigo_iata "char(3)" [unique, not null, note: 'Ej. BOG']
+  nombre "text" [not null, note: 'Nombre']
+  ciudad "text" [not null, note: 'Ciudad']
+  pais "char(2)" [not null, note: 'País ISO 3166']
+  zona_horaria "text" [not null, note: 'Zona horaria']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_airline.aeronaves [note: 'Flota de la aerolínea (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  matricula "text" [not null, note: 'Matrícula']
+  modelo "text" [not null, note: 'Ej. A320']
+  capacidad "int" [not null, note: 'Sillas totales (RN-A04)']
+  mapa_sillas "jsonb" [not null, note: 'Distribución de sillas']
+  activa "boolean" [not null, note: 'En servicio']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, matricula) [unique]
+  }
+}
+
+Table plugin_airline.rutas [note: 'Rutas entre dos aeropuertos (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  origen_id "uuid" [not null, note: 'Aeropuerto de origen']
+  destino_id "uuid" [not null, note: 'Aeropuerto de destino (RN-A02)']
+  distancia_km "int" [not null, note: 'Distancia']
+  duracion_min "int" [not null, note: 'Duración estimada']
+  activa "boolean" [not null, note: 'En operación']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, origen_id, destino_id) [unique]
+  }
+}
+
+Table plugin_airline.vuelos [note: 'Vuelos programados (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  ruta_id "uuid" [not null, note: 'Ruta']
+  aeronave_id "uuid" [not null, note: 'Aeronave']
+  numero_vuelo "text" [not null, note: 'Ej. EL123']
+  salida_programada "timestamptz" [not null, note: 'Salida']
+  llegada_programada "timestamptz" [not null, note: 'Llegada (RN-A03)']
+  estado "text" [not null, note: 'programado, abordando, salio, llego, retrasado, cancelado']
+  puerta "text" [null, note: 'Puerta']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_airline.tarifas_vuelo [note: 'Precio y cupos de cada tarifa del catálogo en cada vuelo (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  vuelo_id "uuid" [not null, note: 'Vuelo']
+  tarifa_id "uuid" [not null, note: 'Tarifa (ítem del catálogo)']
+  precio "numeric(14,2)" [not null, note: 'Precio en este vuelo']
+  cupos_totales "int" [not null, note: 'Cupos asignados']
+  cupos_vendidos "int" [not null, note: 'Cupos vendidos']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (vuelo_id, tarifa_id) [unique]
+  }
+}
+
+Table plugin_airline.reserva_pasajeros [note: 'Pasajeros de cada reserva aérea (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_id "uuid" [not null, note: 'Reserva']
+  contacto_id "uuid" [not null, note: 'Pasajero']
+  tipo_pasajero "text" [not null, note: 'ADT adulto, CHD niño, INF infante (RN-A06)']
+  necesidades_especiales "text" [null, note: 'Asistencia o condición de salud [SENSIBLE]']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (reserva_id, contacto_id) [unique]
+  }
+}
+
+Table plugin_airline.tramos_reserva [note: 'Vuelos que componen una reserva, en orden (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_id "uuid" [not null, note: 'Reserva']
+  tarifa_vuelo_id "uuid" [not null, note: 'Vuelo y tarifa']
+  orden_tramo "int" [not null, note: '1 = ida, 2 = regreso…']
+  estado "text" [not null, note: 'confirmado, cambiado, cancelado']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table plugin_airline.tiquetes [note: 'Tiquete de un pasajero en un tramo (transicion)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  reserva_pasajero_id "uuid" [not null, note: 'Pasajero']
+  tramo_id "uuid" [not null, note: 'Tramo']
+  numero_tiquete "text" [unique, not null, note: 'Número de tiquete']
+  silla "text" [null, note: 'Silla asignada (RN-A07)']
+  estado "text" [not null, note: 'emitido, usado, anulado']
+  checkin_en "timestamptz" [null, note: 'Hora de check-in (RN-A08)']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (reserva_pasajero_id, tramo_id) [unique]
+  }
+}
+
+Table plugin_airline.equipajes [note: 'Equipaje registrado en un tiquete (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
+  tiquete_id "uuid" [not null, note: 'Tiquete']
+  tipo "text" [not null, note: 'mano, bodega, especial']
+  peso_kg "numeric(5,2)" [not null, note: 'Peso']
+  etiqueta "text" [not null, note: 'Número de etiqueta']
+  estado "text" [not null, note: 'registrado, cargado, entregado, perdido']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Ref: platform.tenants.plan_id > platform.planes.id
+Ref: platform.permisos.plugin_id > platform.plugins.id
+Ref: platform.rol_permisos.rol_id > platform.roles.id
+Ref: platform.rol_permisos.permiso_id > platform.permisos.id
+Ref: platform.membresias.tenant_id > platform.tenants.id
+Ref: platform.membresias.usuario_id > platform.usuarios.id
+Ref: platform.membresias.rol_id > platform.roles.id
+Ref: platform.membresias.invitado_por > platform.usuarios.id
+Ref: platform.accesos_especiales.tenant_id > platform.tenants.id
+Ref: platform.accesos_especiales.membresia_id > platform.membresias.id
+Ref: platform.accesos_especiales.permiso_id > platform.permisos.id
+Ref: platform.accesos_especiales.otorgado_por > platform.usuarios.id
+Ref: platform.asignaciones_plataforma.usuario_id > platform.usuarios.id
+Ref: platform.asignaciones_plataforma.rol_id > platform.roles.id
+Ref: platform.asignaciones_plataforma.asignado_por > platform.usuarios.id
+Ref: platform.tenant_plugins.tenant_id > platform.tenants.id
+Ref: platform.tenant_plugins.plugin_id > platform.plugins.id
+Ref: platform.tenant_plugins.instalado_por > platform.usuarios.id
+Ref: platform.accesos_soporte.tenant_id > platform.tenants.id
+Ref: platform.accesos_soporte.usuario_soporte_id > platform.usuarios.id
+Ref: platform.accesos_soporte.autorizado_por > platform.usuarios.id
+Ref: platform.invitaciones.tenant_id > platform.tenants.id
+Ref: platform.invitaciones.rol_id > platform.roles.id
+Ref: platform.invitaciones.invitado_por > platform.usuarios.id
+Ref: platform.llaves_api.tenant_id > platform.tenants.id
+Ref: platform.llaves_api.creado_por > platform.usuarios.id
+Ref: platform.consumos_periodo.tenant_id > platform.tenants.id
+Ref: audit.registros_auditoria.tenant_id > platform.tenants.id
+Ref: audit.registros_auditoria.usuario_id > platform.usuarios.id
+Ref: elius.contactos.tenant_id > platform.tenants.id
+Ref: elius.direcciones.tenant_id > platform.tenants.id
+Ref: elius.direcciones.contacto_id > elius.contactos.id
+Ref: elius.consentimientos.tenant_id > platform.tenants.id
+Ref: elius.consentimientos.contacto_id > elius.contactos.id
+Ref: elius.agentes.tenant_id > platform.tenants.id
+Ref: elius.canales.tenant_id > platform.tenants.id
+Ref: elius.canales.agente_id > elius.agentes.id
+Ref: elius.identidades_contacto.tenant_id > platform.tenants.id
+Ref: elius.identidades_contacto.contacto_id > elius.contactos.id
+Ref: elius.identidades_contacto.canal_id > elius.canales.id
+Ref: elius.conversaciones.tenant_id > platform.tenants.id
+Ref: elius.conversaciones.identidad_id > elius.identidades_contacto.id
+Ref: elius.conversaciones.asignado_a > platform.membresias.id
+Ref: elius.mensajes.tenant_id > platform.tenants.id
+Ref: elius.mensajes.conversacion_id > elius.conversaciones.id
+Ref: elius.consumos_llm.tenant_id > platform.tenants.id
+Ref: elius.consumos_llm.conversacion_id > elius.conversaciones.id
+Ref: elius.consumos_llm.mensaje_id > elius.mensajes.id
+Ref: elius.categorias_catalogo.tenant_id > platform.tenants.id
+Ref: elius.items_catalogo.tenant_id > platform.tenants.id
+Ref: elius.items_catalogo.categoria_id > elius.categorias_catalogo.id
+Ref: elius.recursos.tenant_id > platform.tenants.id
+Ref: elius.horarios_atencion.tenant_id > platform.tenants.id
+Ref: elius.horarios_atencion.recurso_id > elius.recursos.id
+Ref: elius.reservas.tenant_id > platform.tenants.id
+Ref: elius.reservas.contacto_id > elius.contactos.id
+Ref: elius.reservas.conversacion_id > elius.conversaciones.id
+Ref: elius.reservas.responsable_id > platform.membresias.id
+Ref: elius.asignaciones_recurso.tenant_id > platform.tenants.id
+Ref: elius.asignaciones_recurso.reserva_id > elius.reservas.id
+Ref: elius.asignaciones_recurso.recurso_id > elius.recursos.id
+Ref: elius.ordenes.tenant_id > platform.tenants.id
+Ref: elius.ordenes.contacto_id > elius.contactos.id
+Ref: elius.ordenes.reserva_id > elius.reservas.id
+Ref: elius.ordenes.conversacion_id > elius.conversaciones.id
+Ref: elius.ordenes.direccion_entrega_id > elius.direcciones.id
+Ref: elius.ordenes.responsable_id > platform.membresias.id
+Ref: elius.orden_items.tenant_id > platform.tenants.id
+Ref: elius.orden_items.orden_id > elius.ordenes.id
+Ref: elius.orden_items.item_id > elius.items_catalogo.id
+Ref: elius.pagos.tenant_id > platform.tenants.id
+Ref: elius.pagos.orden_id > elius.ordenes.id
+Ref: elius.pagos.pago_original_id > elius.pagos.id
+Ref: elius.pagos.comprobante_id > elius.comprobantes_pago.id
+Ref: elius.pagos.recaudo_id > elius.recaudos.id
+Ref: elius.comprobantes_pago.tenant_id > platform.tenants.id
+Ref: elius.comprobantes_pago.orden_id > elius.ordenes.id
+Ref: elius.comprobantes_pago.conversacion_id > elius.conversaciones.id
+Ref: elius.comprobantes_pago.decidido_por > platform.membresias.id
+Ref: elius.pasarelas_pago.tenant_id > platform.tenants.id
+Ref: elius.recaudos.tenant_id > platform.tenants.id
+Ref: elius.recaudos.orden_id > elius.ordenes.id
+Ref: elius.recaudos.pasarela_id > elius.pasarelas_pago.id
+Ref: elius.notificaciones_pasarela.tenant_id > platform.tenants.id
+Ref: elius.notificaciones_pasarela.pasarela_id > elius.pasarelas_pago.id
+Ref: elius.notificaciones_pasarela.recaudo_id > elius.recaudos.id
+Ref: elius.entregas.tenant_id > platform.tenants.id
+Ref: elius.entregas.orden_id > elius.ordenes.id
+Ref: elius.entregas.repartidor_id > platform.membresias.id
+Ref: elius.item_adicionales.tenant_id > platform.tenants.id
+Ref: elius.item_adicionales.item_id > elius.items_catalogo.id
+Ref: elius.item_adicionales.adicional_id > elius.items_catalogo.id
+Ref: elius.medios_item.tenant_id > platform.tenants.id
+Ref: elius.medios_item.item_id > elius.items_catalogo.id
+Ref: elius.escalamientos.tenant_id > platform.tenants.id
+Ref: elius.escalamientos.conversacion_id > elius.conversaciones.id
+Ref: elius.escalamientos.asignado_a > platform.membresias.id
+Ref: elius.escalamientos.resuelto_por > platform.membresias.id
+Ref: elius.eventos_embudo.tenant_id > platform.tenants.id
+Ref: elius.eventos_embudo.conversacion_id > elius.conversaciones.id
+Ref: elius.errores_agente.tenant_id > platform.tenants.id
+Ref: elius.errores_agente.conversacion_id > elius.conversaciones.id
+Ref: elius.errores_agente.resuelto_por > platform.usuarios.id
+Ref: elius.parametros_negocio.tenant_id > platform.tenants.id
+Ref: elius.suscripciones_push.tenant_id > platform.tenants.id
+Ref: elius.suscripciones_push.membresia_id > platform.membresias.id
+Ref: elius.documentos_conocimiento.tenant_id > platform.tenants.id
+Ref: elius.fragmentos_conocimiento.tenant_id > platform.tenants.id
+Ref: elius.fragmentos_conocimiento.documento_id > elius.documentos_conocimiento.id
+Ref: elius.eventos_salida.tenant_id > platform.tenants.id
+Ref: ext.instalaciones_extension.tenant_id > platform.tenants.id
+Ref: ext.instalaciones_extension.membresia_id > platform.membresias.id
+Ref: ext.sitios_autorizados.tenant_id > platform.tenants.id
+Ref: ext.sitios_autorizados.autorizado_por > platform.usuarios.id
+Ref: ext.conversaciones_capturadas.tenant_id > platform.tenants.id
+Ref: ext.conversaciones_capturadas.instalacion_id > ext.instalaciones_extension.id
+Ref: ext.conversaciones_capturadas.sitio_id > ext.sitios_autorizados.id
+Ref: ext.conversaciones_capturadas.contacto_id > elius.contactos.id
+Ref: ext.mensajes_capturados.tenant_id > platform.tenants.id
+Ref: ext.mensajes_capturados.conversacion_id > ext.conversaciones_capturadas.id
+Ref: ext.patrones.tenant_id > platform.tenants.id
+Ref: ext.patrones.aprobado_por > platform.membresias.id
+Ref: ext.evidencias_patron.tenant_id > platform.tenants.id
+Ref: ext.evidencias_patron.patron_id > ext.patrones.id
+Ref: ext.evidencias_patron.mensaje_id > ext.mensajes_capturados.id
+Ref: plugin_vet.mascotas.tenant_id > platform.tenants.id
+Ref: plugin_vet.propietarios_mascota.tenant_id > platform.tenants.id
+Ref: plugin_vet.propietarios_mascota.contacto_id > elius.contactos.id
+Ref: plugin_vet.propietarios_mascota.mascota_id > plugin_vet.mascotas.id
+Ref: plugin_vet.atenciones.tenant_id > platform.tenants.id
+Ref: plugin_vet.atenciones.reserva_id > elius.reservas.id
+Ref: plugin_vet.atenciones.mascota_id > plugin_vet.mascotas.id
+Ref: plugin_vet.atenciones.servicio_id > elius.items_catalogo.id
+Ref: plugin_vet.atenciones.profesional_id > platform.membresias.id
+Ref: plugin_vet.registros_clinicos.tenant_id > platform.tenants.id
+Ref: plugin_vet.registros_clinicos.atencion_id > plugin_vet.atenciones.id
+Ref: plugin_vet.registros_clinicos.autor_id > platform.membresias.id
+Ref: plugin_vet.registros_clinicos.corrige_a > plugin_vet.registros_clinicos.id
+Ref: plugin_vet.aplicaciones_vacuna.tenant_id > platform.tenants.id
+Ref: plugin_vet.aplicaciones_vacuna.mascota_id > plugin_vet.mascotas.id
+Ref: plugin_vet.aplicaciones_vacuna.vacuna_id > elius.items_catalogo.id
+Ref: plugin_vet.aplicaciones_vacuna.atencion_id > plugin_vet.atenciones.id
+Ref: plugin_vet.aplicaciones_vacuna.aplicada_por > platform.membresias.id
+Ref: plugin_restaurant.alergenos.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.item_alergenos.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.item_alergenos.item_id > elius.items_catalogo.id
+Ref: plugin_restaurant.item_alergenos.alergeno_id > plugin_restaurant.alergenos.id
+Ref: plugin_restaurant.grupos_modificador.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.opciones_modificador.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.opciones_modificador.grupo_id > plugin_restaurant.grupos_modificador.id
+Ref: plugin_restaurant.item_grupos_modificador.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.item_grupos_modificador.item_id > elius.items_catalogo.id
+Ref: plugin_restaurant.item_grupos_modificador.grupo_id > plugin_restaurant.grupos_modificador.id
+Ref: plugin_restaurant.orden_item_opciones.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.orden_item_opciones.orden_item_id > elius.orden_items.id
+Ref: plugin_restaurant.orden_item_opciones.opcion_id > plugin_restaurant.opciones_modificador.id
+Ref: plugin_restaurant.estaciones_cocina.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.comandas.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.comandas.orden_id > elius.ordenes.id
+Ref: plugin_restaurant.comandas.estacion_id > plugin_restaurant.estaciones_cocina.id
+Ref: plugin_restaurant.comanda_items.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.comanda_items.comanda_id > plugin_restaurant.comandas.id
+Ref: plugin_restaurant.comanda_items.orden_item_id > elius.orden_items.id
+Ref: plugin_restaurant.menus_dia.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.menus_dia.confirmado_por > platform.membresias.id
+Ref: plugin_restaurant.menu_dia_items.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.menu_dia_items.menu_id > plugin_restaurant.menus_dia.id
+Ref: plugin_restaurant.menu_dia_items.item_id > elius.items_catalogo.id
+Ref: plugin_restaurant.celebraciones.tenant_id > platform.tenants.id
+Ref: plugin_restaurant.celebraciones.reserva_id > elius.reservas.id
+Ref: plugin_airline.aeronaves.tenant_id > platform.tenants.id
+Ref: plugin_airline.rutas.tenant_id > platform.tenants.id
+Ref: plugin_airline.rutas.origen_id > plugin_airline.aeropuertos.id
+Ref: plugin_airline.rutas.destino_id > plugin_airline.aeropuertos.id
+Ref: plugin_airline.vuelos.tenant_id > platform.tenants.id
+Ref: plugin_airline.vuelos.ruta_id > plugin_airline.rutas.id
+Ref: plugin_airline.vuelos.aeronave_id > plugin_airline.aeronaves.id
+Ref: plugin_airline.tarifas_vuelo.tenant_id > platform.tenants.id
+Ref: plugin_airline.tarifas_vuelo.vuelo_id > plugin_airline.vuelos.id
+Ref: plugin_airline.tarifas_vuelo.tarifa_id > elius.items_catalogo.id
+Ref: plugin_airline.reserva_pasajeros.tenant_id > platform.tenants.id
+Ref: plugin_airline.reserva_pasajeros.reserva_id > elius.reservas.id
+Ref: plugin_airline.reserva_pasajeros.contacto_id > elius.contactos.id
+Ref: plugin_airline.tramos_reserva.tenant_id > platform.tenants.id
+Ref: plugin_airline.tramos_reserva.reserva_id > elius.reservas.id
+Ref: plugin_airline.tramos_reserva.tarifa_vuelo_id > plugin_airline.tarifas_vuelo.id
+Ref: plugin_airline.tiquetes.tenant_id > platform.tenants.id
+Ref: plugin_airline.tiquetes.reserva_pasajero_id > plugin_airline.reserva_pasajeros.id
+Ref: plugin_airline.tiquetes.tramo_id > plugin_airline.tramos_reserva.id
+Ref: plugin_airline.equipajes.tenant_id > platform.tenants.id
+Ref: plugin_airline.equipajes.tiquete_id > plugin_airline.tiquetes.id
+
+TableGroup modelo_general_platform {
+  platform.planes
+  platform.tenants
+  platform.usuarios
+  platform.roles
+  platform.plugins
+  platform.permisos
+  platform.rol_permisos
+  platform.membresias
+  platform.accesos_especiales
+  platform.asignaciones_plataforma
+  platform.tenant_plugins
+  platform.accesos_soporte
+  platform.invitaciones
+  platform.llaves_api
+  platform.consumos_periodo
+  audit.registros_auditoria
+}
+
+TableGroup modelo_general_elius {
+  elius.contactos
+  elius.direcciones
+  elius.consentimientos
+  elius.agentes
+  elius.canales
+  elius.identidades_contacto
+  elius.conversaciones
+  elius.mensajes
+  elius.consumos_llm
+  elius.categorias_catalogo
+  elius.items_catalogo
+  elius.recursos
+  elius.horarios_atencion
+  elius.reservas
+  elius.asignaciones_recurso
+  elius.ordenes
+  elius.orden_items
+  elius.pagos
+  elius.comprobantes_pago
+  elius.pasarelas_pago
+  elius.recaudos
+  elius.notificaciones_pasarela
+  elius.entregas
+  elius.item_adicionales
+  elius.medios_item
+  elius.escalamientos
+  elius.eventos_embudo
+  elius.errores_agente
+  elius.parametros_negocio
+  elius.suscripciones_push
+  elius.documentos_conocimiento
+  elius.fragmentos_conocimiento
+  elius.eventos_salida
+}
+
+TableGroup modelo_general_ext {
+  ext.instalaciones_extension
+  ext.sitios_autorizados
+  ext.conversaciones_capturadas
+  ext.mensajes_capturados
+  ext.patrones
+  ext.evidencias_patron
+}
+
+TableGroup plugin_vet {
+  plugin_vet.mascotas
+  plugin_vet.propietarios_mascota
+  plugin_vet.atenciones
+  plugin_vet.registros_clinicos
+  plugin_vet.aplicaciones_vacuna
+}
+
+TableGroup plugin_restaurant {
+  plugin_restaurant.alergenos
+  plugin_restaurant.item_alergenos
+  plugin_restaurant.grupos_modificador
+  plugin_restaurant.opciones_modificador
+  plugin_restaurant.item_grupos_modificador
+  plugin_restaurant.orden_item_opciones
+  plugin_restaurant.estaciones_cocina
+  plugin_restaurant.comandas
+  plugin_restaurant.comanda_items
+  plugin_restaurant.menus_dia
+  plugin_restaurant.menu_dia_items
+  plugin_restaurant.celebraciones
+}
+
+TableGroup plugin_airline {
+  plugin_airline.aeropuertos
+  plugin_airline.aeronaves
+  plugin_airline.rutas
+  plugin_airline.vuelos
+  plugin_airline.tarifas_vuelo
+  plugin_airline.reserva_pasajeros
+  plugin_airline.tramos_reserva
+  plugin_airline.tiquetes
+  plugin_airline.equipajes
+}
+

@@ -1,0 +1,328 @@
+{
+  "tablas": 81,
+  "por_tipo": {
+    "entidad": 52,
+    "transicion": 24,
+    "referencia": 5
+  },
+  "relaciones": 191,
+  "relaciones_sin_tenant": 119,
+  "transiciones": [
+    {
+      "tabla": "platform.rol_permisos",
+      "resuelve": [
+        "roles",
+        "permisos"
+      ],
+      "datos": [
+        "nivel",
+        "origen"
+      ],
+      "descripcion": "Qué puede hacer cada rol en cada módulo"
+    },
+    {
+      "tabla": "platform.membresias",
+      "resuelve": [
+        "tenants",
+        "usuarios"
+      ],
+      "datos": [
+        "estado",
+        "cargo",
+        "es_predeterminada",
+        "fecha_ingreso"
+      ],
+      "descripcion": "Usuario dentro de un tenant con su rol (tenantUser)"
+    },
+    {
+      "tabla": "platform.accesos_especiales",
+      "resuelve": [
+        "membresias",
+        "permisos"
+      ],
+      "datos": [
+        "motivo",
+        "vence_en"
+      ],
+      "descripcion": "Accesos especiales del plugin otorgados a un usuario (ej. historia clínica)"
+    },
+    {
+      "tabla": "platform.asignaciones_plataforma",
+      "resuelve": [
+        "usuarios",
+        "roles"
+      ],
+      "datos": [
+        "desde",
+        "hasta"
+      ],
+      "descripcion": "Roles de plataforma del equipo Elius (Super Admin, Soporte)"
+    },
+    {
+      "tabla": "platform.tenant_plugins",
+      "resuelve": [
+        "tenants",
+        "plugins"
+      ],
+      "datos": [
+        "habilitado",
+        "configuracion",
+        "version_instalada"
+      ],
+      "descripcion": "Plugins instalados en cada tenant"
+    },
+    {
+      "tabla": "platform.accesos_soporte",
+      "resuelve": [
+        "tenants",
+        "usuarios"
+      ],
+      "datos": [
+        "motivo",
+        "inicio",
+        "vence_en",
+        "revocado_en"
+      ],
+      "descripcion": "Autorización temporal del Administrador para que Soporte entre al tenant"
+    },
+    {
+      "tabla": "elius.identidades_contacto",
+      "resuelve": [
+        "contactos",
+        "canales"
+      ],
+      "datos": [
+        "id_externo",
+        "nombre_en_canal",
+        "verificado",
+        "primer_contacto_en",
+        "ultimo_contacto_en"
+      ],
+      "descripcion": "Cómo se identifica un contacto en cada canal"
+    },
+    {
+      "tabla": "elius.asignaciones_recurso",
+      "resuelve": [
+        "reservas",
+        "recursos"
+      ],
+      "datos": [
+        "inicio",
+        "fin",
+        "estado",
+        "notas"
+      ],
+      "descripcion": "Recursos ocupados por una reserva y en qué horario"
+    },
+    {
+      "tabla": "elius.orden_items",
+      "resuelve": [
+        "ordenes",
+        "items_catalogo"
+      ],
+      "datos": [
+        "cantidad",
+        "precio_unitario",
+        "recargos",
+        "descuento",
+        "total_linea",
+        "notas"
+      ],
+      "descripcion": "Líneas de una orden: qué ítems del catálogo y cuánto"
+    },
+    {
+      "tabla": "elius.item_adicionales",
+      "resuelve": [
+        "items_catalogo",
+        "items_catalogo"
+      ],
+      "datos": [
+        "precio_especial",
+        "cantidad_maxima",
+        "orden"
+      ],
+      "descripcion": "Adicionales que se pueden sumar a cada producto o paquete"
+    },
+    {
+      "tabla": "ext.evidencias_patron",
+      "resuelve": [
+        "patrones",
+        "mensajes_capturados"
+      ],
+      "datos": [
+        "relevancia",
+        "fragmento",
+        "detectado_en"
+      ],
+      "descripcion": "Mensajes que respaldan cada patrón"
+    },
+    {
+      "tabla": "plugin_vet.propietarios_mascota",
+      "resuelve": [
+        "contactos",
+        "mascotas"
+      ],
+      "datos": [
+        "tipo",
+        "puede_autorizar",
+        "desde"
+      ],
+      "descripcion": "Personas responsables de cada mascota"
+    },
+    {
+      "tabla": "plugin_vet.atenciones",
+      "resuelve": [
+        "reservas",
+        "mascotas"
+      ],
+      "datos": [
+        "motivo",
+        "estado",
+        "peso_kg",
+        "temperatura_c"
+      ],
+      "descripcion": "Atención de una mascota dentro de una cita"
+    },
+    {
+      "tabla": "plugin_vet.aplicaciones_vacuna",
+      "resuelve": [
+        "mascotas",
+        "items_catalogo"
+      ],
+      "datos": [
+        "lote",
+        "aplicada_en",
+        "proxima_dosis_en"
+      ],
+      "descripcion": "Vacunas aplicadas a cada mascota"
+    },
+    {
+      "tabla": "plugin_restaurant.item_alergenos",
+      "resuelve": [
+        "items_catalogo",
+        "alergenos"
+      ],
+      "datos": [
+        "nivel",
+        "nota"
+      ],
+      "descripcion": "Alérgenos de cada plato"
+    },
+    {
+      "tabla": "plugin_restaurant.item_grupos_modificador",
+      "resuelve": [
+        "items_catalogo",
+        "grupos_modificador"
+      ],
+      "datos": [
+        "minimo",
+        "maximo",
+        "orden"
+      ],
+      "descripcion": "Qué grupos de opciones aplica cada plato"
+    },
+    {
+      "tabla": "plugin_restaurant.orden_item_opciones",
+      "resuelve": [
+        "orden_items",
+        "opciones_modificador"
+      ],
+      "datos": [
+        "cantidad",
+        "precio_aplicado"
+      ],
+      "descripcion": "Opciones elegidas en cada línea del pedido"
+    },
+    {
+      "tabla": "plugin_restaurant.comanda_items",
+      "resuelve": [
+        "comandas",
+        "orden_items"
+      ],
+      "datos": [
+        "cantidad",
+        "estado",
+        "nota_cocina"
+      ],
+      "descripcion": "Qué líneas del pedido van en cada comanda"
+    },
+    {
+      "tabla": "plugin_restaurant.menu_dia_items",
+      "resuelve": [
+        "menus_dia",
+        "items_catalogo"
+      ],
+      "datos": [
+        "seccion",
+        "posicion",
+        "disponible"
+      ],
+      "descripcion": "Platos que componen el menú de cada día"
+    },
+    {
+      "tabla": "plugin_airline.rutas",
+      "resuelve": [
+        "aeropuertos",
+        "aeropuertos"
+      ],
+      "datos": [
+        "distancia_km",
+        "duracion_min",
+        "activa"
+      ],
+      "descripcion": "Rutas entre dos aeropuertos"
+    },
+    {
+      "tabla": "plugin_airline.tarifas_vuelo",
+      "resuelve": [
+        "vuelos",
+        "items_catalogo"
+      ],
+      "datos": [
+        "precio",
+        "cupos_totales",
+        "cupos_vendidos"
+      ],
+      "descripcion": "Precio y cupos de cada tarifa del catálogo en cada vuelo"
+    },
+    {
+      "tabla": "plugin_airline.reserva_pasajeros",
+      "resuelve": [
+        "reservas",
+        "contactos"
+      ],
+      "datos": [
+        "tipo_pasajero",
+        "necesidades_especiales"
+      ],
+      "descripcion": "Pasajeros de cada reserva aérea"
+    },
+    {
+      "tabla": "plugin_airline.tramos_reserva",
+      "resuelve": [
+        "reservas",
+        "tarifas_vuelo"
+      ],
+      "datos": [
+        "orden_tramo",
+        "estado"
+      ],
+      "descripcion": "Vuelos que componen una reserva, en orden"
+    },
+    {
+      "tabla": "plugin_airline.tiquetes",
+      "resuelve": [
+        "reserva_pasajeros",
+        "tramos_reserva"
+      ],
+      "datos": [
+        "numero_tiquete",
+        "silla",
+        "estado",
+        "checkin_en"
+      ],
+      "descripcion": "Tiquete de un pasajero en un tramo"
+    }
+  ],
+  "errores": []
+}
