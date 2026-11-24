@@ -486,6 +486,9 @@ select pg_temp.ok((elius.consola_sql('update practica.prueba set nota = ''chao''
 select pg_temp.ok((elius.consola_sql('create or replace view practica.contactos_total with (security_invoker = true) as select count(*) as n from elius.contactos') ->> 'tipo') = 'create', 'el Administrador crea vistas en practica');
 select pg_temp.ok((elius.consola_sql('select n from practica.contactos_total') -> 'filas' -> 0 ->> 'n')::int = 1, 'la vista creada respeta la seguridad por negocio (solo ve su negocio)');
 select pg_temp.falla($q$select elius.consola_sql('drop table elius.contactos')$q$, 'Solo se permiten', 'DROP bloqueado');
+select pg_temp.falla($q$select elius.consola_sql('update elius.contactos set eliminado_en = now()')$q$, 'No se permite eliminar', 'la consola no da de baja (eliminado_en) a un cliente');
+select pg_temp.falla($q$select elius.consola_sql('update elius.items_catalogo set eliminado_en = now()')$q$, 'No se permite eliminar', 'la consola no da de baja ítems del catálogo');
+select pg_temp.ok((select count(*) from elius.contactos where eliminado_en is not null) = 0, 'ningún cliente quedó eliminado por la consola');
 select pg_temp.falla($q$select elius.consola_sql('select 1 from elius.contactos where true; drop table elius.contactos')$q$, 'Una sola sentencia', 'varias sentencias bloqueadas');
 select pg_temp.falla($q$select elius.consola_sql('delete from practica.prueba')$q$, 'Solo se permiten', 'DELETE bloqueado');
 select pg_temp.falla($q$select elius.consola_sql('truncate practica.prueba')$q$, 'Solo se permiten', 'TRUNCATE bloqueado');
