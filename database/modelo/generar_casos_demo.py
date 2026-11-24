@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '6'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '7'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 def q(s): return s.replace("'", "''")
 
@@ -101,9 +101,12 @@ begin
     on conflict (tenant_id, sku) do update set nombre = excluded.nombre, descripcion = excluded.descripcion, precio = excluded.precio,
            impuesto_pct = excluded.impuesto_pct, categoria_id = excluded.categoria_id, disponible = true;
     select id into v_item from elius.items_catalogo where tenant_id = p_tenant and sku = rr.value->>'sku';
+    -- las fotos que puso el dueño se respetan; las del demo (propias o de Wikimedia Commons) se actualizan
+    delete from elius.medios_item where tenant_id = p_tenant and item_id = v_item
+      and (url like '/demo/%' or url like 'https://commons.wikimedia.org/%');
     if not exists (select 1 from elius.medios_item where tenant_id = p_tenant and item_id = v_item) then
       insert into elius.medios_item (tenant_id, item_id, tipo_archivo, url, descripcion, orden)
-      values (p_tenant, v_item, 'foto', '/demo/' || coalesce(v_d->'imagenes'->>(rr.value->>'sku'), p_vertical || '-' || rr.k || '.svg'), rr.value->>'nombre', 0);
+      values (p_tenant, v_item, 'foto', coalesce(v_d->'imagenes'->>(rr.value->>'sku'), '/demo/' || p_vertical || '-' || rr.k || '.svg'), rr.value->>'nombre', 0);
     end if;
   end loop;
   for r in select * from jsonb_array_elements(v_d->'recursos') loop
@@ -291,7 +294,8 @@ begin
 
   if v_i < v_total then
     v_texto := v_g->>'texto';
-    v_url := case when (v_g->>'img') is not null then '/demo/' || v_vertical || '-' || (v_g->>'img') || '.svg' end;
+    v_url := case when (v_g->>'img') is not null then
+              coalesce(v_d->'imagenes'->>(v_d->'items'->((v_g->>'img')::int - 1)->>'sku'), '/demo/' || v_vertical || '-' || (v_g->>'img') || '.svg') end;
     v_tipo := case when v_texto like '📎%' or v_url is not null then 'imagen' else 'texto' end;
 
     if (v_g->>'comp') is not null then

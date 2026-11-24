@@ -8,11 +8,26 @@ CASOS = {
    (0,'producto','RES-03','Arepa rellena de pollo','Arepa de maíz rellena de pollo desmechado con guacamole.',16000,8,None),
    (1,'producto','RES-04','Limonada de coco','Limonada cremada con coco, servida bien fría.',12000,8,None),
    (2,'producto','RES-05','Tres leches','Bizcocho bañado en tres leches con crema y canela.',14000,8,None),
-   (3,'servicio','RES-06','Pack cumpleaños','Mesa decorada con globos, torta personalizada y brindis para 10 personas.',450000,8,240),
-   (3,'servicio','RES-07','Cena de aniversario','Mesa para dos con decoración romántica, velas, flores y postre de cortesía.',180000,8,120),
-   (3,'servicio','RES-08','Pack bautizo','Salón decorado en tonos suaves, mesa de dulces y torta para 20 invitados.',620000,8,240),
-   (3,'servicio','RES-09','Pack grado','Arco de globos, torta personalizada y mesa decorada para 15 invitados.',580000,8,240)],
-  'imagenes': {'RES-09': 'restaurante-9.jpg'},
+   (3,'servicio','RES-06','Pack cumpleaños','Decoración de mesa con globos y letrero de feliz cumpleaños para tu celebración en el restaurante.',50000,8,120),
+   (3,'servicio','RES-07','Cena de aniversario','Mesa para dos con decoración romántica, velas, flores y postre de cortesía.',80000,8,120),
+   (3,'servicio','RES-08','Pack bautizo','Mesa decorada en tonos suaves y torta de bautizo para tu celebración.',90000,8,180),
+   (3,'servicio','RES-09','Pack grado','Arco de globos, torta personalizada y mesa decorada para celebrar tu grado.',65000,8,180),
+   (3,'servicio','RES-10','Aniversario premium','Cena de aniversario para dos con decoración completa, flores, velas y botella de vino.',160000,8,180),
+   (3,'servicio','RES-11','Pack adicional de globos','Arco de globos y mesa de dulces para sumar a cualquier celebración.',69000,8,60),
+   (3,'servicio','RES-12','Celebración sin decoración','Reserva de mesa para tu celebración, sin decoración (la traes tú).',30000,8,120)],
+  'imagenes': {
+    'RES-01': 'https://commons.wikimedia.org/wiki/Special:FilePath/Bandeja%20Paisa%20%28Bogot%C3%A1%29.jpg?width=640',
+    'RES-02': 'https://commons.wikimedia.org/wiki/Special:FilePath/Cheeseburger%20and%20fries.jpg?width=640',
+    'RES-03': 'https://commons.wikimedia.org/wiki/Special:FilePath/Colombian%20Food%2C%20Arepas.jpg?width=640',
+    'RES-04': 'https://commons.wikimedia.org/wiki/Special:FilePath/Limonada%20de%20coco.jpg?width=640',
+    'RES-05': 'https://commons.wikimedia.org/wiki/Special:FilePath/Tres%20leches%20cake.jpg?width=640',
+    'RES-06': 'https://commons.wikimedia.org/wiki/Special:FilePath/Birthday%20decoration.jpg?width=640',
+    'RES-07': 'https://commons.wikimedia.org/wiki/Special:FilePath/DZ6%202628%20Cozy%20candlelit%20dinner%20for%20two%20elegant%20Thai%20restaurant%20setting%20with%20twinkling%20lights%20and%20a%20delicate%20orchid%20centerpiece.jpg?width=640',
+    'RES-08': 'https://commons.wikimedia.org/wiki/Special:FilePath/Christening%20Cake%20%289696366409%29.jpg?width=640',
+    'RES-09': '/demo/restaurante-9.jpg',
+    'RES-10': 'https://commons.wikimedia.org/wiki/Special:FilePath/DZ6%202648%20A%20cozy%20candlelit%20dinner%20setup%20a%20delicate%20orchid%20soft%20lamp%20glow%20and%20an%20empty%20wine%20glass%20waiting%20for%20the%20evening%20to%20begin.jpg?width=640',
+    'RES-11': 'https://commons.wikimedia.org/wiki/Special:FilePath/Organic%20Arch%202016%20balloon%20decorations.jpg?width=640',
+    'RES-12': 'https://commons.wikimedia.org/wiki/Special:FilePath/Table%20set%20for%20dinner%20in%20a%20restaurant.jpg?width=640'},
   },
  'veterinaria': {
   'negocio': 'Clínica Veterinaria Huellitas', 'categoria': ['Consultas y cirugía', 'Prevención', 'Estética'],
@@ -110,32 +125,7 @@ SKU = {'restaurante': 'RES', 'veterinaria': 'VET', 'aerolinea': 'AER'}
 # el comprobante en el panel; entonces Eli continúa con los mensajes de "aprobado" o "rechazado".
 # Mensajes: (emisor, texto, foto del catálogo | None).   Comprobante: dict con la foto y los datos que "lee" Eli.
 PAGOS = {
- 'restaurante': [
-  {'conv': 0, 'items': [('RES-02', 2), ('RES-04', 2)], 'entrega': 'domicilio',
-   'a': [('cliente', 'Hola, buenas noches. Quiero pedir a domicilio 2 hamburguesas y 2 limonadas de coco', None),
-         ('eli', '¡Hola Camila! 🍔 Anoto 2 Hamburguesas de la casa ($56.000) y 2 Limonadas de coco ($24.000). Total $80.000 con domicilio gratis hoy. ¿A qué dirección las llevamos?', 2),
-         ('cliente', 'Carrera 15 # 82-10, apto 301', None),
-         ('eli', 'Perfecto, Cra 15 #82-10 apto 301 📍 Para confirmar el pedido paga $80.000 por Nequi al 300 416 5923 o con la llave Bre-B @saborcriollo, y envíame la foto del comprobante 📸', None)],
-   'b': [('cliente', 'Listo, ya hice la transferencia por Nequi', None),
-         ('eli', '¡Gracias Camila! Envíame la foto del comprobante para validar el pago.', None),
-         ('cliente', '📎 Comprobante de pago Nequi', 'comprobante'),
-         ('eli', 'Recibido ✅ Ya lo pasé al equipo para validar el monto. En cuanto lo confirmen te aviso por aquí.', None)],
-   'comp': {'img': 'comprobante-restaurante', 'monto': 80000, 'destinatario': 'Luis Rodriguez', 'app': 'Nequi', 'ref': 'M25797932', 'fecha': '18 de julio de 2026 a las 08:33 p. m.', 'hash': 'demo-restaurante-1'},
-   'aprobado': [('eli', '¡Pago confirmado! ✅ Tu pedido #{orden} quedó en cocina: 2 Hamburguesas de la casa y 2 Limonadas de coco por $80.000. Llega en unos 40 minutos 🛵'),
-                ('cliente', 'Mil gracias, quedo pendiente'),
-                ('eli', 'Con gusto, Camila. ¡Que lo disfrutes! 🍔 Si necesitas algo más, escríbeme.')],
-   'rechazado': [('eli', 'Camila, no pudimos validar tu comprobante. ¿Me lo envías de nuevo?')]},
-  {'conv': 1, 'items': [('RES-01', 1), ('RES-05', 1)], 'entrega': 'recoger',
-   'a': [('cliente', 'Buenas, quiero pedir una bandeja paisa y un tres leches para recoger', None),
-         ('eli', '¡Hola Andrés! Anoto 1 Bandeja paisa ($38.000) y 1 Tres leches ($14.000): total $52.000 para recoger. Paga por Nequi al 300 416 5923 y envíame el comprobante 📸', 1)],
-   'b': [('cliente', '📎 Ya pagué, aquí está el comprobante', 'comprobante'),
-         ('eli', 'Gracias Andrés, lo paso al equipo para validarlo.', None)],
-   'comp': {'img': 'comprobante-restaurante', 'monto': 80000, 'destinatario': 'Luis Rodriguez', 'app': 'Nequi', 'ref': 'M25797932', 'fecha': '18 de julio de 2026 a las 08:33 p. m.', 'hash': 'demo-restaurante-1'},
-   'aprobado': [('eli', '¡Pago confirmado! ✅ Tu pedido #{orden} estará listo para recoger en 25 minutos.'),
-                ('cliente', 'Gracias'), ('eli', 'A ti, Andrés. ¡Buen provecho!')],
-   'rechazado': [('eli', 'Andrés, el comprobante que enviaste es por $80.000 y tu pedido es de $52.000, así que no pudimos validarlo. ¿Me envías el comprobante correcto?'),
-                 ('cliente', 'Uy, perdón, me equivoqué de comprobante. Ahora lo envío'),
-                 ('eli', 'Tranquilo, Andrés 😊 Cuando lo tengas me lo envías y lo revisamos de inmediato.')]}],
+ 'restaurante': [],   # los siete pagadores del restaurante se generan abajo con los comprobantes de prueba reales
  'veterinaria': [
   {'conv': 0, 'items': [('VET-02', 1)], 'entrega': 'no_aplica',
    'a': [('cliente', 'Hola, mi perro Max tiene las vacunas atrasadas, ¿puedo sacar cita?', None),
@@ -181,8 +171,21 @@ _IMG = {'restaurante': ('comprobante-restaurante', 80000, 'Luis Rodriguez', 'Neq
         'aerolinea': ('comprobante-aerolinea', 360000, 'Luis Fernando Rodríguez Sandoval', 'DaviPlata', 'Julio 09 de 2026 - 05:39 p. m.')}
 # vertical: [(conv, pedido del cliente, [(sku, cant)], entrega, qué es el pedido al confirmar)]
 _EXTRA = {
- 'restaurante': [(3, 'Quiero pedir a domicilio una bandeja paisa, una hamburguesa y un tres leches', [('RES-01', 1), ('RES-02', 1), ('RES-05', 1)], 'domicilio', 'Llega en unos 40 minutos 🛵'),
-                 (8, 'Me gustaría pedir 2 arepas rellenas y una limonada para recoger', [('RES-03', 2), ('RES-04', 1)], 'recoger', 'Estará listo para recoger en 20 minutos.')],
+ 'restaurante': [
+   (0, 'Quiero la cena de aniversario para mi esposo y para mí', [('RES-07', 1)], 'no_aplica', 'Quedó reservada con su decoración. ¡Feliz aniversario! 💐',
+    ('comprobante-res-2', 80000, 'Luis Rodriguez', 'Nequi', 'M25797932', '18 de julio de 2026 a las 08:33 p. m.')),
+   (4, 'Quiero la cena de aniversario premium', [('RES-10', 1)], 'no_aplica', 'Quedó reservada con decoración completa y vino. ¡Feliz aniversario! 🍷',
+    ('comprobante-res-1', 160000, 'Luis Rodriguez', 'Nequi', 'M26257385', '14 de julio de 2026 a las 11:16 p. m.')),
+   (5, 'Quiero el pack de cumpleaños para mi hija', [('RES-06', 1)], 'no_aplica', 'Quedó reservada la decoración de cumpleaños 🎈',
+    ('comprobante-res-3', 50000, 'Luis Rodriguez', 'Nequi', 'M16356689', '09 de julio de 2026 a las 05:11 p. m.')),
+   (8, 'Necesito el pack adicional de globos y mesa de dulces', [('RES-11', 1)], 'no_aplica', 'Quedó agregado a tu celebración 🎈',
+    ('comprobante-res-5', 69000, 'Luis Rodriguez', 'Nequi', 'M19936704', '10 de julio de 2026 a las 06:32 p. m.')),
+   (12, 'Quiero el pack de grado para mi hermano', [('RES-09', 1)], 'no_aplica', 'Quedó reservado el pack de grado 🎓',
+    ('comprobante-res-4', 65000, 'Luis Rodriguez', 'Bancolombia', 'TRrUw0H9AIEC', '11 de julio de 2026 a las 9:27 a. m.')),
+   (13, 'Quiero reservar mesa para celebrar, sin decoración', [('RES-12', 1)], 'no_aplica', 'Quedó reservada tu mesa para la celebración.',
+    ('comprobante-res-6', 30000, 'Luis Rodriguez', 'Transferencia', 'T120712-1104', '12 de julio de 2026 a las 11:04 a. m.')),
+   (16, 'Quiero el pack de cumpleaños', [('RES-06', 1)], 'no_aplica', 'Quedó reservada la decoración de cumpleaños 🎈',
+    ('comprobante-res-7', 75000, 'Luis Rodriguez', 'Nequi', 'M19936704', '10 de julio de 2026 a las 06:32 p. m.'))],
  'veterinaria': [(14, 'Quiero la vacuna múltiple para mi gata Nina', [('VET-02', 1)], 'no_aplica', 'Quedó agendada para mañana a las 9:00 a. m. Trae su carné.'),
                  (3, 'Quiero el baño y peluquería para mi golden', [('VET-03', 1)], 'no_aplica', 'Quedó agendado para mañana a las 11:00 a. m.'),
                  (7, 'Necesito desparasitar a mis dos gatos', [('VET-04', 2)], 'no_aplica', 'Quedó agendado para mañana a las 2:00 p. m.')],
@@ -191,8 +194,10 @@ _EXTRA = {
                (2, 'Quiero la tarifa promo a San Andrés en enero', [('AER-03', 1)], 'no_aplica', 'Tu tiquete quedó emitido.')],
 }
 for _v, _lst in _EXTRA.items():
-    _img, _mi, _dest, _app, _fec = _IMG[_v]
-    for _j, (_cv, _pedido, _its, _ent, _fin) in enumerate(_lst, start=len(PAGOS[_v]) + 1):
+    for _j, _e in enumerate(_lst, start=len(PAGOS[_v]) + 1):
+        _cv, _pedido, _its, _ent, _fin = _e[:5]
+        if len(_e) > 5: _img, _mi, _dest, _app, _ref, _fec = _e[5]
+        else: _img, _mi, _dest, _app, _fec = _IMG[_v]; _ref = ('M%08d' % (20000000 + 7919 * _j)) if _app == 'Nequi' else str(948000 + 311 * _j)
         _nom = CLIENTES[_v][_cv][0]
         _tot = sum(_NOM[sku][1] * q for sku, q in _its)
         _desc = ' y '.join(('%d %s' % (q, _NOM[sku][0]) if q > 1 else '1 ' + _NOM[sku][0]) for sku, q in _its)
@@ -204,7 +209,7 @@ for _v, _lst in _EXTRA.items():
           'b': [('cliente', 'Ya pagué, aquí va el comprobante', None),
                 ('cliente', '📎 Comprobante de pago ' + _app, 'comprobante'),
                 ('eli', 'Recibido ✅ Lo paso al equipo para validar el monto. En cuanto lo confirmen te aviso por aquí.', None)],
-          'comp': {'img': _img, 'monto': _mi, 'destinatario': _dest, 'app': _app, 'ref': ('M%08d' % (20000000 + 7919 * _j)) if _app == 'Nequi' else str(948000 + 311 * _j),
+          'comp': {'img': _img, 'monto': _mi, 'destinatario': _dest, 'app': _app, 'ref': _ref,
                    'fecha': _fec, 'hash': 'demo-%s-%d' % (_v, _j)},
           'aprobado': [('eli', '¡Pago confirmado! ✅ Tu pedido #{orden} (%s por %s) %s' % (_desc, _m(_tot), _fin)),
                        ('cliente', 'Muchas gracias'), ('eli', 'Con gusto, %s. ¡Estamos para servirte!' % _nom)],

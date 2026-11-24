@@ -71,3 +71,4 @@ Los guiones están en `database/modelo/casos_demo.py`; las ilustraciones se gene
 - **Catálogo de eventos** del caso restaurante: cumpleaños, aniversarios, bautizos y grados, con imagen.
 - **Copias de seguridad**: `backups/` (XML comprimido, servicio en Easypanel). Ver `backups/README.md`.
 - **Multi-inquilino**: cada usuario de prueba trabaja en su propio inquilino demo; las políticas RLS impiden que unos afecten a otros.
+- **Fotos del demo (restaurante)**: platos y celebraciones usan fotos libres de Wikimedia Commons (enlazadas por `Special:FilePath`; cada archivo conserva su licencia y autoría en Commons) y los comprobantes de prueba son capturas reales de Nequi/transferencia entregadas por el equipo (`comprobante-res-1..7`). El dueño puede reemplazar cualquier foto desde Catálogo.
