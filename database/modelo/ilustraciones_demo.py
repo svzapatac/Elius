@@ -5,13 +5,29 @@ out = sys.argv[1] if len(sys.argv) > 1 else '.'
 os.makedirs(out, exist_ok=True)
 
 def lienzo(c1, c2, cuerpo, etiqueta=''):
+    c1, c2 = '#2b2547', '#14111d'   # fondo único: todas las ilustraciones comparten paleta
     t = f'<text x="200" y="278" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#fff" opacity=".95">{etiqueta}</text>' if etiqueta else ''
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
 <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient></defs>
 <rect width="400" height="300" fill="url(#g)"/><circle cx="340" cy="50" r="90" fill="#fff" opacity=".08"/><circle cx="50" cy="270" r="110" fill="#fff" opacity=".08"/>
 {cuerpo}{t}</svg>'''
 
+import re, colorsys
+CREMA, ARENA, CORAL, CORAL_OSC, LILA, VIOLETA, TINTA = '#f6f0e6', '#e6cfa6', '#ff8a5c', '#c8573a', '#bba9ff', '#6d4de0', '#17141f'
+def _mapear(m):
+    h = m.group(0).lstrip('#')
+    if len(h) == 3: h = ''.join(c * 2 for c in h)
+    r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    hh, l, sat = colorsys.rgb_to_hls(r, g, b); hh *= 360
+    if l > .9: return CREMA
+    if sat < .18: return '#d9d2c5' if l > .55 else ('#8d8799' if l > .3 else TINTA)
+    if l < .17: return TINTA
+    if hh < 75 or hh > 335:                      # rojos, naranjas, amarillos, rosados
+        return ARENA if (hh > 38 and hh < 75 and l > .6) else (CORAL if l > .42 else CORAL_OSC)
+    return LILA if l > .5 else VIOLETA           # verdes, azules y morados
 def guardar(nombre, svg):
+    if nombre.startswith('logo'): svg = svg  # los logos ya usan la paleta
+    else: svg = re.sub(r'#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b', _mapear, svg)
     open(os.path.join(out, nombre), 'w', encoding='utf-8').write(svg)
 
 # ---------------- Restaurante ----------------
@@ -89,9 +105,9 @@ guardar('aerolinea-5.svg', lienzo('#0891b2', '#164e63', '''
 
 # ---------------- Logos ----------------
 def logo(nombre, c1, c2, simbolo):
-    guardar(nombre, f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient></defs>
-<circle cx="60" cy="60" r="58" fill="url(#g)"/><circle cx="60" cy="60" r="52" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>{simbolo}</svg>''')
-logo('logo-restaurante.svg', '#d97706', '#78350f', '<path d="M42 28 v26 a8 8 0 0 0 16 0 v-26 M50 28 v64 M78 28 q-14 14 -8 36 h8 v28" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
-logo('logo-veterinaria.svg', '#14b8a6', '#115e59', '<g fill="#fff" transform="translate(60 64) scale(.42) translate(-200 -140)">' + PATA + '</g>')
-logo('logo-aerolinea.svg', '#3b82f6', '#1e3a8a', '<g transform="translate(60 62) scale(.3) translate(-210 -150)">' + AVION + '</g>')
+    guardar(nombre, f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<circle cx="60" cy="60" r="58" fill="#17141f"/><circle cx="60" cy="60" r="52" fill="none" stroke="#bba9ff" stroke-width="1.6"/>{simbolo}</svg>''')
+logo('logo-restaurante.svg', '', '', '<path d="M42 28 v26 a8 8 0 0 0 16 0 v-26 M50 28 v64 M78 28 q-14 14 -8 36 h8 v28" stroke="#f6f0e6" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+logo('logo-veterinaria.svg', '', '', '<g fill="#f6f0e6" transform="translate(60 64) scale(.42) translate(-200 -140)">' + PATA.replace('#fff', '#f6f0e6') + '</g>')
+logo('logo-aerolinea.svg', '', '', '<g transform="translate(60 62) scale(.3) translate(-210 -150)">' + AVION.replace('#fff', '#f6f0e6') + '</g>')
 print('Ilustraciones generadas en', out)
