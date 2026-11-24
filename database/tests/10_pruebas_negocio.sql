@@ -44,6 +44,7 @@ $$;
 \o /dev/null
 -- ---------- Usuarios de Supabase Auth ----------
 insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000f1', 'profe@udistrital.edu.co'),
   ('00000000-0000-0000-0000-0000000000a1', 'dueno@potrillos.co'),
   ('00000000-0000-0000-0000-0000000000a2', 'operador@potrillos.co'),
   ('00000000-0000-0000-0000-0000000000a3', 'analista@potrillos.co'),
@@ -489,6 +490,38 @@ select pg_temp.falla($q$select elius.consola_sql('select * from elius.tabla_que_
 select pg_temp.login(:'u_vet2', :'t_vet');
 select pg_temp.falla($q$select elius.consola_sql('select 1')$q$, 'Solo un Administrador', 'un Operador no usa la consola');
 select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'consola_sql') >= 1 or true, 'uso auditado');
+select pg_temp.login(null);
+
+\echo '== 18. Casos de prueba (restaurante, veterinaria, aerolínea)'
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', null);
+select set_config('app.demo_restaurante', platform.cargar_caso_demo('restaurante')::text, false) \gset
+select set_config('app.demo_aerolinea', platform.cargar_caso_demo('aerolinea')::text, false) \gset
+select set_config('app.demo_veterinaria', platform.cargar_caso_demo('veterinaria')::text, false) \gset
+select pg_temp.ok((select count(*) from platform.tenants where slug like 'demo-%f1%' or slug like 'demo-%-000000') = 3, 'cada caso crea su negocio de prueba');
+select pg_temp.ok(platform.cargar_caso_demo('restaurante') = current_setting('app.demo_restaurante')::uuid, 'elegir de nuevo el mismo caso reutiliza el negocio');
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_restaurante')::uuid);
+set role authenticated;
+select pg_temp.ok((select count(*) from elius.items_catalogo) = 5, 'el catálogo del caso trae 5 ítems');
+select pg_temp.ok((select count(*) from elius.medios_item) = 5, 'cada ítem trae su imagen');
+select pg_temp.ok((select count(*) from elius.conversaciones) = 3, 'el caso trae 3 conversaciones');
+select pg_temp.ok((select count(*) from elius.mensajes) = 0, 'al elegir el caso no hay mensajes todavía');
+select count(elius.siguiente_mensaje_demo()) from generate_series(1, 20);
+select pg_temp.ok((select count(*) from elius.mensajes) = 20, 'llegan 20 mensajes de prueba');
+select pg_temp.ok((select count(*) from elius.mensajes where emisor = 'eli') = 10, 'la mitad son respuestas de Eli');
+select pg_temp.ok((elius.siguiente_mensaje_demo() ->> 'terminado')::boolean, 'después de 20 ya no entrega más');
+select elius.reiniciar_demo();
+select pg_temp.ok((select count(*) from elius.mensajes) = 0, 'reiniciar deja la conversación vacía');
+select elius.tomar_conversacion((select c.id from elius.conversaciones c join elius.identidades_contacto i on i.id = c.identidad_id order by i.id_externo limit 1));
+select count(elius.siguiente_mensaje_demo()) from generate_series(1, 20);
+select pg_temp.ok((select count(*) from elius.mensajes) < 20, 'si una persona toma el chat, Eli no responde en él (RN-C19)');
+reset role;
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_aerolinea')::uuid);
+set role authenticated;
+select pg_temp.ok((select count(*) from elius.items_catalogo) = 5, 'el caso aerolínea trae su catálogo');
+select pg_temp.ok((select count(*) from elius.mensajes) = 0, 'cada negocio lleva su propio avance');
+reset role;
+select pg_temp.login('00000000-0000-0000-0000-0000000000a3', current_setting('app.demo_restaurante')::uuid);
+select pg_temp.falla($q$select elius.siguiente_mensaje_demo()$q$, 'Sin acceso', 'quien no pertenece al negocio de prueba no puede usarlo');
 select pg_temp.login(null);
 
 \echo 'Todas las pruebas pasaron.'

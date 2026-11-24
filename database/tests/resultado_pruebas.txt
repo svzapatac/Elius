@@ -1,127 +1,157 @@
+→ 20261123000100_extensiones_esquemas_roles.sql
+→ 20261123000200_tablas.sql
+→ 20261123000300_restricciones.sql
+→ 20261123000400_seguridad_rls.sql
+→ 20261123000500_triggers.sql
+→ 20261123000600_vistas.sql
+→ 20261123000700_procedimientos.sql
+→ 20261123000800_roles_base_de_datos.sql
+→ 20261123000900_datos_base.sql
+→ 20261123001000_integraciones.sql
+→ 20261123001100_consola_revision.sql
+psql:supabase/migrations/20261123001100_consola_revision.sql:17: NOTICE:  role "postgres" has already been granted membership in role "elius_revisor" by role "postgres"
+→ 20261123001200_casos_demo.sql
 == 10_pruebas_negocio.sql
 == 1. Crear negocios (RN-P08)
-NOTICE:  OK   crear_tenant instala el plugin de su vertical
-NOTICE:  OK   crear_tenant crea a Eli activo
-NOTICE:  OK   el restaurante arranca con 120 días de anticipación
-NOTICE:  OK   el Operador acepta su invitación y entra al negocio
+psql:tests/10_pruebas_negocio.sql:88: NOTICE:  OK   crear_tenant instala el plugin de su vertical
+psql:tests/10_pruebas_negocio.sql:89: NOTICE:  OK   crear_tenant crea a Eli activo
+psql:tests/10_pruebas_negocio.sql:90: NOTICE:  OK   el restaurante arranca con 120 días de anticipación
+psql:tests/10_pruebas_negocio.sql:101: NOTICE:  OK   el Operador acepta su invitación y entra al negocio
 == 2. Hook de Supabase: el JWT lleva el tenant
-NOTICE:  OK   el hook agrega tenant_id al JWT
-NOTICE:  OK   el hook agrega el rol general al JWT
+psql:tests/10_pruebas_negocio.sql:111: NOTICE:  OK   el hook agrega tenant_id al JWT
+psql:tests/10_pruebas_negocio.sql:113: NOTICE:  OK   el hook agrega el rol general al JWT
 == 3. Aislamiento entre tenants (RLS)
-NOTICE:  OK   la veterinaria no ve los contactos del restaurante
-NOTICE:  OK   no se puede escribir en otro tenant (rechazado: new row violates row-level security policy for table "contactos")
-NOTICE:  OK   X-Tenant-ID de un negocio ajeno no se acepta
-NOTICE:  OK   con X-Tenant-ID ajeno no ve nada
-NOTICE:  OK   una reserva no puede apuntar a un contacto de otro tenant (FK compuesta) (rechazado: insert or update on table "reservas" violates foreign key constraint "fk_reservas_contacto_id")
+psql:tests/10_pruebas_negocio.sql:127: NOTICE:  OK   la veterinaria no ve los contactos del restaurante
+psql:tests/10_pruebas_negocio.sql:129: NOTICE:  OK   no se puede escribir en otro tenant (rechazado: new row violates row-level security policy for table "contactos")
+psql:tests/10_pruebas_negocio.sql:133: NOTICE:  OK   X-Tenant-ID de un negocio ajeno no se acepta
+psql:tests/10_pruebas_negocio.sql:134: NOTICE:  OK   con X-Tenant-ID ajeno no ve nada
+psql:tests/10_pruebas_negocio.sql:141: NOTICE:  OK   una reserva no puede apuntar a un contacto de otro tenant (FK compuesta) (rechazado: insert or update on table "reservas" violates foreign key constraint "fk_reservas_contacto_id")
 == 4. Roles generales y permisos
-NOTICE:  OK   el Analista lee contactos
-NOTICE:  OK   el Analista no escribe (rechazado: new row violates row-level security policy for table "contactos")
-NOTICE:  OK   el Analista no ve la auditoría
-NOTICE:  OK   el Operador crea contactos pero no borra (borrar exige total)
-NOTICE:  OK   el Operador no puede apagar a Eli (rechazado: RN-C20: solo el Administrador o Soporte pueden apagar o encender a Eli)
-NOTICE:  OK   el Operador solo ve su propia membresía
-NOTICE:  OK   el Administrador ve la auditoría de su negocio
-NOTICE:  OK   la auditoría registra quién y con qué rol
+psql:tests/10_pruebas_negocio.sql:146: NOTICE:  OK   el Analista lee contactos
+psql:tests/10_pruebas_negocio.sql:147: NOTICE:  OK   el Analista no escribe (rechazado: new row violates row-level security policy for table "contactos")
+psql:tests/10_pruebas_negocio.sql:148: NOTICE:  OK   el Analista no ve la auditoría
+psql:tests/10_pruebas_negocio.sql:154: NOTICE:  OK   el Operador crea contactos pero no borra (borrar exige total)
+psql:tests/10_pruebas_negocio.sql:155: NOTICE:  OK   el Operador no puede apagar a Eli (rechazado: RN-C20: solo el Administrador o Soporte pueden apagar o encender a Eli)
+psql:tests/10_pruebas_negocio.sql:156: NOTICE:  OK   el Operador solo ve su propia membresía
+psql:tests/10_pruebas_negocio.sql:160: NOTICE:  OK   el Administrador ve la auditoría de su negocio
+psql:tests/10_pruebas_negocio.sql:162: NOTICE:  OK   la auditoría registra quién y con qué rol
 == 5. Plugins: solo visibles si el tenant los tiene (RN-P09)
-NOTICE:  OK   el restaurante no puede usar el plugin de veterinaria (rechazado: new row violates row-level security policy for table "mascotas")
+psql:tests/10_pruebas_negocio.sql:169: NOTICE:  OK   el restaurante no puede usar el plugin de veterinaria (rechazado: new row violates row-level security policy for table "mascotas")
 == 6. Acceso especial del plugin (sección 10.2, RN-V03)
-NOTICE:  OK   un Operador sin acceso especial no escribe historia clínica (rechazado: new row violates row-level security policy for table "registros_clinicos")
-NOTICE:  OK   con el acceso especial el veterinario escribe y lee la historia clínica
-NOTICE:  OK   RN-V05: la próxima dosis se calcula desde el catálogo
-NOTICE:  OK   la historia clínica no se edita después de 24 horas (rechazado: RN-V04: la historia clínica no se edita después de 24 horas; agregue una corrección)
-NOTICE:  OK   una mascota fallecida no recibe atenciones (rechazado: RN-V06: la mascota está registrada como fallecida)
+psql:tests/10_pruebas_negocio.sql:190: NOTICE:  OK   un Operador sin acceso especial no escribe historia clínica (rechazado: new row violates row-level security policy for table "registros_clinicos")
+psql:tests/10_pruebas_negocio.sql:199: NOTICE:  OK   con el acceso especial el veterinario escribe y lee la historia clínica
+psql:tests/10_pruebas_negocio.sql:202: NOTICE:  OK   RN-V05: la próxima dosis se calcula desde el catálogo
+psql:tests/10_pruebas_negocio.sql:208: NOTICE:  OK   la historia clínica no se edita después de 24 horas (rechazado: RN-V04: la historia clínica no se edita después de 24 horas; agregue una corrección)
+psql:tests/10_pruebas_negocio.sql:212: NOTICE:  OK   una mascota fallecida no recibe atenciones (rechazado: RN-V06: la mascota está registrada como fallecida)
 == 7. Conversaciones y escalamientos (RN-C18, RN-C19, RN-C20, RN-C06)
-NOTICE:  OK   RN-C21: Eli toma el bloqueo de la conversación
-NOTICE:  OK   RN-C21: un segundo proceso no puede tomarlo
-NOTICE:  OK   Eli no responde mientras la atiende una persona (rechazado: RN-C19: la conversación la atiende una persona; Eli no responde)
-NOTICE:  OK   RN-C18: el escalamiento se asigna al Operador con menos casos
-NOTICE:  OK   RN-C18: el siguiente va al otro Operador (turnos)
-NOTICE:  OK   al devolverla, Eli vuelve a atender
-NOTICE:  OK   con el interruptor apagado Eli no responde (rechazado: RN-C20: Eli está apagado para este negocio)
+psql:tests/10_pruebas_negocio.sql:221: NOTICE:  OK   RN-C21: Eli toma el bloqueo de la conversación
+psql:tests/10_pruebas_negocio.sql:222: NOTICE:  OK   RN-C21: un segundo proceso no puede tomarlo
+psql:tests/10_pruebas_negocio.sql:226: NOTICE:  OK   Eli no responde mientras la atiende una persona (rechazado: RN-C19: la conversación la atiende una persona; Eli no responde)
+psql:tests/10_pruebas_negocio.sql:229: NOTICE:  OK   RN-C18: el escalamiento se asigna al Operador con menos casos
+psql:tests/10_pruebas_negocio.sql:232: NOTICE:  OK   RN-C18: el siguiente va al otro Operador (turnos)
+psql:tests/10_pruebas_negocio.sql:236: NOTICE:  OK   al devolverla, Eli vuelve a atender
+psql:tests/10_pruebas_negocio.sql:245: NOTICE:  OK   con el interruptor apagado Eli no responde (rechazado: RN-C20: Eli está apagado para este negocio)
 == 8. Órdenes: consecutivo, precios, totales y agotados (RN-C10, RN-C11, RN-R03, RN-R04)
-NOTICE:  OK   RN-C10: consecutivo de órdenes por tenant
-NOTICE:  OK   precio del catálogo + recargo de la opción (2 × 32.000 + 3.000)
-NOTICE:  OK   RN-C11: total = líneas + impuesto 8 % (67.000 + 5.360)
-NOTICE:  OK   el total no se escribe a mano (rechazado: RN-C11: los totales se calculan desde las líneas de la orden)
-NOTICE:  OK   no se vende un plato agotado (rechazado: RN-R03: el ítem está agotado o no existe)
-NOTICE:  OK   no se superan las opciones máximas del grupo (rechazado: RN-R04: máximo 2 opciones de este grupo)
+psql:tests/10_pruebas_negocio.sql:257: NOTICE:  OK   RN-C10: consecutivo de órdenes por tenant
+psql:tests/10_pruebas_negocio.sql:260: NOTICE:  OK   precio del catálogo + recargo de la opción (2 × 32.000 + 3.000)
+psql:tests/10_pruebas_negocio.sql:261: NOTICE:  OK   RN-C11: total = líneas + impuesto 8 % (67.000 + 5.360)
+psql:tests/10_pruebas_negocio.sql:262: NOTICE:  OK   el total no se escribe a mano (rechazado: RN-C11: los totales se calculan desde las líneas de la orden)
+psql:tests/10_pruebas_negocio.sql:263: NOTICE:  OK   no se vende un plato agotado (rechazado: RN-R03: el ítem está agotado o no existe)
+psql:tests/10_pruebas_negocio.sql:265: NOTICE:  OK   no se superan las opciones máximas del grupo (rechazado: RN-R04: máximo 2 opciones de este grupo)
 == 9. Pago tradicional por comprobante (RN-C16, RN-C17)
-NOTICE:  OK   RN-C16: alerta si el monto no cuadra
-NOTICE:  OK   RN-C17: pago parcial + resto contra entrega = orden pagada
-NOTICE:  OK   al cubrirse el total la orden queda confirmada
-NOTICE:  OK   el saldo queda para cobrar en efectivo al entregar
-NOTICE:  OK   una orden pagada no se modifica (rechazado: RN-C12: la orden ya está confirmada y no se puede modificar)
-NOTICE:  OK   un pago aprobado no se modifica (rechazado: RN-C12: un pago aprobado no se modifica; registre un reverso)
-NOTICE:  OK   RN-C16: alerta de comprobante repetido
-NOTICE:  OK   aprobar un repetido no cobra dos veces
+psql:tests/10_pruebas_negocio.sql:273: NOTICE:  OK   RN-C16: alerta si el monto no cuadra
+psql:tests/10_pruebas_negocio.sql:276: NOTICE:  OK   RN-C17: pago parcial + resto contra entrega = orden pagada
+psql:tests/10_pruebas_negocio.sql:277: NOTICE:  OK   al cubrirse el total la orden queda confirmada
+psql:tests/10_pruebas_negocio.sql:278: NOTICE:  OK   el saldo queda para cobrar en efectivo al entregar
+psql:tests/10_pruebas_negocio.sql:279: NOTICE:  OK   una orden pagada no se modifica (rechazado: RN-C12: la orden ya está confirmada y no se puede modificar)
+psql:tests/10_pruebas_negocio.sql:280: NOTICE:  OK   un pago aprobado no se modifica (rechazado: RN-C12: un pago aprobado no se modifica; registre un reverso)
+psql:tests/10_pruebas_negocio.sql:286: NOTICE:  OK   RN-C16: alerta de comprobante repetido
+psql:tests/10_pruebas_negocio.sql:289: NOTICE:  OK   aprobar un repetido no cobra dos veces
 == 10. Cobro por llave Bre-B con Factus Pay (RN-C22 a RN-C24)
-NOTICE:  OK   con Factus activo se cobra por llave Bre-B
-NOTICE:  OK   RN-C23: por debajo del mínimo de Factus se usa el comprobante
-NOTICE:  OK   al crear el recaudo la orden queda esperando pago
-NOTICE:  OK   RN-C24: webhook con clave inválida se rechaza
-NOTICE:  OK   RN-C24: webhook con monto distinto se rechaza
-NOTICE:  OK   RN-C22: webhook válido aplica el pago
-NOTICE:  OK   RN-C24: el mismo webhook repetido no paga dos veces
-NOTICE:  OK   la orden pagada por llave queda confirmada sin intervención humana
-NOTICE:  OK   un solo pago por recaudo
-NOTICE:  OK   todas las notificaciones quedan guardadas
-NOTICE:  OK   un usuario no puede llamar el webhook (rechazado: permission denied for function procesar_webhook_factus)
-NOTICE:  OK   la Edge Function (service_role) aplica el webhook sin fijar el tenant a mano
-NOTICE:  OK   la orden 3 quedó confirmada por el webhook
-NOTICE:  OK   un usuario no puede llamar el punto de entrada del webhook (rechazado: permission denied for function webhook_factus)
+psql:tests/10_pruebas_negocio.sql:301: NOTICE:  OK   con Factus activo se cobra por llave Bre-B
+psql:tests/10_pruebas_negocio.sql:302: NOTICE:  OK   RN-C23: por debajo del mínimo de Factus se usa el comprobante
+psql:tests/10_pruebas_negocio.sql:307: NOTICE:  OK   al crear el recaudo la orden queda esperando pago
+psql:tests/10_pruebas_negocio.sql:309: NOTICE:  OK   RN-C24: webhook con clave inválida se rechaza
+psql:tests/10_pruebas_negocio.sql:311: NOTICE:  OK   RN-C24: webhook con monto distinto se rechaza
+psql:tests/10_pruebas_negocio.sql:313: NOTICE:  OK   RN-C22: webhook válido aplica el pago
+psql:tests/10_pruebas_negocio.sql:315: NOTICE:  OK   RN-C24: el mismo webhook repetido no paga dos veces
+psql:tests/10_pruebas_negocio.sql:316: NOTICE:  OK   la orden pagada por llave queda confirmada sin intervención humana
+psql:tests/10_pruebas_negocio.sql:317: NOTICE:  OK   un solo pago por recaudo
+psql:tests/10_pruebas_negocio.sql:318: NOTICE:  OK   todas las notificaciones quedan guardadas
+psql:tests/10_pruebas_negocio.sql:322: NOTICE:  OK   un usuario no puede llamar el webhook (rechazado: permission denied for function procesar_webhook_factus)
+psql:tests/10_pruebas_negocio.sql:334: NOTICE:  OK   la Edge Function (service_role) aplica el webhook sin fijar el tenant a mano
+psql:tests/10_pruebas_negocio.sql:336: NOTICE:  OK   la orden 3 quedó confirmada por el webhook
+psql:tests/10_pruebas_negocio.sql:339: NOTICE:  OK   un usuario no puede llamar el punto de entrada del webhook (rechazado: permission denied for function webhook_factus)
 == 11. Reservas: horario, capacidad, cruces y estados (RN-C07, RN-C09, RN-R01, RN-R02, RN-R08)
-NOTICE:  OK   no se reserva fuera del horario de atención (rechazado: RN-R02: el negocio no atiende en ese horario)
-NOTICE:  OK   una mesa de 4 no recibe 6 personas (rechazado: RN-R01: las mesas elegidas tienen capacidad para 4 y la reserva es de 6)
-NOTICE:  OK   RN-C07: la misma mesa no se cruza en el tiempo (rechazado: conflicting key value violates exclusion constraint "ex_asignaciones_sin_cruce")
-NOTICE:  OK   no se salta de pendiente de pago a asistió (rechazado: RN-C09: una reserva no puede pasar de pendiente_pago a asistio)
-NOTICE:  OK   RN-R08: grupo grande genera aviso para el Administrador
+psql:tests/10_pruebas_negocio.sql:350: NOTICE:  OK   no se reserva fuera del horario de atención (rechazado: RN-R02: el negocio no atiende en ese horario)
+psql:tests/10_pruebas_negocio.sql:352: NOTICE:  OK   una mesa de 4 no recibe 6 personas (rechazado: RN-R01: las mesas elegidas tienen capacidad para 4 y la reserva es de 6)
+psql:tests/10_pruebas_negocio.sql:355: NOTICE:  OK   RN-C07: la misma mesa no se cruza en el tiempo (rechazado: conflicting key value violates exclusion constraint "ex_asignaciones_sin_cruce")
+psql:tests/10_pruebas_negocio.sql:356: NOTICE:  OK   no se salta de pendiente de pago a asistió (rechazado: RN-C09: una reserva no puede pasar de pendiente_pago a asistio)
+psql:tests/10_pruebas_negocio.sql:359: NOTICE:  OK   RN-R08: grupo grande genera aviso para el Administrador
 == 12. Soporte autorizado y Super Admin (RN-P16)
-NOTICE:  OK   Soporte sin autorización no ve nada
-NOTICE:  OK   con autorización, Soporte ve el negocio
-NOTICE:  OK   lo que hace Soporte queda auditado como soporte
-NOTICE:  OK   el Super Admin ve todos los tenants
-NOTICE:  OK   el Super Admin no ve datos de negocio
+psql:tests/10_pruebas_negocio.sql:364: NOTICE:  OK   Soporte sin autorización no ve nada
+psql:tests/10_pruebas_negocio.sql:372: NOTICE:  OK   con autorización, Soporte ve el negocio
+psql:tests/10_pruebas_negocio.sql:376: NOTICE:  OK   lo que hace Soporte queda auditado como soporte
+psql:tests/10_pruebas_negocio.sql:379: NOTICE:  OK   el Super Admin ve todos los tenants
+psql:tests/10_pruebas_negocio.sql:380: NOTICE:  OK   el Super Admin no ve datos de negocio
 == 13. Último Administrador y límite del plan (RN-P04, RN-P10)
-NOTICE:  OK   no se puede desactivar al último Administrador (rechazado: RN-P04: el tenant debe conservar al menos un Administrador activo)
-NOTICE:  OK   el plan gratis no permite un cuarto usuario (rechazado: RN-P10: el plan permite máximo 3 usuarios)
+psql:tests/10_pruebas_negocio.sql:387: NOTICE:  OK   no se puede desactivar al último Administrador (rechazado: RN-P04: el tenant debe conservar al menos un Administrador activo)
+psql:tests/10_pruebas_negocio.sql:392: NOTICE:  OK   el plan gratis no permite un cuarto usuario (rechazado: RN-P10: el plan permite máximo 3 usuarios)
 == 14. Aerolínea: capacidad, infantes y sillas (RN-A04, RN-A06, RN-A07, RN-A09)
-NOTICE:  OK   los cupos no superan la capacidad de la aeronave (rechazado: RN-A04: los cupos (4) superan la capacidad de la aeronave (3))
-NOTICE:  OK   un infante no viaja sin adulto (rechazado: RN-A06: cada infante debe viajar con un adulto)
-NOTICE:  OK   RN-A04: el tramo ocupa un cupo por pasajero
-NOTICE:  OK   una silla no se asigna dos veces en el mismo vuelo (rechazado: RN-A07: la silla 3A ya está asignada en este vuelo)
-NOTICE:  OK   el check-in no abre 10 días antes (rechazado: RN-A08: el check-in abre 48 h y cierra 1 h antes de la salida)
-NOTICE:  OK   vista de ocupación por vuelo
-NOTICE:  OK   RN-A09: vuelo cancelado genera aviso
-NOTICE:  OK   RN-A02: origen y destino distintos (rechazado: new row for relation "rutas" violates check constraint "ck_rutas_distintas")
+psql:tests/10_pruebas_negocio.sql:405: NOTICE:  OK   los cupos no superan la capacidad de la aeronave (rechazado: RN-A04: los cupos (4) superan la capacidad de la aeronave (3))
+psql:tests/10_pruebas_negocio.sql:411: NOTICE:  OK   un infante no viaja sin adulto (rechazado: RN-A06: cada infante debe viajar con un adulto)
+psql:tests/10_pruebas_negocio.sql:415: NOTICE:  OK   RN-A04: el tramo ocupa un cupo por pasajero
+psql:tests/10_pruebas_negocio.sql:418: NOTICE:  OK   una silla no se asigna dos veces en el mismo vuelo (rechazado: RN-A07: la silla 3A ya está asignada en este vuelo)
+psql:tests/10_pruebas_negocio.sql:420: NOTICE:  OK   el check-in no abre 10 días antes (rechazado: RN-A08: el check-in abre 48 h y cierra 1 h antes de la salida)
+psql:tests/10_pruebas_negocio.sql:422: NOTICE:  OK   vista de ocupación por vuelo
+psql:tests/10_pruebas_negocio.sql:424: NOTICE:  OK   RN-A09: vuelo cancelado genera aviso
+psql:tests/10_pruebas_negocio.sql:426: NOTICE:  OK   RN-A02: origen y destino distintos (rechazado: new row for relation "rutas" violates check constraint "ck_rutas_distintas")
 == 15. Extensión de Chrome: solo quien captura ve lo capturado (RN-E01)
-NOTICE:  OK   el Administrador ve todo lo capturado
-NOTICE:  OK   el Operador ve lo que él capturó
-NOTICE:  OK   otro Operador no ve lo que capturó su compañero
+psql:tests/10_pruebas_negocio.sql:437: NOTICE:  OK   el Administrador ve todo lo capturado
+psql:tests/10_pruebas_negocio.sql:441: NOTICE:  OK   el Operador ve lo que él capturó
+psql:tests/10_pruebas_negocio.sql:445: NOTICE:  OK   otro Operador no ve lo que capturó su compañero
 == 16. Vistas y usuarios de base de datos
-NOTICE:  OK   el Analista consulta ventas diarias
-NOTICE:  OK   el Analista consulta saldos de su negocio
-NOTICE:  OK   el Analista solo ve su tenant
-NOTICE:  OK   las vistas respetan RLS: la veterinaria no ve órdenes ajenas
-NOTICE:  OK   elius_consulta lee el resumen agregado de tenants
-NOTICE:  OK   elius_consulta no lee tablas con datos personales (rechazado: permission denied for schema elius)
-NOTICE:  OK   elius_consulta no escribe (rechazado: permission denied for schema platform)
-NOTICE:  OK   elius_app sin tenant fijado no ve nada
-NOTICE:  OK   elius_app con tenant fijado ve solo ese tenant
-NOTICE:  OK   elius_app no cambia la estructura (rechazado: must be owner of table contactos)
-NOTICE:  OK   ningún usuario de conexión es superusuario ni salta RLS
+psql:tests/10_pruebas_negocio.sql:451: NOTICE:  OK   el Analista consulta ventas diarias
+psql:tests/10_pruebas_negocio.sql:452: NOTICE:  OK   el Analista consulta saldos de su negocio
+psql:tests/10_pruebas_negocio.sql:453: NOTICE:  OK   el Analista solo ve su tenant
+psql:tests/10_pruebas_negocio.sql:457: NOTICE:  OK   las vistas respetan RLS: la veterinaria no ve órdenes ajenas
+psql:tests/10_pruebas_negocio.sql:461: NOTICE:  OK   elius_consulta lee el resumen agregado de tenants
+psql:tests/10_pruebas_negocio.sql:462: NOTICE:  OK   elius_consulta no lee tablas con datos personales (rechazado: permission denied for schema elius)
+psql:tests/10_pruebas_negocio.sql:463: NOTICE:  OK   elius_consulta no escribe (rechazado: permission denied for schema platform)
+psql:tests/10_pruebas_negocio.sql:467: NOTICE:  OK   elius_app sin tenant fijado no ve nada
+psql:tests/10_pruebas_negocio.sql:469: NOTICE:  OK   elius_app con tenant fijado ve solo ese tenant
+psql:tests/10_pruebas_negocio.sql:470: NOTICE:  OK   elius_app no cambia la estructura (rechazado: must be owner of table contactos)
+psql:tests/10_pruebas_negocio.sql:473: NOTICE:  OK   ningún usuario de conexión es superusuario ni salta RLS
 == 17. Consola SQL de revisión (profesor)
-NOTICE:  OK   la consola consulta solo el negocio del administrador
-NOTICE:  OK   la consola lee el catálogo (diccionario de datos)
-NOTICE:  OK   CREATE TABLE permitido en practica
-NOTICE:  OK   INSERT en practica
-NOTICE:  OK   UPDATE en practica
-NOTICE:  OK   DROP bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-NOTICE:  OK   varias sentencias bloqueadas (rechazado: Una sola sentencia por ejecución)
-NOTICE:  OK   DELETE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-NOTICE:  OK   TRUNCATE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-NOTICE:  OK   CREATE fuera de practica bloqueado (rechazado: CREATE solo se permite en el esquema practica (ej. CREATE TABLE practica.prueba (...)))
-NOTICE:  OK   set_config bloqueado (rechazado: Sentencia no permitida en la consola (DROP, TRUNCATE, DELETE, ALTER, GRANT, SET… están bloqueados))
-NOTICE:  OK   no se escribe en tablas de plataforma (RLS: 0 filas)
-NOTICE:  OK   los errores del motor llegan a la consola (rechazado: relation "elius.tabla_que_no_existe" does not exist)
-NOTICE:  OK   un Operador no usa la consola (rechazado: Solo un Administrador puede usar la consola SQL)
-NOTICE:  OK   uso auditado
+psql:tests/10_pruebas_negocio.sql:477: NOTICE:  OK   la consola consulta solo el negocio del administrador
+psql:tests/10_pruebas_negocio.sql:478: NOTICE:  OK   la consola lee el catálogo (diccionario de datos)
+psql:tests/10_pruebas_negocio.sql:479: NOTICE:  OK   CREATE TABLE permitido en practica
+psql:tests/10_pruebas_negocio.sql:480: NOTICE:  OK   INSERT en practica
+psql:tests/10_pruebas_negocio.sql:481: NOTICE:  OK   UPDATE en practica
+psql:tests/10_pruebas_negocio.sql:482: NOTICE:  OK   DROP bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:483: NOTICE:  OK   varias sentencias bloqueadas (rechazado: Una sola sentencia por ejecución)
+psql:tests/10_pruebas_negocio.sql:484: NOTICE:  OK   DELETE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:485: NOTICE:  OK   TRUNCATE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:486: NOTICE:  OK   CREATE fuera de practica bloqueado (rechazado: CREATE solo se permite en el esquema practica (ej. CREATE TABLE practica.prueba (...)))
+psql:tests/10_pruebas_negocio.sql:487: NOTICE:  OK   set_config bloqueado (rechazado: Sentencia no permitida en la consola (DROP, TRUNCATE, DELETE, ALTER, GRANT, SET… están bloqueados))
+psql:tests/10_pruebas_negocio.sql:488: NOTICE:  OK   no se escribe en tablas de plataforma (RLS: 0 filas)
+psql:tests/10_pruebas_negocio.sql:489: NOTICE:  OK   los errores del motor llegan a la consola (rechazado: relation "elius.tabla_que_no_existe" does not exist)
+psql:tests/10_pruebas_negocio.sql:491: NOTICE:  OK   un Operador no usa la consola (rechazado: Solo un Administrador puede usar la consola SQL)
+psql:tests/10_pruebas_negocio.sql:492: NOTICE:  OK   uso auditado
+== 18. Casos de prueba (restaurante, veterinaria, aerolínea)
+psql:tests/10_pruebas_negocio.sql:500: NOTICE:  OK   cada caso crea su negocio de prueba
+psql:tests/10_pruebas_negocio.sql:501: NOTICE:  OK   elegir de nuevo el mismo caso reutiliza el negocio
+psql:tests/10_pruebas_negocio.sql:504: NOTICE:  OK   el catálogo del caso trae 5 ítems
+psql:tests/10_pruebas_negocio.sql:505: NOTICE:  OK   cada ítem trae su imagen
+psql:tests/10_pruebas_negocio.sql:506: NOTICE:  OK   el caso trae 3 conversaciones
+psql:tests/10_pruebas_negocio.sql:507: NOTICE:  OK   al elegir el caso no hay mensajes todavía
+psql:tests/10_pruebas_negocio.sql:509: NOTICE:  OK   llegan 20 mensajes de prueba
+psql:tests/10_pruebas_negocio.sql:510: NOTICE:  OK   la mitad son respuestas de Eli
+psql:tests/10_pruebas_negocio.sql:511: NOTICE:  OK   después de 20 ya no entrega más
+psql:tests/10_pruebas_negocio.sql:513: NOTICE:  OK   reiniciar deja la conversación vacía
+psql:tests/10_pruebas_negocio.sql:516: NOTICE:  OK   si una persona toma el chat, Eli no responde en él (RN-C19)
+psql:tests/10_pruebas_negocio.sql:520: NOTICE:  OK   el caso aerolínea trae su catálogo
+psql:tests/10_pruebas_negocio.sql:521: NOTICE:  OK   cada negocio lleva su propio avance
+psql:tests/10_pruebas_negocio.sql:524: NOTICE:  OK   quien no pertenece al negocio de prueba no puede usarlo (rechazado: Sin acceso al negocio)
+Todas las pruebas pasaron.
+TODO OK
