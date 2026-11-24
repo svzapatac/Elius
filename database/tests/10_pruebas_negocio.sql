@@ -529,6 +529,7 @@ select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'mensaje
 select pg_temp.ok(not exists (select 1 from elius.v_auditoria where datos_nuevos::text like '%ya casi está su pedido%'), 'la auditoría no copia el texto del mensaje (solo datos de control)');
 select pg_temp.login(:'u_vet', :'t_vet');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'consola_sql' and rol = 'operador' and detalle like 'INTENTO BLOQUEADO%') >= 1, 'el Administrador ve los intentos bloqueados del Operador');
+select pg_temp.ok(not exists (select 1 from elius.v_auditoria where tabla = 'parametros_negocio' and datos_nuevos ->> 'clave' like 'demo\_%'), 'Auditoría: no lista los contadores internos de la demostración');
 select pg_temp.login(:'u_vet2', :'t_vet');
 select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'consola_sql') >= 1 or true, 'uso auditado');
 select pg_temp.login(null);
