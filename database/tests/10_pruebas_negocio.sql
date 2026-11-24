@@ -563,6 +563,13 @@ select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'items_c
 select pg_temp.ok((select count(*) from elius.v_auditoria where cargo is not null) >= 1, 'Auditoría: se ve el cargo de quien hizo el cambio');
 select pg_temp.ok((select count(*) from elius.v_resumen_mensual) >= 0, 'Reportes: la vista mensual reutiliza las vistas diarias');
 select pg_temp.ok((select count(*) from elius.v_items_mas_vendidos_mensual) >= 0, 'Reportes: ítems más vendidos por mes');
+-- llegó / no llegó
+select pg_temp.ok((select count(*) from elius.reservas where estado = 'confirmada') >= 2, 'hay reservas confirmadas para marcar');
+select elius.marcar_llegada((select id from elius.reservas where estado = 'confirmada' order by inicio limit 1));
+select elius.marcar_no_llegada((select id from elius.reservas where estado = 'confirmada' order by inicio limit 1));
+select pg_temp.ok((select count(*) from elius.reservas where estado = 'asistio' and llegada_en is not null) >= 1, 'el equipo marca que el cliente llegó');
+select pg_temp.ok((select count(*) from elius.reservas where estado = 'no_asistio') >= 1, 'el equipo marca que el cliente no llegó');
+select pg_temp.ok((select count(*) from elius.asignaciones_recurso a join elius.reservas r on r.id = a.reserva_id where r.estado = 'no_asistio' and a.estado <> 'liberada') = 0, 'al no llegar se libera el recurso');
 reset role;
 select pg_temp.login(null);
 
