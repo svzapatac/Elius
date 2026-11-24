@@ -585,6 +585,15 @@ select elius.cambiar_rol_demo('operador');
 with u as (update elius.items_catalogo set precio = 1 where sku = 'RES-01' returning 1) select pg_temp.ok((select count(*) from u) = 0, 'el operador no cambia el catálogo');
 select pg_temp.falla($q$select elius.aprobar_comprobante((select comprobante_id from elius.v_comprobantes_pendientes limit 1), false)$q$, 'Solo el Administrador', 'el operador no aprueba comprobantes');
 select elius.cambiar_rol_demo('administrador');
+-- el analista hace su trabajo: lee todo lo operativo y los reportes, y no escribe
+select elius.cambiar_rol_demo('analista');
+select pg_temp.ok((select count(*) from elius.v_resumen_mensual) >= 0 and (select count(*) from elius.v_items_mas_vendidos_mensual) >= 0 and (select count(*) from elius.v_items_mas_vendidos) >= 0, 'el analista lee los reportes y métricas');
+select pg_temp.ok((select count(*) from elius.conversaciones) > 0 and (select count(*) from elius.mensajes) > 0, 'el analista lee las conversaciones');
+select pg_temp.ok((select count(*) from elius.ordenes) >= 0 and (select count(*) from elius.contactos) > 0 and (select count(*) from elius.items_catalogo) > 0, 'el analista lee pedidos, clientes y catálogo');
+select pg_temp.ok((select count(*) from elius.v_comprobantes_pendientes) >= 0 and (select count(*) from elius.v_agenda_calendario) >= 0, 'el analista ve comprobantes y agenda');
+with u as (update elius.contactos set nombres = 'X' returning 1) select pg_temp.ok((select count(*) from u) = 0, 'el analista no modifica clientes');
+select pg_temp.ok((select count(*) from elius.v_auditoria) = 0, 'el analista no ve la auditoría');
+select elius.cambiar_rol_demo('administrador');
 reset role;
 select pg_temp.login(null);
 
