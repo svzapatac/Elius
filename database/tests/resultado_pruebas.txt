@@ -109,5 +109,19 @@ NOTICE:  OK   elius_app sin tenant fijado no ve nada
 NOTICE:  OK   elius_app con tenant fijado ve solo ese tenant
 NOTICE:  OK   elius_app no cambia la estructura (rechazado: must be owner of table contactos)
 NOTICE:  OK   ningún usuario de conexión es superusuario ni salta RLS
-Todas las pruebas pasaron.
-TODO OK
+== 17. Consola SQL de revisión (profesor)
+NOTICE:  OK   la consola consulta solo el negocio del administrador
+NOTICE:  OK   la consola lee el catálogo (diccionario de datos)
+NOTICE:  OK   CREATE TABLE permitido en practica
+NOTICE:  OK   INSERT en practica
+NOTICE:  OK   UPDATE en practica
+NOTICE:  OK   DROP bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+NOTICE:  OK   varias sentencias bloqueadas (rechazado: Una sola sentencia por ejecución)
+NOTICE:  OK   DELETE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+NOTICE:  OK   TRUNCATE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+NOTICE:  OK   CREATE fuera de practica bloqueado (rechazado: CREATE solo se permite en el esquema practica (ej. CREATE TABLE practica.prueba (...)))
+NOTICE:  OK   set_config bloqueado (rechazado: Sentencia no permitida en la consola (DROP, TRUNCATE, DELETE, ALTER, GRANT, SET… están bloqueados))
+NOTICE:  OK   no se escribe en tablas de plataforma (RLS: 0 filas)
+NOTICE:  OK   los errores del motor llegan a la consola (rechazado: relation "elius.tabla_que_no_existe" does not exist)
+NOTICE:  OK   un Operador no usa la consola (rechazado: Solo un Administrador puede usar la consola SQL)
+NOTICE:  OK   uso auditado

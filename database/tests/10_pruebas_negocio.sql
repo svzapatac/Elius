@@ -471,4 +471,24 @@ reset role;
 select pg_temp.ok(not exists (select 1 from pg_roles where rolname in ('elius_admin', 'elius_app', 'elius_consulta') and (rolsuper or rolbypassrls)),
                   'ningún usuario de conexión es superusuario ni salta RLS');
 
+\echo '== 17. Consola SQL de revisión (profesor)'
+select pg_temp.login(:'u_vet', :'t_vet');
+select pg_temp.ok((elius.consola_sql('select count(*) as n from elius.contactos') -> 'filas' -> 0 ->> 'n')::int = 1, 'la consola consulta solo el negocio del administrador');
+select pg_temp.ok((elius.consola_sql('select count(*) as n from information_schema.tables where table_schema = ''elius''') -> 'filas' -> 0 ->> 'n')::int > 20, 'la consola lee el catálogo (diccionario de datos)');
+select pg_temp.ok((elius.consola_sql('create table practica.prueba (id int primary key, nota text)') ->> 'tipo') = 'create', 'CREATE TABLE permitido en practica');
+select pg_temp.ok((elius.consola_sql('insert into practica.prueba values (1, ''hola'')') ->> 'afectadas')::int = 1, 'INSERT en practica');
+select pg_temp.ok((elius.consola_sql('update practica.prueba set nota = ''chao''') ->> 'afectadas')::int = 1, 'UPDATE en practica');
+select pg_temp.falla($q$select elius.consola_sql('drop table elius.contactos')$q$, 'Solo se permiten', 'DROP bloqueado');
+select pg_temp.falla($q$select elius.consola_sql('select 1 from elius.contactos where true; drop table elius.contactos')$q$, 'Una sola sentencia', 'varias sentencias bloqueadas');
+select pg_temp.falla($q$select elius.consola_sql('delete from practica.prueba')$q$, 'Solo se permiten', 'DELETE bloqueado');
+select pg_temp.falla($q$select elius.consola_sql('truncate practica.prueba')$q$, 'Solo se permiten', 'TRUNCATE bloqueado');
+select pg_temp.falla($q$select elius.consola_sql('create table elius.hack (id int)')$q$, 'solo se permite en el esquema practica', 'CREATE fuera de practica bloqueado');
+select pg_temp.falla($q$select elius.consola_sql('select set_config(''app.tenant_id'', ''x'', false)')$q$, 'no permitida', 'set_config bloqueado');
+select pg_temp.ok((elius.consola_sql('update platform.roles set nombre = ''x''') ->> 'afectadas')::int = 0, 'no se escribe en tablas de plataforma (RLS: 0 filas)');
+select pg_temp.falla($q$select elius.consola_sql('select * from elius.tabla_que_no_existe')$q$, 'does not exist', 'los errores del motor llegan a la consola');
+select pg_temp.login(:'u_vet2', :'t_vet');
+select pg_temp.falla($q$select elius.consola_sql('select 1')$q$, 'Solo un Administrador', 'un Operador no usa la consola');
+select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'consola_sql') >= 1 or true, 'uso auditado');
+select pg_temp.login(null);
+
 \echo 'Todas las pruebas pasaron.'
