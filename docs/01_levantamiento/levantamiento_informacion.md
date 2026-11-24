@@ -338,6 +338,8 @@ Se identificaron 73 reglas. Cada una indica cómo la va a garantizar la base de 
 | RN-C28 | El aviso es un respaldo del flujo, no parte de él: si el servicio de notificaciones falla, el comprobante se guarda igual y el error queda como aviso en el registro de la base. | Bloque `exception` dentro del trigger |
 | RN-C29 | Cada reserva de cualquier caso puede marcarse como “llegó” o “no llegó”. Marcar “no llegó” pasa la reserva a `no_asistio` y libera el recurso. | Procedimientos `elius.marcar_llegada` y `elius.marcar_no_llegada` + trigger de transiciones (RN-C09) |
 | RN-C30 | Las validaciones de dominio nuevas (teléfonos, montos positivos, fechas coherentes, estados permitidos) se agregaron como `CHECK ... NOT VALID`: protegen los datos nuevos sin romper los antiguos. | Migración 0200 de validaciones |
+| RN-C31 | El Operador usa la consola SQL con las reglas del Administrador y además no inserta ni actualiza catálogo, menú, precios ni vuelos. Si lo intenta, la consola lo rechaza y la política de seguridad de la base lo respalda. | `elius.consola_sql` (regla por rol) + RLS con el permiso `catalogo` solo de lectura |
+| RN-C32 | Todo lo que hace cada rol en su panel queda en la auditoría que ve el Administrador: cada cambio en las tablas del negocio (quién, rol, cargo, antes y después), cada consulta de la consola, cada intento bloqueado y cada mensaje que una persona envía a un cliente (solo datos de control, nunca el texto). Aplica igual a restaurante, veterinaria y aerolínea. | Trigger `t02_auditoria` en las tablas, `t02_auditoria_mensaje_humano`, `consola_auditar` y la vista `v_auditoria` |
 | RN-C25 | Factus no permite reversos ni reembolsos, porque la transferencia va de banco a banco. Una devolución se registra como un pago negativo hecho por fuera. | CHECK de reversos en pagos |
 
 ### 9.3 Extensión de Chrome
@@ -434,7 +436,8 @@ Elius usa **seis roles generales, iguales para todos los tenants y todas las ver
 | Tema | Regla final |
 | --- | --- |
 | Modelo de datos, flujos, diccionario y levantamiento | Solo Administrador y Super Admin |
-| Vistas y consultas (consola SQL) | Solo Administrador y Super Admin |
+| Vistas | Solo Administrador y Super Admin |
+| Consola SQL | Administrador, Super Admin y Operador, con las mismas reglas: solo SELECT, INSERT, UPDATE y CREATE (este último solo en el esquema `practica`); nada de DROP, DELETE, TRUNCATE ni ALTER, ni dar de baja. El Operador además no cambia catálogo, precios ni vuelos |
 | Aprobar o rechazar comprobantes de pago | Solo el Administrador. El Operador ve los comprobantes pero no decide; el Analista solo mira |
 | Catálogo | El Operador solo consulta; únicamente el Administrador crea o cambia ítems |
 | Eli como usuario del panel | Eli no tiene pantalla: es una identidad de sistema que actúa por la API. Se quitó su panel |

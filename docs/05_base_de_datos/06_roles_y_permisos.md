@@ -86,3 +86,9 @@ Además se usan los roles de Supabase: `anon` (sin ningún permiso sobre datos),
 - **Modelo de datos, Vistas, Consola SQL y Auditoría:** Administrador; el Super Admin usa Modelo de datos, Vistas y Consola SQL desde la plataforma.
 - **Analista:** solo lectura de resumen, métricas, pedidos, clientes, catálogo, conversaciones, comprobantes y agenda.
 - La pantalla de configuración de Eli se retiró del panel.
+
+## Ajuste 24-nov (consola SQL del Operador y auditoría total)
+
+- El **Operador** también usa la Consola SQL, con las mismas reglas que el Administrador (solo SELECT, INSERT, UPDATE y CREATE en `practica`; sin DROP, DELETE, TRUNCATE, ALTER ni bajas lógicas). Además no puede insertar ni actualizar catálogo, menú, precios ni vuelos: la consola lo rechaza y la RLS lo respalda (su permiso `catalogo` es solo lectura).
+- **Toda acción de cada rol queda en Auditoría**, que ve el Administrador: cambios en tablas, consultas de la consola, intentos bloqueados y mensajes enviados a clientes por una persona (solo datos de control). El panel permite filtrar por rol y por tipo de movimiento.
+- Lo que **no** se audita: lecturas desde las pantallas (abrir una lista no deja huella) y las tablas técnicas de alto volumen (consumo de IA, eventos del embudo, mensajes de Eli y del cliente).
