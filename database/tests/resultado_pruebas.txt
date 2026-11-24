@@ -145,14 +145,21 @@ psql:tests/10_pruebas_negocio.sql:504: NOTICE:  OK   el catálogo del caso trae 
 psql:tests/10_pruebas_negocio.sql:505: NOTICE:  OK   cada ítem trae su imagen
 psql:tests/10_pruebas_negocio.sql:506: NOTICE:  OK   el caso trae 20 clientes (una conversación cada uno)
 psql:tests/10_pruebas_negocio.sql:507: NOTICE:  OK   al elegir el caso no hay mensajes todavía
-psql:tests/10_pruebas_negocio.sql:509: NOTICE:  OK   llegan 20 mensajes de clientes
-psql:tests/10_pruebas_negocio.sql:510: NOTICE:  OK   Eli responde a cada uno
-psql:tests/10_pruebas_negocio.sql:511: NOTICE:  OK   Eli envía la foto del catálogo al ofrecer un producto
-psql:tests/10_pruebas_negocio.sql:512: NOTICE:  OK   después de los 40 mensajes ya no entrega más
-psql:tests/10_pruebas_negocio.sql:514: NOTICE:  OK   reiniciar deja la conversación vacía
-psql:tests/10_pruebas_negocio.sql:517: NOTICE:  OK   si una persona toma el chat, Eli no responde en él (RN-C19)
-psql:tests/10_pruebas_negocio.sql:521: NOTICE:  OK   el caso aerolínea trae su catálogo
-psql:tests/10_pruebas_negocio.sql:522: NOTICE:  OK   cada negocio lleva su propio avance
-psql:tests/10_pruebas_negocio.sql:525: NOTICE:  OK   quien no pertenece al negocio de prueba no puede usarlo (rechazado: Sin acceso al negocio)
+psql:tests/10_pruebas_negocio.sql:509: NOTICE:  OK   escriben los 20 clientes
+psql:tests/10_pruebas_negocio.sql:510: NOTICE:  OK   Eli envía la foto del catálogo al ofrecer un producto
+psql:tests/10_pruebas_negocio.sql:511: NOTICE:  OK   dos clientes envían su comprobante de pago
+psql:tests/10_pruebas_negocio.sql:512: NOTICE:  OK   los dos comprobantes quedan pendientes de revisión
+psql:tests/10_pruebas_negocio.sql:513: NOTICE:  OK   el revisor ve la imagen del comprobante
+psql:tests/10_pruebas_negocio.sql:514: NOTICE:  OK   el comprobante con monto distinto o repetido trae alerta
+psql:tests/10_pruebas_negocio.sql:515: NOTICE:  OK   mientras haya comprobantes pendientes la prueba no termina
+psql:tests/10_pruebas_negocio.sql:516: NOTICE:  OK   el avance informa cuántos comprobantes esperan
+psql:tests/10_pruebas_negocio.sql:520: NOTICE:  OK   al aprobar, la orden queda confirmada
+psql:tests/10_pruebas_negocio.sql:521: NOTICE:  OK   Eli continúa cada conversación según la decisión (confirma o pide otro comprobante)
+psql:tests/10_pruebas_negocio.sql:522: NOTICE:  OK   terminada la decisión y la conversación, la prueba termina
+psql:tests/10_pruebas_negocio.sql:524: NOTICE:  OK   reiniciar deja la conversación vacía
+psql:tests/10_pruebas_negocio.sql:527: NOTICE:  OK   si una persona toma el chat, Eli no responde en él (RN-C19)
+psql:tests/10_pruebas_negocio.sql:531: NOTICE:  OK   el caso aerolínea trae su catálogo
+psql:tests/10_pruebas_negocio.sql:532: NOTICE:  OK   cada negocio lleva su propio avance
+psql:tests/10_pruebas_negocio.sql:535: NOTICE:  OK   quien no pertenece al negocio de prueba no puede usarlo (rechazado: Sin acceso al negocio)
 Todas las pruebas pasaron.
 TODO OK

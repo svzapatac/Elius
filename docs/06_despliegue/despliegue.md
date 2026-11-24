@@ -49,6 +49,10 @@ Al iniciar sesión, el panel muestra una pantalla para **elegir el caso**, cada 
 | 2 | Clínica Veterinaria Huellitas | Citas, vacunas y urgencias de mascotas |
 | 3 | Aerolínea Cóndor Andino | Cotización y reserva de vuelos |
 
-Al elegir uno, `platform.cargar_caso_demo(vertical)` crea el negocio de prueba (la persona queda como Administrador), con un catálogo de **5 ítems con imagen** y 3 conversaciones. Luego el panel llama a `elius.siguiente_mensaje_demo()` cada pocos segundos: llegan **20 mensajes** por caso (10 de clientes y 10 respuestas de Eli) y se ven en **Conversaciones** en vivo. La barra superior permite pausar o reiniciar la prueba y cambiar de caso. Si la persona toma una conversación, Eli deja de responder en ella (RN-C19).
+Al elegir uno, `platform.cargar_caso_demo(vertical)` crea el negocio de prueba (la persona queda como Administrador), con un catálogo de **5 ítems con imagen** y **20 clientes**, cada uno con su conversación. Luego el panel llama a `elius.siguiente_mensaje_demo()` cada pocos segundos y los chats se llenan en **Conversaciones**, en vivo, con Eli respondiendo y enviando las fotos del catálogo.
+
+**Conversaciones hasta el pago.** En cada caso, algunos clientes llevan el pedido completo: piden, confirman y **envían su comprobante de pago** (imagen real de Nequi/DaviPlata). El comprobante aparece en **Comprobantes** con su foto, el monto leído contra el monto de la orden y las alertas (RN-C16). La barra superior avisa «Esperando que revises N comprobantes». La prueba espera la decisión: al pulsar **Aceptar pago**, la orden queda confirmada y Eli continúa la conversación (confirma el pedido y se despide); al **Rechazar**, Eli le avisa al cliente y le pide otro comprobante. En el restaurante hay dos pagos: uno correcto y otro con comprobante equivocado (monto distinto y repetido), para ver las alertas.
+
+La barra superior permite pausar o reiniciar la prueba y cambiar de caso. Si la persona toma una conversación, Eli deja de responder en ella (RN-C19). Los negocios de prueba (slug `demo-…`) son la única excepción a RN-C12 al reiniciar: se pueden borrar sus pagos aprobados.
 
 Los guiones están en `database/modelo/casos_demo.py`; las ilustraciones se generan con `database/modelo/ilustraciones_demo.py`. Pruebas: grupo 18 de `database/tests`.
