@@ -80,3 +80,6 @@ La base envía una notificación push a la app gratuita **ntfy** (Android/iOS) c
 2. Suscríbete al tema secreto guardado en `platform.ajustes_globales` (clave `ntfy_topic`; consúltalo en el SQL Editor de Supabase).
 3. Al tocar el aviso se abre `https://chatbot-elius-panel.zaqd7q.easypanel.host/#/comprobantes` para aprobar o rechazar.
 Un negocio puede usar su propio tema con el parámetro `ntfy_topic` en `parametros_negocio`. El aviso incluye nombre del cliente, monto y negocio, y viaja por ntfy.sh. Además, el panel abierto muestra un aviso del navegador (botón «Activar avisos de pagos»).
+
+### Notificaciones push al celular (PWA)
+Servicio propio en `notificaciones/` (ver su README): al llegar un comprobante, la base (`t56_aviso_celular_comprobante` → `app.enviar_push_tenant` → `pg_net`) llama al servicio, que envía Web Push a los dispositivos que cada Administrador activó desde **Comprobantes**. Las suscripciones viven en `platform.push_suscripciones`; los ajustes (`vapid_public`, `push_service_url`, `push_service_token`) en `platform.ajustes_globales`. ntfy queda como canal opcional.

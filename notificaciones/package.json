@@ -1,0 +1,9 @@
+{
+  "name": "elius-notificaciones",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Servicio que envía notificaciones push (Web Push) al panel de Elius cuando llega un comprobante. Sin dependencias.",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node src/index.js", "prueba": "node pruebas/local.js" }
+}
