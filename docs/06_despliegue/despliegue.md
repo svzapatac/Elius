@@ -60,3 +60,14 @@ Al elegir uno, `platform.cargar_caso_demo(vertical)` crea el negocio de prueba (
 La barra superior permite pausar o reiniciar la prueba y cambiar de caso. Si la persona toma una conversación, Eli deja de responder en ella (RN-C19). Los negocios de prueba (slug `demo-…`) son la única excepción a RN-C12 al reiniciar: se pueden borrar sus pagos aprobados.
 
 Los guiones están en `database/modelo/casos_demo.py`; las ilustraciones se generan con `database/modelo/ilustraciones_demo.py`. Pruebas: grupo 18 de `database/tests`.
+
+## Validaciones, auditoría, reportes y copias de seguridad (noviembre 2026)
+
+- **Validaciones en la base** (no solo en el panel): precios y costos no negativos, correo con dominio obligatorio
+  (`ck_contactos_email`, `ck_invitaciones_email`), documento solo con dígitos (`ck_contactos_documento`; pasaporte alfanumérico),
+  tipo de documento limitado a CC, CE, TI, RC, NIT, PA. Son `NOT VALID`: protegen datos nuevos sin romper los antiguos.
+- **Auditoría en vivo**: la vista `elius.v_auditoria` (con `security_invoker`) expone `audit.registros_auditoria` al panel, que la refresca cada pocos segundos.
+- **Vistas reutilizables por mes**: `v_resumen_mensual` y `v_items_mas_vendidos_mensual`; el panel solo filtra por mes.
+- **Catálogo de eventos** del caso restaurante: cumpleaños, aniversarios, bautizos y grados, con imagen.
+- **Copias de seguridad**: `backups/` (XML comprimido, servicio en Easypanel). Ver `backups/README.md`.
+- **Multi-inquilino**: cada usuario de prueba trabaja en su propio inquilino demo; las políticas RLS impiden que unos afecten a otros.

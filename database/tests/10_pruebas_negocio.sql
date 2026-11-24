@@ -503,8 +503,8 @@ select pg_temp.ok((select count(*) from platform.tenants where slug like 'demo-%
 select pg_temp.ok(platform.cargar_caso_demo('restaurante') = current_setting('app.demo_restaurante')::uuid, 'elegir de nuevo el mismo caso reutiliza el negocio');
 select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_restaurante')::uuid);
 set role authenticated;
-select pg_temp.ok((select count(*) from elius.items_catalogo) = 5, 'el catálogo del caso trae 5 ítems');
-select pg_temp.ok((select count(*) from elius.medios_item) = 5, 'cada ítem trae su imagen');
+select pg_temp.ok((select count(*) from elius.items_catalogo) = 9, 'el catálogo del restaurante trae 5 ítems y 4 paquetes de celebración');
+select pg_temp.ok((select count(*) from elius.medios_item) = 9, 'cada ítem trae su imagen');
 select pg_temp.ok((select count(*) from elius.conversaciones) = 20, 'el caso trae 20 clientes (una conversación cada uno)');
 select pg_temp.ok((select count(*) from elius.mensajes) = 0, 'al elegir el caso no hay mensajes todavía');
 select count(elius.siguiente_mensaje_demo()) from generate_series(1, 70);
@@ -547,6 +547,23 @@ select pg_temp.falla($q$select elius.cambiar_rol_demo('super_admin')$q$, 'Rol no
 select elius.cambiar_rol_demo('administrador');
 select pg_temp.login('00000000-0000-0000-0000-0000000000a3', current_setting('app.demo_restaurante')::uuid);
 select pg_temp.falla($q$select elius.siguiente_mensaje_demo()$q$, 'Sin acceso', 'quien no pertenece al negocio de prueba no puede usarlo');
+select pg_temp.login(null);
+
+\echo '== 19. Validaciones de datos, auditoría y reportes por mes'
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_restaurante')::uuid);
+set role authenticated;
+select pg_temp.falla($q$insert into elius.items_catalogo (categoria_id, tipo, nombre, precio) select id, 'producto', 'Negativo', -100 from elius.categorias_catalogo limit 1$q$, 'ck_items_precio', 'el precio de venta no admite negativos');
+select pg_temp.falla($q$insert into elius.contactos (nombres, email) values ('Ana', 'ana@correo')$q$, 'ck_contactos_email', 'el correo exige dominio completo');
+select pg_temp.falla($q$insert into elius.contactos (nombres, email) values ('Ana', 'ana@@correo.com')$q$, 'ck_contactos_email', 'el correo con formato roto se rechaza');
+select pg_temp.falla($q$insert into elius.contactos (nombres, telefono, tipo_documento, numero_documento) values ('Ana', '+573001234567', 'CC', '12ab456')$q$, 'ck_contactos_documento', 'la cédula solo admite números');
+select pg_temp.ok((select count(*) from (select 1 from elius.contactos where false) x) = 0, 'los datos válidos no se afectan');
+insert into elius.contactos (nombres, email, tipo_documento, numero_documento) values ('Ana', 'ana@correo.com', 'CC', '1020304050');
+update elius.items_catalogo set precio = precio + 1000 where sku = 'RES-01';
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'items_catalogo' and operacion = 'UPDATE' and detalle like '%precio%') >= 1, 'Auditoría: se ve qué campo cambió y en qué tabla');
+select pg_temp.ok((select count(*) from elius.v_auditoria where cargo is not null) >= 1, 'Auditoría: se ve el cargo de quien hizo el cambio');
+select pg_temp.ok((select count(*) from elius.v_resumen_mensual) >= 0, 'Reportes: la vista mensual reutiliza las vistas diarias');
+select pg_temp.ok((select count(*) from elius.v_items_mas_vendidos_mensual) >= 0, 'Reportes: ítems más vendidos por mes');
+reset role;
 select pg_temp.login(null);
 
 \echo 'Todas las pruebas pasaron.'

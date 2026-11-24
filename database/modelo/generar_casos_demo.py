@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '5'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '6'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 def q(s): return s.replace("'", "''")
 
@@ -13,7 +13,7 @@ def datos_sql(v):
     d = {'negocio': c['negocio'], 'categorias': c['categoria'], 'contactos': c['contactos'],
          'items': [dict(cat=i[0], tipo=i[1], sku=i[2], nombre=i[3], desc=i[4], precio=i[5], iva=0, dur=i[7]) for i in c['items']],   # precios con impuestos incluidos
          'guion': [dict(conv=g[0], emisor=g[1], texto=g[2], img=g[3], comp=g[4]) for g in c['guion']],
-         'recursos': [list(r) for r in c['recursos']], 'efectos': c['efectos'], 'agenda': [list(a) for a in c['agenda']],
+         'imagenes': c.get('imagenes', {}), 'recursos': [list(r) for r in c['recursos']], 'efectos': c['efectos'], 'agenda': [list(a) for a in c['agenda']],
          'pagos': [dict(items=[list(x) for x in p['items']], entrega=p['entrega'], comp=p['comp'], aprobado=p['aprobado'], rechazado=p['rechazado']) for p in c['pagos']]}
     return json.dumps(d, ensure_ascii=False)
 
@@ -82,14 +82,29 @@ create or replace function elius.sembrar_clientes_demo(p_tenant uuid, p_vertical
 returns void language plpgsql security definer set search_path = '' as $$
 declare
   v_d jsonb := elius.datos_caso_demo(p_vertical);
-  v_canal uuid; v_contacto uuid; v_ident uuid; r jsonb; v_ini timestamptz; v_res uuid;
+  v_canal uuid; v_contacto uuid; v_ident uuid; r jsonb; v_ini timestamptz; v_res uuid; v_cat uuid; v_item uuid; rr record;
 begin
   select id into v_canal from elius.canales where tenant_id = p_tenant order by creado_en limit 1;
   perform elius.limpiar_caso_demo(p_tenant);
-  for r in select * from jsonb_array_elements(v_d->'items') loop
-    update elius.items_catalogo set nombre = r->>'nombre', descripcion = r->>'desc', precio = (r->>'precio')::numeric,
-           impuesto_pct = (r->>'iva')::numeric, disponible = true
-    where tenant_id = p_tenant and sku = r->>'sku';
+  -- categorías e ítems con su imagen (se crean los que falten y se actualizan los existentes)
+  for rr in select value, ordinality - 1 as i from jsonb_array_elements(v_d->'categorias') with ordinality loop
+    insert into elius.categorias_catalogo (tenant_id, nombre, orden)
+    select p_tenant, rr.value #>> '{{}}', rr.i::int
+    where not exists (select 1 from elius.categorias_catalogo where tenant_id = p_tenant and nombre = rr.value #>> '{{}}');
+  end loop;
+  for rr in select value, ordinality as k from jsonb_array_elements(v_d->'items') with ordinality loop
+    select id into v_cat from elius.categorias_catalogo
+    where tenant_id = p_tenant and nombre = (v_d->'categorias') ->> ((rr.value->>'cat')::int);
+    insert into elius.items_catalogo (tenant_id, categoria_id, tipo, sku, nombre, descripcion, precio, impuesto_pct, duracion_min)
+    values (p_tenant, v_cat, rr.value->>'tipo', rr.value->>'sku', rr.value->>'nombre', rr.value->>'desc',
+            (rr.value->>'precio')::numeric, (rr.value->>'iva')::numeric, nullif(rr.value->>'dur', '')::int)
+    on conflict (tenant_id, sku) do update set nombre = excluded.nombre, descripcion = excluded.descripcion, precio = excluded.precio,
+           impuesto_pct = excluded.impuesto_pct, categoria_id = excluded.categoria_id, disponible = true;
+    select id into v_item from elius.items_catalogo where tenant_id = p_tenant and sku = rr.value->>'sku';
+    if not exists (select 1 from elius.medios_item where tenant_id = p_tenant and item_id = v_item) then
+      insert into elius.medios_item (tenant_id, item_id, tipo_archivo, url, descripcion, orden)
+      values (p_tenant, v_item, 'foto', '/demo/' || coalesce(v_d->'imagenes'->>(rr.value->>'sku'), p_vertical || '-' || rr.k || '.svg'), rr.value->>'nombre', 0);
+    end if;
   end loop;
   for r in select * from jsonb_array_elements(v_d->'recursos') loop
     insert into elius.recursos (tenant_id, tipo, nombre, capacidad)
@@ -129,8 +144,7 @@ declare
   v_d jsonb := elius.datos_caso_demo(p_vertical);
   v_slug text;
   v_tenant uuid; v_agente uuid; v_canal uuid;
-  v_cats uuid[] := '{{}}'; v_cat uuid; v_item uuid;
-  r jsonb; k int;
+  
 begin
   if v_uid is null then raise exception 'Debe iniciar sesión' using errcode = '42501'; end if;
   if v_d is null then raise exception 'Caso desconocido: %', p_vertical; end if;
@@ -150,23 +164,6 @@ begin
   select id into v_agente from elius.agentes where tenant_id = v_tenant limit 1;
   insert into elius.canales (tenant_id, agente_id, tipo, nombre, identificador_externo)
   values (v_tenant, v_agente, 'whatsapp', 'WhatsApp de prueba', 'demo-' || v_slug) returning id into v_canal;
-
-  for r in select * from jsonb_array_elements(v_d->'categorias') loop
-    insert into elius.categorias_catalogo (tenant_id, nombre, orden)
-    values (v_tenant, r #>> '{{}}', coalesce(array_length(v_cats, 1), 0)) returning id into v_cat;
-    v_cats := v_cats || v_cat;
-  end loop;
-
-  k := 0;
-  for r in select * from jsonb_array_elements(v_d->'items') loop
-    k := k + 1;
-    insert into elius.items_catalogo (tenant_id, categoria_id, tipo, sku, nombre, descripcion, precio, impuesto_pct, duracion_min)
-    values (v_tenant, v_cats[(r->>'cat')::int + 1], r->>'tipo', r->>'sku', r->>'nombre', r->>'desc',
-            (r->>'precio')::numeric, (r->>'iva')::numeric, nullif(r->>'dur', '')::int)
-    returning id into v_item;
-    insert into elius.medios_item (tenant_id, item_id, tipo_archivo, url, descripcion, orden)
-    values (v_tenant, v_item, 'foto', '/demo/' || p_vertical || '-' || k || '.svg', r->>'nombre', 0);
-  end loop;
 
   perform elius.sembrar_clientes_demo(v_tenant, p_vertical);
   perform platform.cambiar_tenant(v_tenant);

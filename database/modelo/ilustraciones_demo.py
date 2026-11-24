@@ -64,6 +64,27 @@ guardar('restaurante-5.svg', lienzo('#be185d', '#831843', '''
 <circle cx="200" cy="108" r="14" fill="#e11d48"/><path d="M200 94 q8 -22 22 -26" stroke="#365314" stroke-width="3" fill="none"/>
 <rect x="95" y="190" width="210" height="4" fill="#f59e0b" opacity=".5"/>''', 'Tres leches'))
 
+
+# Celebraciones y eventos (restaurante)
+guardar('restaurante-6.svg', lienzo('#be185d', '#831843', '''
+<circle cx="90" cy="95" r="28" fill="#f43f5e"/><circle cx="130" cy="70" r="24" fill="#facc15"/><circle cx="310" cy="90" r="28" fill="#38bdf8"/><circle cx="270" cy="62" r="22" fill="#a3e635"/>
+<path d="M90 123 q4 40 30 70 M130 94 q-2 50 -14 100 M310 118 q-6 40 -36 76 M270 84 q4 50 -14 108" stroke="#fff" stroke-width="2" fill="none" opacity=".7"/>
+<rect x="130" y="170" width="140" height="62" rx="8" fill="#fef3c7"/><path d="M130 182 q17 -22 35 0 q17 -22 35 0 q17 -22 35 0 q17 -22 35 0 v8 h-140z" fill="#fff"/>
+<rect x="150" y="140" width="8" height="30" fill="#f43f5e"/><rect x="196" y="136" width="8" height="34" fill="#38bdf8"/><rect x="242" y="140" width="8" height="30" fill="#facc15"/>
+<path d="M154 128 q-6 10 0 14 q6 -4 0 -14z M200 124 q-6 10 0 14 q6 -4 0 -14z M246 128 q-6 10 0 14 q6 -4 0 -14z" fill="#fb923c"/>''', 'Pack cumpleaños'))
+guardar('restaurante-7.svg', lienzo('#9d174d', '#500724', '''
+<path d="M200 205 C120 150 120 100 165 100 C185 100 196 112 200 124 C204 112 215 100 235 100 C280 100 280 150 200 205z" fill="#f43f5e"/>
+<path d="M120 235 h160" stroke="#fff" stroke-width="3" opacity=".6"/>
+<path d="M100 120 l8 -22 l8 22 l-8 8z M290 120 l8 -22 l8 22 l-8 8z" fill="#fde68a"/>
+<circle cx="86" cy="190" r="10" fill="#fde68a" opacity=".8"/><circle cx="318" cy="196" r="10" fill="#fde68a" opacity=".8"/>
+<path d="M70 232 l30 -46 l14 18 M330 232 l-30 -46 l-14 18" stroke="#fff" stroke-width="3" fill="none" opacity=".6"/>''', 'Cena de aniversario'))
+guardar('restaurante-8.svg', lienzo('#1d4ed8', '#1e3a8a', '''
+<circle cx="200" cy="105" r="62" fill="#fff" opacity=".18"/>
+<path d="M140 120 q30 -70 90 -40 q40 18 40 60 q-30 -10 -52 10 q-20 -18 -50 -2 q-20 8 -28 -28z" fill="#fff"/>
+<path d="M230 80 q30 -20 44 -8 q-14 4 -18 18z" fill="#e2e8f0"/><circle cx="168" cy="112" r="4" fill="#1e3a8a"/><path d="M142 124 l-22 8 l22 4z" fill="#fbbf24"/>
+<path d="M170 150 q30 40 70 -2" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+<rect x="190" y="178" width="20" height="52" rx="4" fill="#fde68a"/><rect x="176" y="192" width="48" height="14" rx="4" fill="#fde68a"/>''', 'Pack bautizo'))
+
 # ---------------- Veterinaria ----------------
 PATA = '<ellipse cx="200" cy="175" rx="48" ry="40" fill="#fff"/><ellipse cx="135" cy="125" rx="20" ry="28" fill="#fff" transform="rotate(-20 135 125)"/><ellipse cx="180" cy="95" rx="20" ry="30" fill="#fff"/><ellipse cx="225" cy="95" rx="20" ry="30" fill="#fff"/><ellipse cx="268" cy="125" rx="20" ry="28" fill="#fff" transform="rotate(20 268 125)"/>'
 guardar('veterinaria-1.svg', lienzo('#0f766e', '#134e4a', PATA + '<circle cx="290" cy="200" r="34" fill="#f43f5e"/><path d="M290 182 v36 M272 200 h36" stroke="#fff" stroke-width="9" stroke-linecap="round"/>', 'Consulta general'))

@@ -1,13 +1,18 @@
 # Datos de los 3 casos de prueba (restaurante, veterinaria, aerolínea). Los usa generar_casos_demo.py.
 CASOS = {
  'restaurante': {
-  'negocio': 'Restaurante Sabor Criollo', 'categoria': ['Platos fuertes', 'Bebidas', 'Postres'],
+  'negocio': 'Restaurante Sabor Criollo', 'categoria': ['Platos fuertes', 'Bebidas', 'Postres', 'Celebraciones y eventos'],
   'items': [  # categoría(idx), tipo, sku, nombre, descripción, precio, iva, duración
    (0,'producto','RES-01','Bandeja paisa','Frijoles, arroz, carne molida, chicharrón, chorizo, huevo, plátano maduro y arepa.',38000,8,None),
    (0,'producto','RES-02','Hamburguesa de la casa','Carne de res 180 g, queso, tocineta y papas a la francesa.',28000,8,None),
    (0,'producto','RES-03','Arepa rellena de pollo','Arepa de maíz rellena de pollo desmechado con guacamole.',16000,8,None),
    (1,'producto','RES-04','Limonada de coco','Limonada cremada con coco, servida bien fría.',12000,8,None),
-   (2,'producto','RES-05','Tres leches','Bizcocho bañado en tres leches con crema y canela.',14000,8,None)],
+   (2,'producto','RES-05','Tres leches','Bizcocho bañado en tres leches con crema y canela.',14000,8,None),
+   (3,'servicio','RES-06','Pack cumpleaños','Mesa decorada con globos, torta personalizada y brindis para 10 personas.',450000,8,240),
+   (3,'servicio','RES-07','Cena de aniversario','Mesa para dos con decoración romántica, velas, flores y postre de cortesía.',180000,8,120),
+   (3,'servicio','RES-08','Pack bautizo','Salón decorado en tonos suaves, mesa de dulces y torta para 20 invitados.',620000,8,240),
+   (3,'servicio','RES-09','Pack grado','Arco de globos, torta personalizada y mesa decorada para 15 invitados.',580000,8,240)],
+  'imagenes': {'RES-09': 'restaurante-9.jpg'},
   },
  'veterinaria': {
   'negocio': 'Clínica Veterinaria Huellitas', 'categoria': ['Consultas y cirugía', 'Prevención', 'Estética'],
