@@ -585,6 +585,10 @@ select elius.cambiar_rol_demo('operador');
 with u as (update elius.items_catalogo set precio = 1 where sku = 'RES-01' returning 1) select pg_temp.ok((select count(*) from u) = 0, 'el operador no cambia el catálogo');
 select pg_temp.falla($q$select elius.aprobar_comprobante((select comprobante_id from elius.v_comprobantes_pendientes limit 1), false)$q$, 'Solo el Administrador', 'el operador no aprueba comprobantes');
 select elius.cambiar_rol_demo('administrador');
+select pg_temp.ok((elius.avisos_celular_info() ->> 'tema') like 'elius-pagos-%', 'el Administrador ve el tema de avisos');
+select elius.cambiar_rol_demo('operador');
+select pg_temp.falla($q$select elius.avisos_celular_info()$q$, 'Solo un Administrador', 'el operador no ve el tema de avisos');
+select elius.cambiar_rol_demo('administrador');
 -- el analista hace su trabajo: lee todo lo operativo y los reportes, y no escribe
 select elius.cambiar_rol_demo('analista');
 select pg_temp.ok((select count(*) from elius.v_resumen_mensual) >= 0 and (select count(*) from elius.v_items_mas_vendidos_mensual) >= 0 and (select count(*) from elius.v_items_mas_vendidos) >= 0, 'el analista lee los reportes y métricas');
