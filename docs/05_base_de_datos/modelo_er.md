@@ -1,6 +1,6 @@
 # Modelo entidad-relación de Elius
 
-Modelo completo del software: **81 tablas** con sus campos y relaciones. El color agrupa las tablas por módulo; las tablas con solo el nombre son de otro módulo y se muestran para ver cómo se conectan. `PK` es llave primaria, `FK` llave foránea y `UQ` valor único. Cada línea lleva el nombre de la columna que la crea y usa notación pata de gallo: la pata es el lado «muchos» y la rayita el «uno»; el círculo significa que es opcional.
+Modelo completo del software: **83 tablas** con sus campos y relaciones. El color agrupa las tablas por módulo; las tablas con solo el nombre son de otro módulo y se muestran para ver cómo se conectan. `PK` es llave primaria, `FK` llave foránea y `UQ` valor único. Cada línea lleva el nombre de la columna que la crea y usa notación pata de gallo: la pata es el lado «muchos» y la rayita el «uno»; el círculo significa que es opcional.
 
 No se dibujan `tenant_id`, `creado_en` ni `actualizado_en`: **todas las tablas de negocio los tienen** (ver [05_seguridad_multitenant_rls.md](05_seguridad_multitenant_rls.md)). Las tablas de transición, que resuelven una relación de muchos a muchos, guardan datos propios y están listadas en [03_relaciones.md](03_relaciones.md).
 

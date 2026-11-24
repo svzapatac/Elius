@@ -18,13 +18,13 @@ Plataforma SaaS multi-tenant que centraliza los datos de **Eli**, el agente de i
 
 ## Base de datos de un vistazo
 
-- **81 tablas**: 55 del modelo general (`platform`, `audit`, `elius`, `ext`) y 26 de plugins (`plugin_vet`, `plugin_restaurant`, `plugin_airline`), separados en esquemas distintos.
-- **191 relaciones**, 24 tablas de transición con datos propios; sin relaciones 1 a 1 ni muchos a muchos (validado por script).
+- **83 tablas**: 57 del modelo general (`platform`, `audit`, `elius`, `ext`) y 26 de plugins (`plugin_vet`, `plugin_restaurant`, `plugin_airline`), separados en esquemas distintos.
+- **192 relaciones**, 24 tablas de transición con datos propios; sin relaciones 1 a 1 ni muchos a muchos (validado por script).
 - **6 roles generales fijos** (Super Admin, Soporte, Administrador, Operador, Analista, Eli); los plugins solo personalizan con accesos especiales y cargos.
 - **3 usuarios de conexión** sin superusuario: `elius_admin`, `elius_app`, `elius_consulta`.
-- RLS en las 80 tablas propias (288 políticas), 179 triggers, 20 vistas, 24 procedimientos de negocio.
+- RLS en las 82 tablas propias (288 políticas; las dos internas de avisos no tienen políticas: solo las leen funciones de confianza), 179 triggers, 20 vistas, 24 procedimientos de negocio.
 
-**Modelo E/R completo:** [`docs/05_base_de_datos/modelo_er.md`](docs/05_base_de_datos/modelo_er.md) (diagrama de las 81 tablas y uno por módulo).
+**Modelo E/R completo:** [`docs/05_base_de_datos/modelo_er.md`](docs/05_base_de_datos/modelo_er.md) (diagrama de las 83 tablas y uno por módulo).
 
 Para sustentar, empezar por [`docs/05_base_de_datos/00_indice.md`](docs/05_base_de_datos/00_indice.md).
 

@@ -54,7 +54,7 @@ def generar():
            "-- =============================================================================", ""]
     fk_sql, comentarios = [], []
     for t in TABLAS:
-        if t["externa"]:
+        if t["externa"] or t.get("manual"):
             continue  # platform.usuarios = auth.users de Supabase
         n = nombre_completo(t)
         cols = [columna_sql(t, c, tipo, flags) for c, tipo, flags, _d in t["columnas"]]
@@ -105,7 +105,7 @@ def generar():
     out.append("-- Índices: toda llave foránea indexada empezando por tenant_id (DT-06)")
     out.append("-- -----------------------------------------------------------------------------")
     for t in TABLAS:
-        if t["externa"]:
+        if t["externa"] or t.get("manual"):
             continue
         n = nombre_completo(t)
         for col, destino, _nullable in fks(t):

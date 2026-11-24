@@ -218,6 +218,23 @@ Table audit.registros_auditoria [note: 'Bitácora de cambios de todas las tablas
   actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
 }
 
+Table platform.ajustes_globales [note: 'Ajustes de toda la plataforma (tema ntfy, llaves VAPID públicas, URL y token del servicio de notificaciones). Sin acceso desde el panel (referencia)'] {
+  clave "text" [pk, not null, note: 'Nombre del ajuste: ntfy_topic, vapid_public, push_service_url, push_service_token…']
+  valor "text" [not null, note: 'Valor actual']
+  descripcion "text" [null, note: 'Para qué sirve']
+}
+
+Table platform.push_suscripciones [note: 'Dispositivos de cada usuario suscritos a notificaciones push (Web Push): reciben el aviso de comprobante pendiente (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  usuario_id "uuid" [not null, note: 'Usuario dueño del dispositivo']
+  endpoint "text" [unique, not null, note: 'Dirección única que entrega el navegador']
+  p256dh "text" [not null, note: 'Llave pública del navegador (cifrado del mensaje)']
+  auth "text" [not null, note: 'Secreto de autenticación del navegador']
+  dispositivo "text" [null, note: 'Celular, computador…']
+  activo "boolean" [not null, note: 'false cuando el servicio de push informa que el dispositivo ya no existe']
+  creado_en "timestamptz" [not null, note: 'Cuándo se activó']
+}
+
 Table elius.contactos [note: 'Cliente final: propietario, comensal, pasajero o comprador (entidad)'] {
   id "uuid" [pk, not null, note: 'Identificador único']
   tenant_id "uuid" [not null, note: 'Tenant dueño del registro']
@@ -1206,6 +1223,7 @@ Ref: platform.llaves_api.creado_por > platform.usuarios.id
 Ref: platform.consumos_periodo.tenant_id > platform.tenants.id
 Ref: audit.registros_auditoria.tenant_id > platform.tenants.id
 Ref: audit.registros_auditoria.usuario_id > platform.usuarios.id
+Ref: platform.push_suscripciones.usuario_id > platform.usuarios.id
 Ref: elius.contactos.tenant_id > platform.tenants.id
 Ref: elius.direcciones.tenant_id > platform.tenants.id
 Ref: elius.direcciones.contacto_id > elius.contactos.id
@@ -1386,6 +1404,8 @@ TableGroup modelo_general_platform {
   platform.llaves_api
   platform.consumos_periodo
   audit.registros_auditoria
+  platform.ajustes_globales
+  platform.push_suscripciones
 }
 
 TableGroup modelo_general_elius {

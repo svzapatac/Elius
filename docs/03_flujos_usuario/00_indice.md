@@ -40,6 +40,7 @@ Todos empiezan igual: **iniciar sesión → el JWT trae el negocio predeterminad
 | Operador | Operador (cargo: recepción, cajero, cocina, domiciliario, veterinario, counter) | Atiende pendientes, ve los comprobantes (no los aprueba), marca llegó / no llegó, prepara y entrega pedidos | escalamientos, conversaciones, comprobantes_pago, reservas, ordenes | conversaciones, pagos, comprobantes_pago, reservas, entregas, comandas | [03](03_panel_operador.md) |
 | Analista | Analista | Consulta ventas, embudo, métricas de conversaciones y consumo de IA | vistas v_ventas_diarias, v_embudo_diario, v_metricas_conversaciones, v_consumo_ia_mensual | — | [04](04_panel_analista.md) |
 | WhatsApp con Eli | Cliente final | Pide información, reserva, hace un pedido y paga | items_catalogo, horarios_atencion, recursos | contactos, conversaciones, mensajes, reservas, ordenes, comprobantes_pago, recaudos | [05](05_cliente_whatsapp.md) |
+| Avisos al celular (sistema) | Administrador | Recibe un push cuando llega un comprobante pendiente y lo decide desde el panel | comprobantes_pago, push_suscripciones | push_suscripciones | [07](07_avisos_y_automatizaciones.md) |
 | Extensión de Chrome | Operador, Administrador | Captura conversaciones de otras páginas y propone patrones para Eli | sitios_autorizados | conversaciones_capturadas, mensajes_capturados, patrones | [06](06_extension_chrome.md) |
 
 La arquitectura de cada panel está en [../02_arquitectura](../02_arquitectura/00_arquitectura_general.md).

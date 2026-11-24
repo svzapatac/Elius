@@ -10,7 +10,7 @@ Cada tabla con sus columnas: tipo, si admite nulos, valor por defecto, restricci
 
 ## Modelo general
 
-### Esquema `platform` (15 tablas)
+### Esquema `platform` (17 tablas)
 
 #### `platform.planes`
 
@@ -288,6 +288,33 @@ Consumo por mes para límites del plan y cobro. Tipo: **entidad**.
 | `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
 
 Únicos: (tenant_id, periodo, metrica)
+
+#### `platform.ajustes_globales`
+
+Ajustes de toda la plataforma (tema ntfy, llaves VAPID públicas, URL y token del servicio de notificaciones). Sin acceso desde el panel. Tipo: **referencia**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `clave` | text | no | gen_random_uuid() | PK | Nombre del ajuste: ntfy_topic, vapid_public, push_service_url, push_service_token… |  |
+| `valor` | text | no | 0 |  | Valor actual |  |
+| `descripcion` | text | sí |  |  | Para qué sirve |  |
+
+#### `platform.push_suscripciones`
+
+Dispositivos de cada usuario suscritos a notificaciones push (Web Push): reciben el aviso de comprobante pendiente. Tipo: **entidad**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `id` | uuid | no | gen_random_uuid() | PK | Identificador único |  |
+| `usuario_id` | uuid | no |  | FK → `platform.usuarios` | Usuario dueño del dispositivo |  |
+| `endpoint` | text | no |  | UNIQUE | Dirección única que entrega el navegador |  |
+| `p256dh` | text | no |  |  | Llave pública del navegador (cifrado del mensaje) |  |
+| `auth` | text | no |  |  | Secreto de autenticación del navegador |  |
+| `dispositivo` | text | sí |  |  | Celular, computador… |  |
+| `activo` | boolean | no | true |  | false cuando el servicio de push informa que el dispositivo ya no existe |  |
+| `creado_en` | timestamptz | no | now() |  | Cuándo se activó |  |
 
 ### Esquema `audit` (1 tablas)
 

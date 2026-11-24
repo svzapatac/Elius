@@ -19,18 +19,20 @@ AUDITORIA = {"id", "tenant_id", "creado_en", "actualizado_en", "creado_por"}
 
 
 def tabla(esquema, nombre, tipo, descripcion, columnas, unicos=(), tenant=True,
-          resuelve=None, externa=False):
-    """tipo: entidad | transicion | referencia."""
-    cols = [("id", "uuid", "pk", "Identificador único")]
-    if tenant:
+          resuelve=None, externa=False, manual=False):
+    """tipo: entidad | transicion | referencia.
+    manual=True: la tabla la crea una migración escrita a mano (no el generador de SQL) y sus
+    columnas se dan completas (llave propia, sin id/tenant_id/fechas automáticas)."""
+    cols = [] if manual else [("id", "uuid", "pk", "Identificador único")]
+    if tenant and not manual:
         cols.append(("tenant_id", "uuid", "fk:platform.tenants", "Tenant dueño del registro"))
     cols += columnas
-    if not externa:
+    if not externa and not manual:
         cols += [("creado_en", "timestamptz", "", "Fecha de creación"),
                  ("actualizado_en", "timestamptz", "", "Fecha de la última modificación")]
     TABLAS.append(dict(esquema=esquema, nombre=nombre, tipo=tipo, descripcion=descripcion,
                        columnas=cols, unicos=list(unicos), tenant=tenant,
-                       resuelve=resuelve, externa=externa))
+                       resuelve=resuelve, externa=externa, manual=manual))
 
 
 # =============================================================================
@@ -190,6 +192,25 @@ tabla("audit", "registros_auditoria", "entidad", "Bitácora de cambios de todas 
     ("datos_anteriores", "jsonb", "null R", "Valores antes"),
     ("datos_nuevos", "jsonb", "null R", "Valores después"),
 ], tenant=False)
+
+# --- Avisos al celular (migraciones 0500-0700, 24-nov-2026): tablas internas de la plataforma ---
+tabla(P, "ajustes_globales", "referencia", "Ajustes de toda la plataforma (tema ntfy, llaves VAPID públicas, URL y token del servicio de notificaciones). Sin acceso desde el panel", [
+    ("clave", "text", "pk", "Nombre del ajuste: ntfy_topic, vapid_public, push_service_url, push_service_token…"),
+    ("valor", "text", "", "Valor actual"),
+    ("descripcion", "text", "null", "Para qué sirve"),
+], tenant=False, manual=True)
+
+tabla(P, "push_suscripciones", "entidad", "Dispositivos de cada usuario suscritos a notificaciones push (Web Push): reciben el aviso de comprobante pendiente", [
+    ("id", "uuid", "pk", "Identificador único"),
+    ("usuario_id", "uuid", "fk:platform.usuarios", "Usuario dueño del dispositivo"),
+    ("endpoint", "text", "uq", "Dirección única que entrega el navegador"),
+    ("p256dh", "text", "", "Llave pública del navegador (cifrado del mensaje)"),
+    ("auth", "text", "", "Secreto de autenticación del navegador"),
+    ("dispositivo", "text", "null", "Celular, computador…"),
+    ("activo", "boolean", "", "false cuando el servicio de push informa que el dispositivo ya no existe"),
+    ("creado_en", "timestamptz", "", "Cuándo se activó"),
+], tenant=False, manual=True)
+
 
 # =============================================================================
 # ELIUS — núcleo de negocio común

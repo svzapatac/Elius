@@ -10,7 +10,7 @@
 | No hay relaciones muchos a muchos directas | Cada M:N se resuelve con una tabla de transición y dos relaciones de uno a muchos | Las 24 transiciones están declaradas con las dos tablas que unen (error R2 si no unen dos tablas) |
 | Ninguna tabla es solo de llaves | Toda transición guarda datos propios de la relación | `generar.py` falla si una tabla solo tiene `id`, llaves y fechas de control (error R3) |
 
-Resultado de la última validación (`database/modelo/salida/validacion.json`): **81 tablas, 191 relaciones, 0 errores.**
+Resultado de la última validación (`database/modelo/salida/validacion.json`): **83 tablas, 192 relaciones, 0 errores.**
 
 ### Lo que se cambió para cumplirlas
 

@@ -4,10 +4,10 @@ Cada documento explica una parte por separado: qué se hizo, cómo y por qué. L
 
 | # | Documento | Qué responde |
 | --- | --- | --- |
-| 00 | [**Modelo E/R completo (diagramas)**](modelo_er.md) | Las 81 tablas con columnas y relaciones, completo y por módulo |
+| 00 | [**Modelo E/R completo (diagramas)**](modelo_er.md) | Las 83 tablas con columnas y relaciones, completo y por módulo |
 | 01 | [Modelo entidad-relación](01_modelo_entidad_relacion.md) | Qué tablas hay, cómo se relacionan y cómo se cumplen las 3 reglas del curso |
 | 02 | [Diccionario de datos](02_diccionario_datos.md) ⚙ | Cada columna: tipo, nulos, valor por defecto, restricción, descripción y privacidad |
-| 03 | [Relaciones](03_relaciones.md) ⚙ | Las 191 relaciones con su cardinalidad y qué pasa al borrar |
+| 03 | [Relaciones](03_relaciones.md) ⚙ | Las 192 relaciones con su cardinalidad y qué pasa al borrar |
 | 04 | [Restricciones](04_restricciones.md) | `CHECK`, `UNIQUE`, exclusión e índices, y la regla de negocio de cada uno |
 | 05 | [Seguridad multi-tenant y RLS](05_seguridad_multitenant_rls.md) | Cómo se aísla cada negocio dentro de una sola base |
 | 06 | [Roles y permisos](06_roles_y_permisos.md) | Los 6 roles generales, accesos especiales, plugins y los 3 usuarios de PostgreSQL |
@@ -22,7 +22,7 @@ Cada documento explica una parte por separado: qué se hizo, cómo y por qué. L
 
 | Objeto | Cantidad |
 | --- | --- |
-| Tablas | 81 (55 del modelo general, 26 de plugins); 80 propias + `auth.users` de Supabase |
+| Tablas | 83 (57 del modelo general, 26 de plugins); 82 propias + `auth.users` de Supabase |
 | Relaciones (llaves foráneas) | 191, de ellas 95 compuestas `(tenant_id, columna)` |
 | Tablas de transición | 24, todas con datos propios |
 | Restricciones `CHECK` | 110 |

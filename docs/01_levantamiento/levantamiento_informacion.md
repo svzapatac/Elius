@@ -1,6 +1,6 @@
 # Elius — Documento de levantamiento de información y reglas de negocio
 
-Versión 0.3 · actualizado el 23 de noviembre de 2026 · exportado del documento de trabajo del equipo
+Versión 0.4 · actualizado el 24 de noviembre de 2026 · exportado del documento de trabajo del equipo
 
 ## 1. Información general
 
@@ -333,6 +333,11 @@ Se identificaron 73 reglas. Cada una indica cómo la va a garantizar la base de 
 | RN-C22 | Si el negocio tiene Factus Pay activo, Eli cobra con una llave Bre-B y un QR por el monto exacto. El pago se confirma solo con el webhook validado, sin intervención humana. | Función de estrategia de cobro + procedimiento del webhook + trigger que crea el pago |
 | RN-C23 | Factus no acepta pagos parciales ni montos distintos, y cobra entre 1.000 y 12.100.000 COP. Cada abono es un recaudo aparte; si el monto queda fuera del rango o el negocio no usa Factus, se cobra por comprobante tradicional. | CHECK de montos + función de estrategia de cobro |
 | RN-C24 | El webhook se valida comparando la clave secreta en tiempo constante. Se guarda antes de responder 2xx, es idempotente (un webhook repetido no paga dos veces) y en montos altos se confirma consultando el recaudo en la API. | Bandeja de notificaciones + procedimiento solo para el backend |
+| RN-C26 | Solo un Administrador puede aprobar o rechazar un comprobante de pago. Un Operador que lo intente recibe un error claro. | Triggers `t53/t55_solo_admin_decide` sobre el veredicto del comprobante |
+| RN-C27 | Cuando llega un comprobante pendiente, cada Administrador activo recibe un aviso en su celular con el cliente, el monto y un enlace para aprobar o rechazar. Si el monto no coincide, el aviso lo destaca. | Trigger `t56_aviso_celular_comprobante` (función `avisar_comprobante_celular`) + `pg_net` hacia el servicio de notificaciones y hacia ntfy |
+| RN-C28 | El aviso es un respaldo del flujo, no parte de él: si el servicio de notificaciones falla, el comprobante se guarda igual y el error queda como aviso en el registro de la base. | Bloque `exception` dentro del trigger |
+| RN-C29 | Cada reserva de cualquier caso puede marcarse como “llegó” o “no llegó”. Marcar “no llegó” pasa la reserva a `no_asistio` y libera el recurso. | Procedimientos `elius.marcar_llegada` y `elius.marcar_no_llegada` + trigger de transiciones (RN-C09) |
+| RN-C30 | Las validaciones de dominio nuevas (teléfonos, montos positivos, fechas coherentes, estados permitidos) se agregaron como `CHECK ... NOT VALID`: protegen los datos nuevos sin romper los antiguos. | Migración 0200 de validaciones |
 | RN-C25 | Factus no permite reversos ni reembolsos, porque la transferencia va de banco a banco. Una devolución se registra como un pago negativo hecho por fuera. | CHECK de reversos en pagos |
 
 ### 9.3 Extensión de Chrome
@@ -424,6 +429,18 @@ Elius usa **seis roles generales, iguales para todos los tenants y todas las ver
 
 “Con autorización” significa que el Administrador abrió un acceso de soporte que vence solo y queda registrado en la auditoría.
 
+**Ajuste del 24 de noviembre de 2026 (permisos estrictos por rol).** Después de revisar el panel con el equipo se afinó lo siguiente, y la base de datos lo hace cumplir (no solo la pantalla):
+
+| Tema | Regla final |
+| --- | --- |
+| Modelo de datos, flujos, diccionario y levantamiento | Solo Administrador y Super Admin |
+| Vistas y consultas (consola SQL) | Solo Administrador y Super Admin |
+| Aprobar o rechazar comprobantes de pago | Solo el Administrador. El Operador ve los comprobantes pero no decide; el Analista solo mira |
+| Catálogo | El Operador solo consulta; únicamente el Administrador crea o cambia ítems |
+| Eli como usuario del panel | Eli no tiene pantalla: es una identidad de sistema que actúa por la API. Se quitó su panel |
+| Analista | Lee reportes, métricas, reservas, órdenes, conversaciones y comprobantes; no escribe en ninguna parte |
+| Marcar si el cliente llegó o no llegó a una reserva | Operador y Administrador, en los tres casos (veterinaria, restaurante, aerolínea) |
+
 ### 10.2 Personalización por plugin
 
 El plugin no crea roles: personaliza los roles generales de tres maneras.
@@ -486,7 +503,7 @@ El trabajo se entrega en dos partes: este documento con el diseño y el código 
 
 ## 13. Modelo entidad-relación
 
-El modelo tiene 81 tablas y 191 relaciones, y cumple las tres reglas obligatorias. Un script lo verifica automáticamente. El resultado: ninguna relación 1 a 1, ninguna relación muchos a muchos directa, y las 24 tablas de transición guardan datos propios.
+El modelo tiene 83 tablas y 192 relaciones, y cumple las tres reglas obligatorias. Un script lo verifica automáticamente. El resultado: ninguna relación 1 a 1, ninguna relación muchos a muchos directa, y las 24 tablas de transición guardan datos propios.
 
 ### 13.1 Reglas del modelado
 
@@ -507,16 +524,16 @@ El modelo tiene 81 tablas y 191 relaciones, y cumple las tres reglas obligatoria
 
 | Parte | Esquema | Tablas | Entidades | Transiciones | Referencia |
 | --- | --- | --- | --- | --- | --- |
-| Modelo general | `platform` | 15 | 5 | 6 | 4 |
+| Modelo general | `platform` | 17 | 6 | 6 | 5 |
 | Modelo general | `audit` | 1 | 1 | 0 | 0 |
 | Modelo general | `elius` | 33 | 29 | 4 | 0 |
 | Modelo general | `ext` | 6 | 5 | 1 | 0 |
-| **Subtotal modelo general** |  | **55** | **40** | **11** | **4** |
+| **Subtotal modelo general** |  | **57** | **41** | **11** | **5** |
 | Plugin | `plugin_vet` | 5 | 2 | 3 | 0 |
 | Plugin | `plugin_restaurant` | 12 | 7 | 5 | 0 |
 | Plugin | `plugin_airline` | 9 | 3 | 5 | 1 |
 | **Subtotal plugins** |  | **26** | **12** | **13** | **1** |
-| **Total** |  | **81** | **52** | **24** | **5** |
+| **Total** |  | **83** | **53** | **24** | **6** |
 
 ### 13.4 Tablas de transición
 
@@ -841,6 +858,20 @@ Cada decisión del diseño tiene una razón y una fuente oficial que la respalda
 - **Por qué.** Hoy una persona revisa cada comprobante a mano, y el código de Potrillos tiene parches para no cobrar dos veces. Factus Pay crea un cobro con llave Bre-B y QR por el monto exacto, y avisa por webhook cuando se paga. Así el pago se confirma solo, sin leer imágenes. Factus tiene límites: no acepta pagos parciales ni montos distintos, cobra entre 1.000 y 12.100.000 COP, no hace reversos y cobra $800 + IVA por recaudo. Por eso el comprobante tradicional sigue como respaldo.
 - **Cómo.** Patrón Strategy (DT-10): la función `estrategia_cobro` elige “llave Bre-B” si el negocio tiene Factus activo y el monto cabe en sus límites; si no, elige “comprobante”. Una Edge Function crea el recaudo con `POST /v1/collections` y lo guarda en `recaudos`. El webhook llega a otra Edge Function, que valida la clave `?key=` en tiempo constante, guarda la notificación y la aplica con `procesar_webhook_factus`. Al quedar pagado, un trigger crea el pago y otro confirma la orden. Las credenciales y la clave del webhook van en Supabase Vault.
 - **Fuente.** [Factus Pay: autenticación](https://pay-developers.factus.com.co/autenticacion/) · [Crear un recaudo](https://pay-developers.factus.com.co/recaudos/crear/) · [Ver un recaudo](https://pay-developers.factus.com.co/recaudos/ver/) · [Webhooks](https://pay-developers.factus.com.co/webhooks/) · [Preguntas frecuentes](https://pay-developers.factus.com.co/preguntas-frecuentes/)
+
+### DT-19. Avisos al celular: trigger, `pg_net` y un servicio de Web Push
+
+- **Por qué.** Durante la prueba el Administrador debe aprobar o rechazar el pago apenas llega, sin tener el panel abierto. Un correo es lento y WhatsApp no sirve para avisar al dueño de lo que pasa con sus propios clientes. Una notificación push en el celular llega en segundos y abre el panel en Comprobantes.
+- **Cómo.** El trigger `t56_aviso_celular_comprobante` (`AFTER INSERT` en `elius.comprobantes_pago`) llama a `app.avisar_comprobante_celular`, que arma el mensaje y usa la extensión `pg_net` para hacer dos llamadas HTTP asíncronas: (1) al servicio `notificaciones/` (Node, desplegado en Easypanel), que cifra el mensaje con Web Push (RFC 8291, `aes128gcm`) y lo firma con VAPID; (2) a ntfy.sh como respaldo con un tema secreto. El servicio no guarda nada: la base le manda en cada llamada las suscripciones activas de los Administradores del negocio (`platform.push_suscripciones`) y un token compartido (`platform.ajustes_globales`). Cada Administrador puede desactivar su dispositivo desde Comprobantes. El panel registra un service worker, pide permiso y guarda la suscripción con `guardar_suscripcion_push`.
+- **Por qué así y no desde el panel o n8n.** El evento ocurre en la base (lo escribe Eli o n8n), así que el trigger es el único punto por el que pasan todos los casos. No depende de que alguien tenga el panel abierto y no se puede olvidar en un flujo.
+- **Seguridad.** El token del servicio y la llave privada VAPID no están en el repositorio: la privada vive solo en las variables de entorno de Easypanel. `ajustes_globales` y `push_suscripciones` tienen RLS activo y ninguna política, así que el panel no puede leerlas: solo las funciones `SECURITY DEFINER`. Solo un Administrador puede suscribir un dispositivo.
+- **Límites.** En iPhone el panel debe agregarse a la pantalla de inicio para recibir push. El aviso es de mejor esfuerzo: la fuente de verdad sigue siendo el comprobante en la tabla.
+
+### DT-20. Permisos por rol aplicados en la base de datos
+
+- **Por qué.** Esconder un botón en el panel no impide que alguien llame a la API con su sesión. La regla “solo el Administrador decide comprobantes” debe cumplirse aunque se llame directo a la base.
+- **Cómo.** Los permisos por rol viven en `platform.rol_permisos` con nivel (`lectura` o `escritura`). El Operador tiene `catalogo` en lectura y `pagos` en escritura, pero el trigger `app.solo_admin_decide_comprobantes` rechaza cambiar el veredicto de un comprobante si quien lo hace no es Administrador. La consola SQL permite solo Administrador y Super Admin (`app.es_super_admin()`). El panel además oculta los módulos y protege las rutas, como una segunda capa.
+- **Pruebas.** El script de pruebas incluye casos de cada rol: el Operador no aprueba ni edita el catálogo, el Analista lee pero no escribe y el Administrador sí hace ambas cosas.
 
 ## 15. Herramientas recomendadas
 

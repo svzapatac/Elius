@@ -21,8 +21,8 @@ M = [
   "elius.categorias_catalogo elius.items_catalogo elius.item_adicionales elius.medios_item elius.recursos elius.horarios_atencion elius.reservas elius.asignaciones_recurso"),
  ("06-ordenes-y-pagos", "Órdenes, pagos y Factus Pay", "#0B6E4F", "general",
   "elius.ordenes elius.orden_items elius.entregas elius.pagos elius.comprobantes_pago elius.pasarelas_pago elius.recaudos elius.notificaciones_pasarela"),
- ("07-configuracion-y-conocimiento", "Configuración y conocimiento de Eli", "#6B4C9A", "general",
-  "elius.parametros_negocio elius.suscripciones_push elius.documentos_conocimiento elius.fragmentos_conocimiento elius.eventos_salida"),
+ ("07-configuracion-y-conocimiento", "Configuración, avisos y conocimiento de Eli", "#6B4C9A", "general",
+  "elius.parametros_negocio platform.ajustes_globales platform.push_suscripciones elius.suscripciones_push elius.documentos_conocimiento elius.fragmentos_conocimiento elius.eventos_salida"),
  ("08-extension-chrome", "Extensión de Chrome", "#8A4B08", "general",
   " ".join(f"ext.{n}" for n in "instalaciones_extension sitios_autorizados conversaciones_capturadas mensajes_capturados patrones evidencias_patron".split())),
  ("09-plugin-veterinaria", "PLUGIN · Veterinaria", "#B5174B", "plugin",
@@ -123,7 +123,7 @@ for i, (a, tit, _c, _g, ts) in enumerate(M):
 # Modelo general completo y plugins completos
 for archivo, tit, grupo in (("00a-modelo-general-completo", "Elius · Modelo general (todas las tablas)", "general"),
                             ("00b-plugins-completo", "Elius · Plugins: veterinaria, restaurante y aerolínea", "plugin"),
-                            ("00-modelo-er-completo", "Elius · Modelo E/R completo (81 tablas)", None)):
+                            ("00-modelo-er-completo", "Elius · Modelo E/R completo (83 tablas)", None)):
     p = {n for n in IDX if grupo is None or M[MOD[n]][3] == grupo}
     dibujar(archivo, tit, p, [r for r in R if r[0] in p and r[2] in p])
 print("ok", len(os.listdir(SALIDA)))

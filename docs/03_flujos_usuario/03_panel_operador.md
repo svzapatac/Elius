@@ -21,7 +21,7 @@ flowchart TD
   class A ok
 ```
 
-## Revisar un comprobante de pago (cobro tradicional)
+## Comprobantes de pago: el Operador consulta, el Administrador decide
 
 ```mermaid
 flowchart TD
@@ -29,32 +29,28 @@ flowchart TD
   B --> C{¿Alertas?<br/>monto distinto · repetido · destinatario raro}
   C -- Con alerta --> D[Aparece arriba en Comprobantes, marcado]
   C -- Sin alerta --> E[Aparece en Comprobantes]
-  D --> F{El Operador revisa}
+  B --> N[Un trigger avisa al celular del Administrador]
+  D --> F[El Operador lo ve y puede atender al cliente]
   E --> F
-  F -- Rechazar --> G[rechazar_comprobante con motivo<br/>Eli avisa al cliente]
-  F -- Aprobar --> H{¿Cubre el total?}
-  H -- Sí --> I[aprobar_comprobante<br/>orden confirmada]
-  H -- No --> J{¿El resto se paga<br/>en efectivo al entregar?}
-  J -- Sí --> K[aprobar_comprobante con contra entrega<br/>orden confirmada]
-  J -- No --> L[Pago parcial registrado<br/>Eli pide el resto]
-  I --> M([Pasa a cocina o a la reserva])
-  K --> M
+  F --> G{¿Intenta aprobar o rechazar?}
+  G -- No --> H([Espera la decisión del Administrador<br/>y sigue con pendientes y reservas])
+  G -- Sí --> X([La base lo rechaza:<br/>solo un Administrador decide])
   classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
   classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
   classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
-  class C,F,H,J dec
-  class A,M ok
+  class C,G dec
+  class A,H,X ok
 ```
 
-## Reservas del día
+## Reservas del día: llegó o no llegó (los tres casos)
 
 ```mermaid
 flowchart TD
-  A([Abre Agenda del día<br/>elius.v_agenda_dia]) --> B{¿Llegó el cliente?}
-  B -- Sí --> C[Marcar llegada<br/>estado asistió]
+  A([Abre Reservas<br/>elius.v_agenda_dia]) --> B{¿Llegó el cliente?}
+  B -- Sí --> C[Botón Llegó<br/>elius.marcar_llegada → asistió]
   B -- No --> D{¿Pasó la tolerancia?<br/>hoy 20 minutos}
   D -- No --> B
-  D -- Sí --> E[Tarea programada: no asistió<br/>se liberan las mesas]
+  D -- Sí --> E[Botón No llegó<br/>elius.marcar_no_llegada → no asistió<br/>se libera la mesa, la cita o el cupo]
   C --> F[Registrar novedades y salida]
   classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
   classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
@@ -62,6 +58,8 @@ flowchart TD
   class B,D dec
   class A ok
 ```
+
+Lo mismo en restaurante (mesa), veterinaria (cita) y aerolínea (check-in del pasajero). Lo pueden marcar el Operador y el Administrador.
 
 ## Cocina y domicilios (restaurante)
 

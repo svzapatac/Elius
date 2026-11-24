@@ -8,6 +8,8 @@ Además de los de esta tabla hay dos triggers genéricos: `t01_actualizado_en` e
 | --- | --- | --- | --- |
 | `elius.comprobantes_pago` | `t52_revisar_comprobante` | `revisar_comprobante` | BEFORE INSERT |
 | `elius.comprobantes_pago` | `t53_evento_comprobante` | `evento_comprobante` | AFTER INSERT |
+| `elius.comprobantes_pago` | `t55_solo_admin_decide` | `solo_admin_decide_comprobantes` | BEFORE UPDATE |
+| `elius.comprobantes_pago` | `t56_aviso_celular_comprobante` | `avisar_comprobante_celular` | AFTER INSERT |
 | `elius.escalamientos` | `t22_asignar_escalamiento` | `asignar_escalamiento` | BEFORE INSERT |
 | `elius.escalamientos` | `t23_despues_de_escalamiento` | `despues_de_escalamiento` | AFTER INSERT UPDATE |
 | `elius.mensajes` | `t20_antes_de_mensaje` | `antes_de_mensaje` | BEFORE INSERT |

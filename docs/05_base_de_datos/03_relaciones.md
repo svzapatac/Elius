@@ -2,7 +2,7 @@
 
 > Archivo generado por `database/modelo/documentar.py`. No editar a mano.
 
-El modelo tiene **191 relaciones**, todas de uno a muchos. No hay relaciones 1 a 1 ni muchos a muchos directas; el script `generar.py` lo verifica cada vez que se genera el modelo.
+El modelo tiene **192 relaciones**, todas de uno a muchos. No hay relaciones 1 a 1 ni muchos a muchos directas; el script `generar.py` lo verifica cada vez que se genera el modelo.
 
 - **Cardinalidad** se lee desde la tabla padre hacia la tabla hija: `1 a 0..N` = un padre tiene cero o muchos hijos y cada hijo tiene exactamente un padre; `0..1 a 0..N` = el hijo puede no tener padre (FK opcional).
 - **Compuesta = sí**: la llave es `(tenant_id, columna)` → `(tenant_id, id)`, así una fila nunca apunta a otro tenant (DT-07).
@@ -39,7 +39,7 @@ El modelo tiene **191 relaciones**, todas de uno a muchos. No hay relaciones 1 a
 
 ## Modelo general
 
-### `platform` (27 relaciones)
+### `platform` (28 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |
 | --- | --- | --- | --- | --- | --- |
@@ -70,6 +70,7 @@ El modelo tiene **191 relaciones**, todas de uno a muchos. No hay relaciones 1 a
 | `platform.llaves_api` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
 | `platform.llaves_api` | `creado_por` | `platform.usuarios` | 1 a 0..N | no | CASCADE |
 | `platform.consumos_periodo` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
+| `platform.push_suscripciones` | `usuario_id` | `platform.usuarios` | 1 a 0..N | no | CASCADE |
 ### `audit` (2 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |
