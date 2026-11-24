@@ -55,6 +55,8 @@ Al elegir uno, `platform.cargar_caso_demo(vertical)` crea el negocio de prueba (
 
 **Todas las secciones se ven con datos.** Mientras corre la prueba: *Conversaciones* (los 20 chats), *Pendientes* (casos que Eli pasa a una persona, p. ej. un reclamo o una alergia), *Comprobantes* y *Pedidos* (el pago aprobado confirma la orden), *Agenda de hoy* (reservas que Eli deja con su recurso), *Catálogo* con imágenes y *Métricas* (ventas, ítems más vendidos, % resuelto por Eli y consumo de IA de cada respuesta).
 
+**Más allá del chat.** *Agenda* es un calendario mensual con el detalle de cada día (vista `elius.v_agenda_calendario`). *Modelo de datos* muestra los diagramas E-R, los flujos y el diccionario con zoom y desplazamiento. *Vistas* deja al Administrador crear sus propias vistas en el esquema `practica`. El selector «Ver el panel como» cambia el rol de quien prueba entre Administrador, Operador y Analista (`elius.cambiar_rol_demo`); la base sigue aplicando los permisos de cada rol. Los seis roles del sistema están en la sección Usuarios.
+
 La barra superior permite pausar o reiniciar la prueba y cambiar de caso. Si la persona toma una conversación, Eli deja de responder en ella (RN-C19). Los negocios de prueba (slug `demo-…`) son la única excepción a RN-C12 al reiniciar: se pueden borrar sus pagos aprobados.
 
 Los guiones están en `database/modelo/casos_demo.py`; las ilustraciones se generan con `database/modelo/ilustraciones_demo.py`. Pruebas: grupo 18 de `database/tests`.

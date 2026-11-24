@@ -11,6 +11,7 @@
 → 20261123001100_consola_revision.sql
 psql:supabase/migrations/20261123001100_consola_revision.sql:17: NOTICE:  role "postgres" has already been granted membership in role "elius_revisor" by role "postgres"
 → 20261123001200_casos_demo.sql
+→ 20261124000100_agenda_y_roles_demo.sql
 == 10_pruebas_negocio.sql
 == 1. Crear negocios (RN-P08)
 psql:tests/10_pruebas_negocio.sql:88: NOTICE:  OK   crear_tenant instala el plugin de su vertical
@@ -128,42 +129,47 @@ psql:tests/10_pruebas_negocio.sql:478: NOTICE:  OK   la consola lee el catálogo
 psql:tests/10_pruebas_negocio.sql:479: NOTICE:  OK   CREATE TABLE permitido en practica
 psql:tests/10_pruebas_negocio.sql:480: NOTICE:  OK   INSERT en practica
 psql:tests/10_pruebas_negocio.sql:481: NOTICE:  OK   UPDATE en practica
-psql:tests/10_pruebas_negocio.sql:482: NOTICE:  OK   DROP bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-psql:tests/10_pruebas_negocio.sql:483: NOTICE:  OK   varias sentencias bloqueadas (rechazado: Una sola sentencia por ejecución)
-psql:tests/10_pruebas_negocio.sql:484: NOTICE:  OK   DELETE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-psql:tests/10_pruebas_negocio.sql:485: NOTICE:  OK   TRUNCATE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
-psql:tests/10_pruebas_negocio.sql:486: NOTICE:  OK   CREATE fuera de practica bloqueado (rechazado: CREATE solo se permite en el esquema practica (ej. CREATE TABLE practica.prueba (...)))
-psql:tests/10_pruebas_negocio.sql:487: NOTICE:  OK   set_config bloqueado (rechazado: Sentencia no permitida en la consola (DROP, TRUNCATE, DELETE, ALTER, GRANT, SET… están bloqueados))
-psql:tests/10_pruebas_negocio.sql:488: NOTICE:  OK   no se escribe en tablas de plataforma (RLS: 0 filas)
-psql:tests/10_pruebas_negocio.sql:489: NOTICE:  OK   los errores del motor llegan a la consola (rechazado: relation "elius.tabla_que_no_existe" does not exist)
-psql:tests/10_pruebas_negocio.sql:491: NOTICE:  OK   un Operador no usa la consola (rechazado: Solo un Administrador puede usar la consola SQL)
-psql:tests/10_pruebas_negocio.sql:492: NOTICE:  OK   uso auditado
+psql:tests/10_pruebas_negocio.sql:482: NOTICE:  OK   el Administrador crea vistas en practica
+psql:tests/10_pruebas_negocio.sql:483: NOTICE:  OK   la vista creada respeta la seguridad por negocio (solo ve su negocio)
+psql:tests/10_pruebas_negocio.sql:484: NOTICE:  OK   DROP bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:485: NOTICE:  OK   varias sentencias bloqueadas (rechazado: Una sola sentencia por ejecución)
+psql:tests/10_pruebas_negocio.sql:486: NOTICE:  OK   DELETE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:487: NOTICE:  OK   TRUNCATE bloqueado (rechazado: Solo se permiten SELECT, INSERT, UPDATE y CREATE)
+psql:tests/10_pruebas_negocio.sql:488: NOTICE:  OK   CREATE fuera de practica bloqueado (rechazado: CREATE solo se permite en el esquema practica (ej. CREATE TABLE practica.prueba (...)))
+psql:tests/10_pruebas_negocio.sql:489: NOTICE:  OK   set_config bloqueado (rechazado: Sentencia no permitida en la consola (DROP, TRUNCATE, DELETE, ALTER, GRANT, SET… están bloqueados))
+psql:tests/10_pruebas_negocio.sql:490: NOTICE:  OK   no se escribe en tablas de plataforma (RLS: 0 filas)
+psql:tests/10_pruebas_negocio.sql:491: NOTICE:  OK   los errores del motor llegan a la consola (rechazado: relation "elius.tabla_que_no_existe" does not exist)
+psql:tests/10_pruebas_negocio.sql:493: NOTICE:  OK   un Operador no usa la consola (rechazado: Solo un Administrador puede usar la consola SQL)
+psql:tests/10_pruebas_negocio.sql:494: NOTICE:  OK   uso auditado
 == 18. Casos de prueba (restaurante, veterinaria, aerolínea)
-psql:tests/10_pruebas_negocio.sql:500: NOTICE:  OK   cada caso crea su negocio de prueba
-psql:tests/10_pruebas_negocio.sql:501: NOTICE:  OK   elegir de nuevo el mismo caso reutiliza el negocio
-psql:tests/10_pruebas_negocio.sql:504: NOTICE:  OK   el catálogo del caso trae 5 ítems
-psql:tests/10_pruebas_negocio.sql:505: NOTICE:  OK   cada ítem trae su imagen
-psql:tests/10_pruebas_negocio.sql:506: NOTICE:  OK   el caso trae 20 clientes (una conversación cada uno)
-psql:tests/10_pruebas_negocio.sql:507: NOTICE:  OK   al elegir el caso no hay mensajes todavía
-psql:tests/10_pruebas_negocio.sql:509: NOTICE:  OK   escriben los 20 clientes
-psql:tests/10_pruebas_negocio.sql:510: NOTICE:  OK   Pendientes: Eli pasa 2 casos a una persona
-psql:tests/10_pruebas_negocio.sql:511: NOTICE:  OK   Agenda de hoy: Eli deja una reserva con su recurso
-psql:tests/10_pruebas_negocio.sql:512: NOTICE:  OK   Métricas: queda el consumo de IA de cada respuesta
-psql:tests/10_pruebas_negocio.sql:513: NOTICE:  OK   Métricas: 18 de 20 conversaciones resueltas por Eli
-psql:tests/10_pruebas_negocio.sql:514: NOTICE:  OK   Eli envía la foto del catálogo al ofrecer un producto
-psql:tests/10_pruebas_negocio.sql:515: NOTICE:  OK   dos clientes envían su comprobante de pago
-psql:tests/10_pruebas_negocio.sql:516: NOTICE:  OK   los dos comprobantes quedan pendientes de revisión
-psql:tests/10_pruebas_negocio.sql:517: NOTICE:  OK   el revisor ve la imagen del comprobante
-psql:tests/10_pruebas_negocio.sql:518: NOTICE:  OK   el comprobante con monto distinto o repetido trae alerta
-psql:tests/10_pruebas_negocio.sql:519: NOTICE:  OK   mientras haya comprobantes pendientes la prueba no termina
-psql:tests/10_pruebas_negocio.sql:520: NOTICE:  OK   el avance informa cuántos comprobantes esperan
-psql:tests/10_pruebas_negocio.sql:524: NOTICE:  OK   al aprobar, la orden queda confirmada
-psql:tests/10_pruebas_negocio.sql:525: NOTICE:  OK   Eli continúa cada conversación según la decisión (confirma o pide otro comprobante)
-psql:tests/10_pruebas_negocio.sql:526: NOTICE:  OK   terminada la decisión y la conversación, la prueba termina
-psql:tests/10_pruebas_negocio.sql:528: NOTICE:  OK   reiniciar deja la conversación vacía
-psql:tests/10_pruebas_negocio.sql:531: NOTICE:  OK   si una persona toma el chat, Eli no responde en él (RN-C19)
-psql:tests/10_pruebas_negocio.sql:535: NOTICE:  OK   el caso aerolínea trae su catálogo
-psql:tests/10_pruebas_negocio.sql:536: NOTICE:  OK   cada negocio lleva su propio avance
-psql:tests/10_pruebas_negocio.sql:539: NOTICE:  OK   quien no pertenece al negocio de prueba no puede usarlo (rechazado: Sin acceso al negocio)
+psql:tests/10_pruebas_negocio.sql:502: NOTICE:  OK   cada caso crea su negocio de prueba
+psql:tests/10_pruebas_negocio.sql:503: NOTICE:  OK   elegir de nuevo el mismo caso reutiliza el negocio
+psql:tests/10_pruebas_negocio.sql:506: NOTICE:  OK   el catálogo del caso trae 5 ítems
+psql:tests/10_pruebas_negocio.sql:507: NOTICE:  OK   cada ítem trae su imagen
+psql:tests/10_pruebas_negocio.sql:508: NOTICE:  OK   el caso trae 20 clientes (una conversación cada uno)
+psql:tests/10_pruebas_negocio.sql:509: NOTICE:  OK   al elegir el caso no hay mensajes todavía
+psql:tests/10_pruebas_negocio.sql:511: NOTICE:  OK   escriben los 20 clientes
+psql:tests/10_pruebas_negocio.sql:512: NOTICE:  OK   Pendientes: Eli pasa 2 casos a una persona
+psql:tests/10_pruebas_negocio.sql:513: NOTICE:  OK   Agenda de hoy: Eli deja una reserva con su recurso
+psql:tests/10_pruebas_negocio.sql:514: NOTICE:  OK   Agenda tipo calendario: reservas de varios días con cliente y recurso
+psql:tests/10_pruebas_negocio.sql:515: NOTICE:  OK   Métricas: queda el consumo de IA de cada respuesta
+psql:tests/10_pruebas_negocio.sql:516: NOTICE:  OK   Métricas: 18 de 20 conversaciones resueltas por Eli
+psql:tests/10_pruebas_negocio.sql:517: NOTICE:  OK   Eli envía la foto del catálogo al ofrecer un producto
+psql:tests/10_pruebas_negocio.sql:518: NOTICE:  OK   cuatro clientes envían su comprobante de pago
+psql:tests/10_pruebas_negocio.sql:519: NOTICE:  OK   los cuatro comprobantes quedan pendientes de revisión
+psql:tests/10_pruebas_negocio.sql:520: NOTICE:  OK   el revisor ve la imagen del comprobante
+psql:tests/10_pruebas_negocio.sql:521: NOTICE:  OK   el comprobante con monto distinto o repetido trae alerta
+psql:tests/10_pruebas_negocio.sql:522: NOTICE:  OK   mientras haya comprobantes pendientes la prueba no termina
+psql:tests/10_pruebas_negocio.sql:523: NOTICE:  OK   el avance informa cuántos comprobantes esperan
+psql:tests/10_pruebas_negocio.sql:527: NOTICE:  OK   al aprobar, la orden queda confirmada
+psql:tests/10_pruebas_negocio.sql:528: NOTICE:  OK   Eli continúa cada conversación según la decisión (confirma o pide otro comprobante)
+psql:tests/10_pruebas_negocio.sql:531: NOTICE:  OK   terminada la decisión y la conversación, la prueba termina
+psql:tests/10_pruebas_negocio.sql:533: NOTICE:  OK   reiniciar deja la conversación vacía
+psql:tests/10_pruebas_negocio.sql:536: NOTICE:  OK   si una persona toma el chat, Eli no responde en él (RN-C19)
+psql:tests/10_pruebas_negocio.sql:540: NOTICE:  OK   el caso aerolínea trae su catálogo
+psql:tests/10_pruebas_negocio.sql:541: NOTICE:  OK   cada negocio lleva su propio avance
+psql:tests/10_pruebas_negocio.sql:545: NOTICE:  OK   en el caso de prueba se puede ver el panel como Analista
+psql:tests/10_pruebas_negocio.sql:546: NOTICE:  OK   no se puede escalar a Super Admin desde la prueba (rechazado: Rol no disponible en la prueba: super_admin)
+psql:tests/10_pruebas_negocio.sql:549: NOTICE:  OK   quien no pertenece al negocio de prueba no puede usarlo (rechazado: Sin acceso al negocio)
 Todas las pruebas pasaron.
 TODO OK

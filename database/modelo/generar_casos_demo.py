@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '4'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '5'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 def q(s): return s.replace("'", "''")
 
@@ -13,7 +13,7 @@ def datos_sql(v):
     d = {'negocio': c['negocio'], 'categorias': c['categoria'], 'contactos': c['contactos'],
          'items': [dict(cat=i[0], tipo=i[1], sku=i[2], nombre=i[3], desc=i[4], precio=i[5], iva=0, dur=i[7]) for i in c['items']],   # precios con impuestos incluidos
          'guion': [dict(conv=g[0], emisor=g[1], texto=g[2], img=g[3], comp=g[4]) for g in c['guion']],
-         'recursos': [list(r) for r in c['recursos']], 'efectos': c['efectos'],
+         'recursos': [list(r) for r in c['recursos']], 'efectos': c['efectos'], 'agenda': [list(a) for a in c['agenda']],
          'pagos': [dict(items=[list(x) for x in p['items']], entrega=p['entrega'], comp=p['comp'], aprobado=p['aprobado'], rechazado=p['rechazado']) for p in c['pagos']]}
     return json.dumps(d, ensure_ascii=False)
 
@@ -82,7 +82,7 @@ create or replace function elius.sembrar_clientes_demo(p_tenant uuid, p_vertical
 returns void language plpgsql security definer set search_path = '' as $$
 declare
   v_d jsonb := elius.datos_caso_demo(p_vertical);
-  v_canal uuid; v_contacto uuid; v_ident uuid; r jsonb;
+  v_canal uuid; v_contacto uuid; v_ident uuid; r jsonb; v_ini timestamptz; v_res uuid;
 begin
   select id into v_canal from elius.canales where tenant_id = p_tenant order by creado_en limit 1;
   perform elius.limpiar_caso_demo(p_tenant);
@@ -102,6 +102,19 @@ begin
     insert into elius.identidades_contacto (tenant_id, contacto_id, canal_id, id_externo, nombre_en_canal)
     values (p_tenant, v_contacto, v_canal, r->>2, (r->>0) || ' ' || (r->>1)) returning id into v_ident;
     insert into elius.conversaciones (tenant_id, identidad_id, flujo) values (p_tenant, v_ident, 'general');
+  end loop;
+  for r in select * from jsonb_array_elements(v_d->'agenda') loop
+    select c.id into v_contacto from elius.contactos c where c.tenant_id = p_tenant
+    order by c.telefono offset (r->>2)::int limit 1;
+    v_ini := greatest(((date_trunc('day', now() at time zone 'America/Bogota') + (r->>0)::int * interval '1 day' + ((r->>1)::numeric * interval '1 hour')) at time zone 'America/Bogota'), now() + interval '10 minutes');
+    insert into elius.reservas (tenant_id, contacto_id, codigo, tipo, estado, inicio, fin, personas, urgente, creada_por_eli)
+    values (p_tenant, v_contacto, 'R-' || upper(substr(md5(random()::text), 1, 5)), r->>3, r->>6, v_ini, v_ini + interval '1 hour',
+            (r->>4)::int, (r->>7)::boolean, true) returning id into v_res;
+    begin
+      insert into elius.asignaciones_recurso (tenant_id, reserva_id, recurso_id, inicio, fin)
+      select p_tenant, v_res, rc.id, v_ini, v_ini + interval '1 hour' from elius.recursos rc where rc.tenant_id = p_tenant and rc.nombre = r->>5;
+    exception when exclusion_violation then null;
+    end;
   end loop;
   insert into elius.parametros_negocio (tenant_id, clave, valor, tipo_dato, descripcion) values
     (p_tenant, 'demo_indice', '0', 'numero', 'Mensajes de prueba ya entregados (caso de demostración)'),
@@ -178,15 +191,18 @@ begin
       select i.contacto_id into v_contacto from elius.conversaciones c
       join elius.identidades_contacto i on i.tenant_id = c.tenant_id and i.id = c.identidad_id
       where c.tenant_id = p_tenant and c.id = p_conv;
-      v_ini := date_trunc('day', now()) + ((e->>'h')::numeric * interval '1 hour');
+      v_ini := greatest(((date_trunc('day', now() at time zone 'America/Bogota') + ((e->>'h')::numeric * interval '1 hour')) at time zone 'America/Bogota'), now() + interval '10 minutes');
       insert into elius.reservas (tenant_id, contacto_id, conversacion_id, codigo, tipo, estado, inicio, fin, personas, urgente, creada_por_eli)
       values (p_tenant, v_contacto, p_conv, 'R-' || upper(substr(md5(random()::text), 1, 5)), e->>'reserva', 'confirmada',
               v_ini, v_ini + interval '1 hour', coalesce((e->>'personas')::int, 1), coalesce((e->>'urgente')::boolean, false), true)
       returning id into v_reserva;
       select id into v_recurso from elius.recursos where tenant_id = p_tenant and nombre = e->>'recurso';
       if v_recurso is not null then
-        insert into elius.asignaciones_recurso (tenant_id, reserva_id, recurso_id, inicio, fin)
-        values (p_tenant, v_reserva, v_recurso, v_ini, v_ini + interval '1 hour');
+        begin
+          insert into elius.asignaciones_recurso (tenant_id, reserva_id, recurso_id, inicio, fin)
+          values (p_tenant, v_reserva, v_recurso, v_ini, v_ini + interval '1 hour');
+        exception when exclusion_violation then null;   -- el recurso ya estaba ocupado a esa hora: la reserva queda sin recurso
+        end;
       end if;
     end if;
   end loop;

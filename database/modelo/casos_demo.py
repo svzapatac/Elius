@@ -168,6 +168,57 @@ COLA = {
  'veterinaria': [('a', 0)] + [('q', n) for n in range(1, 6)] + [('b', 0)] + [('q', n) for n in range(6, 20)],
  'aerolinea': [('a', 0)] + [('q', n) for n in range(1, 6)] + [('b', 0)] + [('q', n) for n in range(6, 20)],
 }
+# ---- Pagadores adicionales (se generan con plantillas): correctos y con monto distinto al del comprobante ----
+def _m(n): return '$' + format(n, ',').replace(',', '.')
+_NOM = {i[2]: (i[3], i[5]) for c in CASOS.values() for i in c['items']}
+_IMG = {'restaurante': ('comprobante-restaurante', 80000, 'Luis Rodriguez', 'Nequi', '18 de julio de 2026 a las 08:33 p. m.'),
+        'veterinaria': ('comprobante-veterinaria', 75000, 'Luis Rodriguez', 'Nequi', '10 de julio de 2026 a las 06:32 p. m.'),
+        'aerolinea': ('comprobante-aerolinea', 360000, 'Luis Fernando Rodríguez Sandoval', 'DaviPlata', 'Julio 09 de 2026 - 05:39 p. m.')}
+# vertical: [(conv, pedido del cliente, [(sku, cant)], entrega, qué es el pedido al confirmar)]
+_EXTRA = {
+ 'restaurante': [(3, 'Quiero pedir a domicilio una bandeja paisa, una hamburguesa y un tres leches', [('RES-01', 1), ('RES-02', 1), ('RES-05', 1)], 'domicilio', 'Llega en unos 40 minutos 🛵'),
+                 (8, 'Me gustaría pedir 2 arepas rellenas y una limonada para recoger', [('RES-03', 2), ('RES-04', 1)], 'recoger', 'Estará listo para recoger en 20 minutos.')],
+ 'veterinaria': [(14, 'Quiero la vacuna múltiple para mi gata Nina', [('VET-02', 1)], 'no_aplica', 'Quedó agendada para mañana a las 9:00 a. m. Trae su carné.'),
+                 (3, 'Quiero el baño y peluquería para mi golden', [('VET-03', 1)], 'no_aplica', 'Quedó agendado para mañana a las 11:00 a. m.'),
+                 (7, 'Necesito desparasitar a mis dos gatos', [('VET-04', 2)], 'no_aplica', 'Quedó agendado para mañana a las 2:00 p. m.')],
+ 'aerolinea': [(1, 'Quiero el vuelo a Cartagena del 20 de diciembre con maleta', [('AER-02', 1), ('AER-04', 1)], 'no_aplica', 'Tu tiquete quedó emitido y te lo envío por este chat.'),
+               (6, 'Necesito 3 tiquetes Bogotá–Medellín para el viernes', [('AER-01', 3)], 'no_aplica', 'Tus tiquetes quedaron emitidos.'),
+               (2, 'Quiero la tarifa promo a San Andrés en enero', [('AER-03', 1)], 'no_aplica', 'Tu tiquete quedó emitido.')],
+}
+for _v, _lst in _EXTRA.items():
+    _img, _mi, _dest, _app, _fec = _IMG[_v]
+    for _j, (_cv, _pedido, _its, _ent, _fin) in enumerate(_lst, start=len(PAGOS[_v]) + 1):
+        _nom = CLIENTES[_v][_cv][0]
+        _tot = sum(_NOM[sku][1] * q for sku, q in _its)
+        _desc = ' y '.join(('%d %s' % (q, _NOM[sku][0]) if q > 1 else '1 ' + _NOM[sku][0]) for sku, q in _its)
+        _ok = _tot == _mi
+        _pag = 'Nequi al 300 416 5923' + (' o DaviPlata' if _v == 'aerolinea' else '')
+        PAGOS[_v].append({'conv': _cv, 'items': _its, 'entrega': _ent,
+          'a': [('cliente', 'Hola, ' + _pedido[0].lower() + _pedido[1:], None),
+                ('eli', '¡Hola %s! Anoto %s. Total %s. Para confirmarlo paga por %s y envíame el comprobante 📸' % (_nom, _desc, _m(_tot), _pag), None)],
+          'b': [('cliente', 'Ya pagué, aquí va el comprobante', None),
+                ('cliente', '📎 Comprobante de pago ' + _app, 'comprobante'),
+                ('eli', 'Recibido ✅ Lo paso al equipo para validar el monto. En cuanto lo confirmen te aviso por aquí.', None)],
+          'comp': {'img': _img, 'monto': _mi, 'destinatario': _dest, 'app': _app, 'ref': ('M%08d' % (20000000 + 7919 * _j)) if _app == 'Nequi' else str(948000 + 311 * _j),
+                   'fecha': _fec, 'hash': 'demo-%s-%d' % (_v, _j)},
+          'aprobado': [('eli', '¡Pago confirmado! ✅ Tu pedido #{orden} (%s por %s) %s' % (_desc, _m(_tot), _fin)),
+                       ('cliente', 'Muchas gracias'), ('eli', 'Con gusto, %s. ¡Estamos para servirte!' % _nom)],
+          'rechazado': ([('eli', '%s, no pudimos validar tu comprobante. ¿Me lo envías de nuevo?' % _nom)] if _ok else
+                        [('eli', '%s, el comprobante es por %s y tu pedido es de %s, así que no pudimos validarlo. ¿Me envías el comprobante correcto?' % (_nom, _m(_mi), _m(_tot))),
+                         ('cliente', 'Uy, tienes razón, me equivoqué de comprobante. Ahora lo envío'),
+                         ('eli', 'Tranquilo, %s 😊 Cuando lo tengas me lo envías y lo revisamos de inmediato.' % _nom)])})
+# Orden de llegada: cada cliente en su turno; el comprobante de cada pagador llega unos mensajes después
+for _v in CASOS:
+    _pc = {p['conv']: k for k, p in enumerate(PAGOS[_v])}
+    _seq, _pend = [], []
+    for _n in range(20):
+        _seq.append(('a', _pc[_n]) if _n in _pc else ('q', _n))
+        if _n in _pc: _pend.append((len(_seq) + 4, ('b', _pc[_n])))
+        for _pos, _it in list(_pend):
+            if len(_seq) >= _pos: _seq.append(_it); _pend.remove((_pos, _it))
+    _seq += [_it for _, _it in _pend]
+    COLA[_v] = _seq
+
 for _v, _c in CASOS.items():
     _c['contactos'] = [(n, a, '%s%03d' % (PRE[_v], i + 1)) for i, (n, a, _m, _r, _f) in enumerate(CLIENTES[_v])]
     _c['pagos'] = []
@@ -216,6 +267,23 @@ for _v, _c in CASOS.items():
         _i = next(i for i, g in enumerate(_c['guion']) if g[1] == 'eli' and g[2].startswith(_ini))
         _e.append(dict(_d, tras=_i))
     _c['efectos'] = _e
+
+# Reservas ya agendadas (para que el calendario no esté vacío): (días desde hoy, hora, cliente, tipo, personas, recurso, estado, urgente)
+AGENDA = {
+ 'restaurante': [(0,21.5,7,'mesa',12,'Terraza 1','pendiente_pago',False),(1,19.5,4,'mesa',2,'Mesa 2','confirmada',False),(1,20,5,'mesa',6,'Terraza 1','confirmada',False),
+                 (2,13,9,'mesa',4,'Mesa 2','confirmada',False),(3,20.5,10,'mesa',2,'Mesa 2','confirmada',False),(4,19,12,'mesa',8,'Terraza 1','confirmada',False),
+                 (5,13.5,13,'mesa',4,'Terraza 1','pendiente_pago',False),(6,14,14,'mesa',5,'Terraza 1','confirmada',False),(8,20,15,'mesa',4,'Mesa 2','confirmada',False),
+                 (9,19,16,'mesa',10,'Terraza 1','confirmada',False),(11,13,19,'mesa',2,'Mesa 2','confirmada',False)],
+ 'veterinaria': [(0,17.5,2,'cita',1,'Consultorio 1','confirmada',False),(1,9,5,'cita',1,'Consultorio 1','confirmada',True),(1,15,9,'cita',1,'Consultorio 1','confirmada',False),
+                 (2,10,10,'cita',1,'Consultorio 1','confirmada',False),(3,16,12,'cita',1,'Consultorio 1','pendiente_pago',False),(4,11,13,'cita',1,'Consultorio 1','confirmada',False),
+                 (6,9.5,15,'cita',1,'Consultorio 1','confirmada',False),(7,14,17,'cita',1,'Consultorio 1','confirmada',False),(9,10,18,'cita',1,'Consultorio 1','confirmada',False),
+                 (10,15.5,19,'cita',1,'Consultorio 1','pendiente_pago',False)],
+ 'aerolinea': [(0,21,3,'vuelo',1,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),(1,18.5,4,'vuelo',2,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),(2,7,5,'vuelo',3,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),
+               (3,18.5,8,'vuelo',1,'Vuelo BOG–MDE 6:30 p. m.','pendiente_pago',False),(5,7,9,'vuelo',2,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),(6,18.5,10,'vuelo',1,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),
+               (8,7,12,'vuelo',4,'Vuelo BOG–MDE 6:30 p. m.','confirmada',False),(10,18.5,13,'vuelo',1,'Vuelo BOG–MDE 6:30 p. m.','pendiente_pago',False)],
+}
+for _v, _c in CASOS.items():
+    _c['agenda'] = AGENDA[_v]
 
 # Colores de cada caso (para logos e ilustraciones)
 COLOR = {'restaurante': ('#b45309', '#fde68a'), 'veterinaria': ('#0f766e', '#99f6e4'), 'aerolinea': ('#1d4ed8', '#bfdbfe')}
