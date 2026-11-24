@@ -37,6 +37,12 @@ CASOS = {
    (2,'servicio','VET-03','Baño y peluquería','Baño medicado, corte de pelo y de uñas, limpieza de oídos.',55000,19,90),
    (1,'servicio','VET-04','Desparasitación','Desparasitante interno y externo según el peso de la mascota.',35000,0,15),
    (0,'servicio','VET-05','Esterilización canina','Cirugía con anestesia, exámenes previos y control posoperatorio.',320000,0,120)],
+  'imagenes': {
+    'VET-01': 'https://commons.wikimedia.org/wiki/Special:FilePath/Close-up%20of%20a%20veterinarian%20examining%20a%20maltese%20dog%20with%20a%20stethoscope.%20%2851687314898%29.jpg?width=640',
+    'VET-02': 'https://commons.wikimedia.org/wiki/Special:FilePath/USMC-04462.jpg?width=640',
+    'VET-03': 'https://commons.wikimedia.org/wiki/Special:FilePath/Dog%20Groomer%20Norwich.jpg?width=640',
+    'VET-04': 'https://commons.wikimedia.org/wiki/Special:FilePath/U.S.%20Army%20Capt.%20Brooke%20Henderson%2C%20left%2C%20a%20veterinarian%20with%20the%20993rd%20Medical%20Detachment%2C%20U.S.%20Army%20Reserve%2C%20examines%20a%20Maltese%20mix%20puppy%20while%20Sgt.%20Andrew%20King%2C%20with%20the%20949th%20Medical%20Detachment%2C%20holds%20the%20dog%20120418-F-ZH346-001.jpg?width=640',
+    'VET-05': 'https://commons.wikimedia.org/wiki/Special:FilePath/Surgery%20on%20a%20dog%2C%20University%20of%20Agricultural%20Sciences%20and%20Veterinary%20Medicine%2C%20Cluj-Napoka.jpg?width=640'},
   },
  'aerolinea': {
   'negocio': 'Aerolínea Cóndor Andino', 'categoria': ['Tarifas', 'Servicios adicionales'],
@@ -46,6 +52,12 @@ CASOS = {
    (0,'tarifa','AER-03','Bogotá – San Andrés (Promo)','Tarifa promocional con equipaje de mano, cupos limitados.',415000,19,None),
    (1,'adicional','AER-04','Maleta de bodega 23 kg','Equipaje adicional para tu vuelo.',85000,19,None),
    (1,'adicional','AER-05','Selección de asiento','Elige ventana o pasillo antes del check-in.',25000,19,None)],
+  'imagenes': {
+    'AER-01': 'https://commons.wikimedia.org/wiki/Special:FilePath/Valley%20of%20Medell%C3%ADn-%20skyline.jpg?width=640',
+    'AER-02': 'https://commons.wikimedia.org/wiki/Special:FilePath/The%20Clock%20Tower%2C%20Las%20Murallas%2C%20the%20walls%20of%20Cartagena%2C%20Colombia%20%2823955879634%29.jpg?width=640',
+    'AER-03': 'https://commons.wikimedia.org/wiki/Special:FilePath/San%20andres%20Island%20-%20Colombia.jpg?width=640',
+    'AER-04': 'https://commons.wikimedia.org/wiki/Special:FilePath/Bag%20drop%20self%20service%20Luggage%20check-in%20Baggage%20registration%20Conveyor%20belt%20%28selvbetjent%20bagasjeinnlevering%20innsjekking%20automat%20rulleb%C3%A5nd%29%20Avinor%20SAS%20Norwegian%20Wideroe%20Bergen%20Airport%20Flesland%2C%20Norway%202019-11-29%20DSC01301.jpg?width=640',
+    'AER-05': 'https://commons.wikimedia.org/wiki/Special:FilePath/Window%20seat.jpg?width=640'},
   },
 }
 

@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '7'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '8'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 def q(s): return s.replace("'", "''")
 
