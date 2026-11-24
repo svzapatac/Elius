@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '3'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '4'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 def q(s): return s.replace("'", "''")
 
@@ -13,6 +13,7 @@ def datos_sql(v):
     d = {'negocio': c['negocio'], 'categorias': c['categoria'], 'contactos': c['contactos'],
          'items': [dict(cat=i[0], tipo=i[1], sku=i[2], nombre=i[3], desc=i[4], precio=i[5], iva=0, dur=i[7]) for i in c['items']],   # precios con impuestos incluidos
          'guion': [dict(conv=g[0], emisor=g[1], texto=g[2], img=g[3], comp=g[4]) for g in c['guion']],
+         'recursos': [list(r) for r in c['recursos']], 'efectos': c['efectos'],
          'pagos': [dict(items=[list(x) for x in p['items']], entrega=p['entrega'], comp=p['comp'], aprobado=p['aprobado'], rechazado=p['rechazado']) for p in c['pagos']]}
     return json.dumps(d, ensure_ascii=False)
 
@@ -64,6 +65,14 @@ begin
   delete from elius.comprobantes_pago where tenant_id = p_tenant;
   delete from elius.entregas where tenant_id = p_tenant;
   delete from elius.ordenes where tenant_id = p_tenant;
+  delete from elius.asignaciones_recurso where tenant_id = p_tenant;
+  delete from elius.reservas where tenant_id = p_tenant;
+  delete from elius.escalamientos where tenant_id = p_tenant;
+  delete from elius.consumos_llm where tenant_id = p_tenant;
+  delete from elius.asignaciones_recurso where tenant_id = p_tenant;
+  delete from elius.reservas where tenant_id = p_tenant;
+  delete from elius.escalamientos where tenant_id = p_tenant;
+  delete from elius.consumos_llm where tenant_id = p_tenant;
   delete from elius.contactos where tenant_id = p_tenant;   -- cascada: identidades, conversaciones y mensajes
   delete from elius.parametros_negocio where tenant_id = p_tenant and clave like 'demo\\_%';
 end $$;
@@ -81,6 +90,11 @@ begin
     update elius.items_catalogo set nombre = r->>'nombre', descripcion = r->>'desc', precio = (r->>'precio')::numeric,
            impuesto_pct = (r->>'iva')::numeric, disponible = true
     where tenant_id = p_tenant and sku = r->>'sku';
+  end loop;
+  for r in select * from jsonb_array_elements(v_d->'recursos') loop
+    insert into elius.recursos (tenant_id, tipo, nombre, capacidad)
+    select p_tenant, r->>0, r->>1, (r->>2)::int
+    where not exists (select 1 from elius.recursos where tenant_id = p_tenant and nombre = r->>1);
   end loop;
   for r in select * from jsonb_array_elements(v_d->'contactos') loop
     insert into elius.contactos (tenant_id, nombres, apellidos, telefono, origen)
@@ -146,6 +160,38 @@ begin
   return v_tenant;
 end $$;
 
+-- Lo que Eli deja registrado al responder: consumo de IA y, según el guion, un caso pendiente o una reserva de hoy
+create or replace function elius.efectos_demo(p_tenant uuid, p_conv uuid, p_msg uuid, p_texto text, p_efectos jsonb, p_tras int)
+returns void language plpgsql security definer set search_path = '' as $$
+declare e jsonb; v_contacto uuid; v_reserva uuid; v_recurso uuid; v_ini timestamptz;
+begin
+  insert into elius.consumos_llm (tenant_id, conversacion_id, mensaje_id, proveedor, modelo, tokens_entrada, tokens_salida, tokens_cache, costo_usd, latencia_ms)
+  values (p_tenant, p_conv, p_msg, 'anthropic', 'claude-sonnet-5-5', 900 + length(p_texto) * 2, 40 + length(p_texto) / 3, 600,
+          round((0.0009 + length(p_texto) * 0.000004)::numeric, 6), 900 + (length(p_texto) * 7) % 1400);
+  for e in select * from jsonb_array_elements(coalesce(p_efectos, '[]'::jsonb)) where (value->>'tras')::int = p_tras loop
+    if e ? 'escalar' then
+      insert into elius.escalamientos (tenant_id, conversacion_id, motivo, mensaje_cliente, resumen)
+      values (p_tenant, p_conv, e->>'escalar',
+              (select m.contenido from elius.mensajes m where m.tenant_id = p_tenant and m.conversacion_id = p_conv and m.emisor = 'cliente' order by m.creado_en desc limit 1),
+              e->>'resumen');
+    elsif e ? 'reserva' then
+      select i.contacto_id into v_contacto from elius.conversaciones c
+      join elius.identidades_contacto i on i.tenant_id = c.tenant_id and i.id = c.identidad_id
+      where c.tenant_id = p_tenant and c.id = p_conv;
+      v_ini := date_trunc('day', now()) + ((e->>'h')::numeric * interval '1 hour');
+      insert into elius.reservas (tenant_id, contacto_id, conversacion_id, codigo, tipo, estado, inicio, fin, personas, urgente, creada_por_eli)
+      values (p_tenant, v_contacto, p_conv, 'R-' || upper(substr(md5(random()::text), 1, 5)), e->>'reserva', 'confirmada',
+              v_ini, v_ini + interval '1 hour', coalesce((e->>'personas')::int, 1), coalesce((e->>'urgente')::boolean, false), true)
+      returning id into v_reserva;
+      select id into v_recurso from elius.recursos where tenant_id = p_tenant and nombre = e->>'recurso';
+      if v_recurso is not null then
+        insert into elius.asignaciones_recurso (tenant_id, reserva_id, recurso_id, inicio, fin)
+        values (p_tenant, v_reserva, v_recurso, v_ini, v_ini + interval '1 hour');
+      end if;
+    end if;
+  end loop;
+end $$;
+
 -- Cuántos comprobantes de la prueba esperan decisión y cuántos mensajes posteriores faltan por entregar
 create or replace function elius.estado_demo(p_tenant uuid, p_d jsonb)
 returns jsonb language plpgsql security definer set search_path = '' as $$
@@ -176,7 +222,7 @@ declare
   v_vertical text; v_slug text; v_d jsonb; v_guion jsonb; v_pagos jsonb; v_i int; v_total int;
   v_g jsonb; v_conv uuid; v_estado text; v_texto text; v_k int; v_p jsonb; v_pidx int;
   v_ver text; v_orden uuid; v_contacto uuid; v_esperado numeric; v_url text; v_it jsonb; v_emisor text;
-  v_est jsonb; v_clientes int; v_fin boolean; v_tipo text; v_dir uuid;
+  v_est jsonb; v_clientes int; v_fin boolean; v_tipo text; v_dir uuid; v_mid uuid;
 begin
   if v_tenant is null or not app.tiene_acceso_tenant(auth.uid(), v_tenant) then
     raise exception 'Sin acceso al negocio' using errcode = '42501';
@@ -203,7 +249,9 @@ begin
       select estado into v_estado from elius.conversaciones where tenant_id = v_tenant and id = v_conv;
       if not (v_emisor = 'eli' and v_estado in ('humano', 'pausa')) then
         insert into elius.mensajes (tenant_id, conversacion_id, emisor, tipo_contenido, contenido, estado_entrega, procesado)
-        values (v_tenant, v_conv, v_emisor, 'texto', v_texto, case when v_emisor = 'cliente' then 'recibido' else 'entregado' end, true);
+        values (v_tenant, v_conv, v_emisor, 'texto', v_texto, case when v_emisor = 'cliente' then 'recibido' else 'entregado' end, true)
+        returning id into v_mid;
+        if v_emisor = 'eli' then perform elius.efectos_demo(v_tenant, v_conv, v_mid, v_texto, null, -1); end if;
       end if;
       insert into elius.parametros_negocio (tenant_id, clave, valor, tipo_dato, descripcion)
       values (v_tenant, 'demo_post_' || v_pidx, (v_k + 1)::text, 'numero', 'Mensajes posteriores a la decisión ya entregados')
@@ -262,7 +310,9 @@ begin
 
     insert into elius.mensajes (tenant_id, conversacion_id, emisor, tipo_contenido, contenido, url_adjunto, estado_entrega, procesado)
     values (v_tenant, v_conv, v_g->>'emisor', v_tipo, v_texto, v_url,
-            case when v_g->>'emisor' = 'cliente' then 'recibido' else 'entregado' end, true);
+            case when v_g->>'emisor' = 'cliente' then 'recibido' else 'entregado' end, true)
+    returning id into v_mid;
+    if v_g->>'emisor' = 'eli' then perform elius.efectos_demo(v_tenant, v_conv, v_mid, v_texto, v_d->'efectos', v_i); end if;
     v_i := v_i + 1;
     update elius.parametros_negocio set valor = v_i::text where tenant_id = v_tenant and clave = 'demo_indice';
     v_emisor := v_g->>'emisor';
@@ -292,7 +342,7 @@ begin
 end $$;
 
 revoke execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() from public, anon;
-revoke execute on function elius.sembrar_clientes_demo(uuid, text), elius.limpiar_caso_demo(uuid), elius.estado_demo(uuid, jsonb) from public, anon, authenticated;
+revoke execute on function elius.efectos_demo(uuid, uuid, uuid, text, jsonb, int), elius.sembrar_clientes_demo(uuid, text), elius.limpiar_caso_demo(uuid), elius.estado_demo(uuid, jsonb) from public, anon, authenticated;
 grant execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() to authenticated;
 comment on function platform.cargar_caso_demo(text) is 'Crea el negocio de prueba de un caso (restaurante/veterinaria/aerolinea) con catálogo e imágenes';
 comment on function elius.siguiente_mensaje_demo() is 'Entrega el siguiente mensaje del guion del caso de prueba; tras aprobar o rechazar un comprobante, Eli continúa esa conversación';

@@ -51,7 +51,7 @@ CLIENTES = {
   ('Isabela','Pineda','¿Tienen menú para niños?','Hola Isabela, tenemos porciones pequeñas: la Hamburguesa de la casa en tamaño infantil. Aquí está la versión normal para que la veas.',2),
   ('Tomás','Aguirre','Quiero la bandeja paisa y un tres leches','¡Buena elección, Tomás! 1 Bandeja paisa ($38.000) + 1 Tres leches ($14.000) = $52.000. ¿Lo enviamos a domicilio?',5),
   ('Gabriela','Salazar','¿Aceptan pago con Nequi?','Sí, Gabriela: aceptamos Nequi, Bre-B y transferencia. Envíanos el comprobante y confirmamos tu pedido.',None),
-  ('Mateo','Duarte','¿Se puede reservar en la terraza?','Claro, Mateo 🌿 La terraza tiene cupo mañana a las 7:00 y 8:30 p. m. ¿Para cuántas personas?',None),
+  ('Mateo','Duarte','¿Se puede reservar en la terraza?','Claro, Mateo 🌿 Te dejé reservada una mesa en la terraza hoy a las 7:30 p. m. para 4 personas. ¡Te esperamos!',None),
   ('Alejandra','Rincón','Mi pedido no ha llegado, llevo una hora esperando','Lamento la demora, Alejandra. Ya aviso al administrador para que lo revise de inmediato y te escribe una persona del equipo en unos minutos.',None),
   ('Nicolás','Quintero','Gracias, todo estuvo delicioso 😍','¡Qué alegría, Nicolás! Gracias por visitarnos. Te esperamos pronto en Sabor Criollo 🍽️',None)],
  'veterinaria': [
@@ -93,7 +93,7 @@ CLIENTES = {
   ('David','Correa','¿Puedo viajar con mi mascota?','Hola David, aceptamos mascotas pequeñas en cabina con guacal y certificado. Te paso con una persona del equipo para confirmar requisitos.',None),
   ('Luisa','Bernal','Somos 2 adultos y un niño de 5 años','Hola Luisa, el niño paga tarifa completa si ocupa asiento. Para 3 pasajeros en Light a Medellín serían $567.000. ¿Fecha de viaje?',1),
   ('Diego','Vásquez','¿Cuánto cuesta la maleta de bodega para San Andrés?','Hola Diego, la Maleta de bodega de 23 kg cuesta $85.000 por trayecto.',4),
-  ('Mónica','Pacheco','Quiero que mi asiento quede junto a mi esposo','Claro, Mónica. Con la Selección de asiento ($25.000 c/u) eligen asientos contiguos antes del check-in.',5),
+  ('Mónica','Pacheco','Quiero que mi asiento quede junto a mi esposo','Claro, Mónica. Con la Selección de asiento ($25.000 c/u) eligen asientos contiguos antes del check-in. Tu vuelo de hoy sale a las 6:30 p. m.',5),
   ('Alejandro','Ríos','Perdí mi tiquete, ¿me lo reenvían?','Hola Alejandro, claro. Te lo reenvío por este chat; ¿me confirmas tu número de documento para ubicarlo?',None),
   ('Juliana','Cano','Gracias, excelente servicio ✈️','¡Gracias a ti, Juliana! Buen viaje y aquí estamos para lo que necesites.',None)],
 }
@@ -185,6 +185,37 @@ for _v, _c in CASOS.items():
             for e, t, x in _p['a' if _t == 'a' else 'b']:
                 _g.append((_p['conv'], e, t, x if isinstance(x, int) else None, _n if x == 'comprobante' else None))
     _c['guion'] = _g
+
+# Efectos que ocurren al entregarse un mensaje de Eli (se buscan por el comienzo de su texto):
+#   escalar: Eli pasa el caso a una persona (aparece en Pendientes)
+#   reserva: Eli deja una reserva para hoy (aparece en Agenda de hoy); h = hora del día, recurso = nombre del recurso
+RECURSOS = {
+  'restaurante': [('mesa', 'Terraza 1', 4), ('mesa', 'Mesa 2', 2)],
+  'veterinaria': [('consultorio', 'Consultorio 1', 1)],
+  'aerolinea': [('otro', 'Vuelo BOG–MDE 6:30 p. m.', 180)],
+}
+EFECTOS = {
+  'restaurante': [
+    ('Hola Laura', dict(escalar='Alergia alimentaria: confirmar ingredientes con cocina', resumen='Laura pregunta por opciones sin gluten por una alergia; Eli ofreció la arepa de pollo y pasó el caso al administrador.')),
+    ('Lamento la demora', dict(escalar='Reclamo: pedido demorado más de una hora', resumen='Alejandra lleva una hora esperando su pedido; requiere revisar con cocina y domicilio.')),
+    ('Claro, Mateo', dict(reserva='mesa', h=19.5, personas=4, recurso='Terraza 1')),
+  ],
+  'veterinaria': [
+    ('Hola Julián', dict(reserva='cita', h=16, personas=1, recurso='Consultorio 1', urgente=True)),
+    ('Hola Natalia', dict(escalar='Posible urgencia: cachorro con diarrea de 2 días', resumen='Cachorro con diarrea hace 2 días: riesgo de deshidratación; Eli agendó consulta y pide valoración del veterinario.')),
+  ],
+  'aerolinea': [
+    ('Hola Alejandro', dict(escalar='Reenvío de tiquete: validar documento de identidad', resumen='Alejandro perdió su tiquete; Eli pidió el documento y requiere validación humana antes de reenviarlo.')),
+    ('Claro, Mónica', dict(reserva='vuelo', h=18.5, personas=2, recurso='Vuelo BOG–MDE 6:30 p. m.')),
+  ],
+}
+for _v, _c in CASOS.items():
+    _c['recursos'] = RECURSOS[_v]
+    _e = []
+    for _ini, _d in EFECTOS[_v]:
+        _i = next(i for i, g in enumerate(_c['guion']) if g[1] == 'eli' and g[2].startswith(_ini))
+        _e.append(dict(_d, tras=_i))
+    _c['efectos'] = _e
 
 # Colores de cada caso (para logos e ilustraciones)
 COLOR = {'restaurante': ('#b45309', '#fde68a'), 'veterinaria': ('#0f766e', '#99f6e4'), 'aerolinea': ('#1d4ed8', '#bfdbfe')}

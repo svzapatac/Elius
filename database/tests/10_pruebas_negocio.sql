@@ -507,6 +507,10 @@ select pg_temp.ok((select count(*) from elius.conversaciones) = 20, 'el caso tra
 select pg_temp.ok((select count(*) from elius.mensajes) = 0, 'al elegir el caso no hay mensajes todavía');
 select count(elius.siguiente_mensaje_demo()) from generate_series(1, 60);
 select pg_temp.ok((select count(distinct conversacion_id) from elius.mensajes where emisor = 'cliente') = 20, 'escriben los 20 clientes');
+select pg_temp.ok((select count(*) from elius.v_escalamientos_abiertos) = 2, 'Pendientes: Eli pasa 2 casos a una persona');
+select pg_temp.ok((select count(*) from elius.v_agenda_dia) = 1, 'Agenda de hoy: Eli deja una reserva con su recurso');
+select pg_temp.ok((select count(*) from elius.consumos_llm) >= 20 and (select count(*) from elius.v_consumo_ia_mensual) >= 1, 'Métricas: queda el consumo de IA de cada respuesta');
+select pg_temp.ok((select pct_resueltas_por_eli from elius.v_metricas_conversaciones limit 1) = 90.0, 'Métricas: 18 de 20 conversaciones resueltas por Eli');
 select pg_temp.ok((select count(*) from elius.mensajes where emisor = 'eli' and url_adjunto like '/demo/restaurante-%') >= 5, 'Eli envía la foto del catálogo al ofrecer un producto');
 select pg_temp.ok((select count(*) from elius.mensajes where url_adjunto like '/demo/comprobante-%') = 2, 'dos clientes envían su comprobante de pago');
 select pg_temp.ok((select count(*) from elius.v_comprobantes_pendientes) = 2, 'los dos comprobantes quedan pendientes de revisión');

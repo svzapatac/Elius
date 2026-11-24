@@ -53,6 +53,8 @@ Al elegir uno, `platform.cargar_caso_demo(vertical)` crea el negocio de prueba (
 
 **Conversaciones hasta el pago.** En cada caso, algunos clientes llevan el pedido completo: piden, confirman y **envían su comprobante de pago** (imagen real de Nequi/DaviPlata). El comprobante aparece en **Comprobantes** con su foto, el monto leído contra el monto de la orden y las alertas (RN-C16). La barra superior avisa «Esperando que revises N comprobantes». La prueba espera la decisión: al pulsar **Aceptar pago**, la orden queda confirmada y Eli continúa la conversación (confirma el pedido y se despide); al **Rechazar**, Eli le avisa al cliente y le pide otro comprobante. En el restaurante hay dos pagos: uno correcto y otro con comprobante equivocado (monto distinto y repetido), para ver las alertas.
 
+**Todas las secciones se ven con datos.** Mientras corre la prueba: *Conversaciones* (los 20 chats), *Pendientes* (casos que Eli pasa a una persona, p. ej. un reclamo o una alergia), *Comprobantes* y *Pedidos* (el pago aprobado confirma la orden), *Agenda de hoy* (reservas que Eli deja con su recurso), *Catálogo* con imágenes y *Métricas* (ventas, ítems más vendidos, % resuelto por Eli y consumo de IA de cada respuesta).
+
 La barra superior permite pausar o reiniciar la prueba y cambiar de caso. Si la persona toma una conversación, Eli deja de responder en ella (RN-C19). Los negocios de prueba (slug `demo-…`) son la única excepción a RN-C12 al reiniciar: se pueden borrar sus pagos aprobados.
 
 Los guiones están en `database/modelo/casos_demo.py`; las ilustraciones se generan con `database/modelo/ilustraciones_demo.py`. Pruebas: grupo 18 de `database/tests`.
