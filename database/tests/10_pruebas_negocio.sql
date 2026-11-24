@@ -15,6 +15,18 @@ begin
   raise notice 'OK   %', msg;
 end $$;
 
+create function pg_temp.bloquea(p_sentencia text, p_contiene text, msg text) returns void language plpgsql as $$
+declare r jsonb; n0 int; n1 int;
+begin
+  select count(*) into n0 from audit.registros_auditoria where tabla = 'consola_sql' and datos_nuevos ->> 'bloqueada' = 'true';
+  r := elius.consola_sql(p_sentencia);
+  select count(*) into n1 from audit.registros_auditoria where tabla = 'consola_sql' and datos_nuevos ->> 'bloqueada' = 'true';
+  if r ->> 'tipo' <> 'bloqueada' then raise exception 'FALLA: % -> debía bloquearse y se ejecutó', msg; end if;
+  if position(p_contiene in r ->> 'mensaje') = 0 then raise exception 'FALLA: % -> otro motivo: %', msg, r ->> 'mensaje'; end if;
+  if n1 <> n0 + 1 then raise exception 'FALLA: % -> el intento no quedó en la auditoría', msg; end if;
+  raise notice 'OK   % (bloqueado y auditado: %)', msg, r ->> 'mensaje';
+end $$;
+
 create function pg_temp.falla(p_sql text, p_contiene text, msg text) returns void language plpgsql as $$
 begin
   begin
@@ -485,15 +497,18 @@ select pg_temp.ok((elius.consola_sql('insert into practica.prueba values (1, ''h
 select pg_temp.ok((elius.consola_sql('update practica.prueba set nota = ''chao''') ->> 'afectadas')::int = 1, 'UPDATE en practica');
 select pg_temp.ok((elius.consola_sql('create or replace view practica.contactos_total with (security_invoker = true) as select count(*) as n from elius.contactos') ->> 'tipo') = 'create', 'el Administrador crea vistas en practica');
 select pg_temp.ok((elius.consola_sql('select n from practica.contactos_total') -> 'filas' -> 0 ->> 'n')::int = 1, 'la vista creada respeta la seguridad por negocio (solo ve su negocio)');
-select pg_temp.falla($q$select elius.consola_sql('drop table elius.contactos')$q$, 'Solo se permiten', 'DROP bloqueado');
-select pg_temp.falla($q$select elius.consola_sql('update elius.contactos set eliminado_en = now()')$q$, 'No se permite eliminar', 'la consola no da de baja (eliminado_en) a un cliente');
-select pg_temp.falla($q$select elius.consola_sql('update elius.items_catalogo set eliminado_en = now()')$q$, 'No se permite eliminar', 'la consola no da de baja ítems del catálogo');
+select pg_temp.bloquea('drop table elius.contactos', 'Solo se permiten', 'DROP bloqueado');
+select pg_temp.bloquea('update elius.contactos set eliminado_en = now()', 'No se permite eliminar', 'la consola no da de baja (eliminado_en) a un cliente');
+select pg_temp.bloquea('update elius.items_catalogo set eliminado_en = now()', 'No se permite eliminar', 'la consola no da de baja ítems del catálogo');
 select pg_temp.ok((select count(*) from elius.contactos where eliminado_en is not null) = 0, 'ningún cliente quedó eliminado por la consola');
-select pg_temp.falla($q$select elius.consola_sql('select 1 from elius.contactos where true; drop table elius.contactos')$q$, 'Una sola sentencia', 'varias sentencias bloqueadas');
-select pg_temp.falla($q$select elius.consola_sql('delete from practica.prueba')$q$, 'Solo se permiten', 'DELETE bloqueado');
-select pg_temp.falla($q$select elius.consola_sql('truncate practica.prueba')$q$, 'Solo se permiten', 'TRUNCATE bloqueado');
-select pg_temp.falla($q$select elius.consola_sql('create table elius.hack (id int)')$q$, 'solo se permite en el esquema practica', 'CREATE fuera de practica bloqueado');
-select pg_temp.falla($q$select elius.consola_sql('select set_config(''app.tenant_id'', ''x'', false)')$q$, 'no permitida', 'set_config bloqueado');
+select pg_temp.ok((elius.consola_sql('select id, nombres from elius.contactos where eliminado_en is null order by creado_en desc') ->> 'tipo') = 'select', 'la consola SÍ deja consultar a los clientes (filtrando por eliminado_en)');
+select pg_temp.bloquea('with x as (update elius.contactos set eliminado_en = now() returning id) select * from x', 'No se permite eliminar', 'tampoco con un WITH que modifica');
+select pg_temp.bloquea('update elius.items_catalogo set activo = false', 'No se permite eliminar', 'tampoco apagando con activo = false');
+select pg_temp.bloquea('select 1 from elius.contactos where true; drop table elius.contactos', 'Una sola sentencia', 'varias sentencias bloqueadas');
+select pg_temp.bloquea('delete from practica.prueba', 'Solo se permiten', 'DELETE bloqueado');
+select pg_temp.bloquea('truncate practica.prueba', 'Solo se permiten', 'TRUNCATE bloqueado');
+select pg_temp.bloquea('create table elius.hack (id int)', 'solo se permite en el esquema practica', 'CREATE fuera de practica bloqueado');
+select pg_temp.bloquea('select set_config(''app.tenant_id'', ''x'', false)', 'no permitida', 'set_config bloqueado');
 select pg_temp.ok((elius.consola_sql('update platform.roles set nombre = ''x''') ->> 'afectadas')::int = 0, 'no se escribe en tablas de plataforma (RLS: 0 filas)');
 select pg_temp.falla($q$select elius.consola_sql('select * from elius.tabla_que_no_existe')$q$, 'does not exist', 'los errores del motor llegan a la consola');
 select pg_temp.login(:'u_vet2', :'t_vet');
