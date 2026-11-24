@@ -273,6 +273,10 @@ reset role;
 select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'comp1') like 'ALERTA:%monto 50000%', 'RN-C16: alerta si el monto no cuadra');
 select pg_temp.login(:'u_op', :'t_rest');
 set role authenticated;
+select pg_temp.falla(format('select elius.aprobar_comprobante(%L, true)', :'comp1'), 'Solo el Administrador', 'el operador no aprueba comprobantes');
+select pg_temp.login(:'u_rest', :'t_rest');
+set role authenticated;
+select pg_temp.login(:'u_rest', :'t_rest');
 select pg_temp.ok(elius.aprobar_comprobante(:'comp1', true) = 'pagada', 'RN-C17: pago parcial + resto contra entrega = orden pagada');
 select pg_temp.ok((select estado from elius.ordenes where id = :'ord1') = 'confirmada', 'al cubrirse el total la orden queda confirmada');
 select pg_temp.ok((select contra_entrega from elius.v_saldo_ordenes where orden_id = :'ord1') = 22360, 'el saldo queda para cobrar en efectivo al entregar');
@@ -284,7 +288,7 @@ set role authenticated;
 select elius.registrar_comprobante(:'conv', :'ord1', 50000, 'Laura G', 'Potrillos SAS', 'Nequi', 'M123', null, 'hash-aaa') as comp2 \gset
 reset role;
 select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'comp2') like '%repetido%', 'RN-C16: alerta de comprobante repetido');
-select pg_temp.login(:'u_op', :'t_rest');
+select pg_temp.login(:'u_rest', :'t_rest');
 set role authenticated;
 select pg_temp.ok(elius.aprobar_comprobante(:'comp2') = 'ya_pagada', 'aprobar un repetido no cobra dos veces');
 reset role;
@@ -570,6 +574,17 @@ select elius.marcar_no_llegada((select id from elius.reservas where estado = 'co
 select pg_temp.ok((select count(*) from elius.reservas where estado = 'asistio' and llegada_en is not null) >= 1, 'el equipo marca que el cliente llegó');
 select pg_temp.ok((select count(*) from elius.reservas where estado = 'no_asistio') >= 1, 'el equipo marca que el cliente no llegó');
 select pg_temp.ok((select count(*) from elius.asignaciones_recurso a join elius.reservas r on r.id = a.reserva_id where r.estado = 'no_asistio' and a.estado <> 'liberada') = 0, 'al no llegar se libera el recurso');
+-- permisos por rol: el operador no cambia el catálogo ni aprueba comprobantes
+reset role;
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_restaurante')::uuid);
+set role authenticated;
+select elius.reiniciar_demo();
+select count(elius.siguiente_mensaje_demo()) from generate_series(1, 60);
+select pg_temp.ok((select count(*) from elius.v_comprobantes_pendientes) >= 1, 'hay comprobantes pendientes para probar permisos');
+select elius.cambiar_rol_demo('operador');
+with u as (update elius.items_catalogo set precio = 1 where sku = 'RES-01' returning 1) select pg_temp.ok((select count(*) from u) = 0, 'el operador no cambia el catálogo');
+select pg_temp.falla($q$select elius.aprobar_comprobante((select comprobante_id from elius.v_comprobantes_pendientes limit 1), false)$q$, 'Solo el Administrador', 'el operador no aprueba comprobantes');
+select elius.cambiar_rol_demo('administrador');
 reset role;
 select pg_temp.login(null);
 
