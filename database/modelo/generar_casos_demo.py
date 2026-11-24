@@ -4,7 +4,9 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '8'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '9'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+
+PLUGIN_SQL = open(os.path.join(os.path.dirname(__file__), 'plugin_demo.sql')).read()
 
 def q(s): return s.replace("'", "''")
 
@@ -61,23 +63,25 @@ where cp.veredicto = 'pendiente';
 create or replace function elius.limpiar_caso_demo(p_tenant uuid)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
+  delete from plugin_vet.mascotas where tenant_id = p_tenant;
+  delete from plugin_restaurant.menus_dia where tenant_id = p_tenant;
+  delete from plugin_restaurant.estaciones_cocina where tenant_id = p_tenant;
   delete from elius.pagos where tenant_id = p_tenant;
   delete from elius.comprobantes_pago where tenant_id = p_tenant;
   delete from elius.entregas where tenant_id = p_tenant;
   delete from elius.ordenes where tenant_id = p_tenant;
   delete from elius.asignaciones_recurso where tenant_id = p_tenant;
   delete from elius.reservas where tenant_id = p_tenant;
-  delete from elius.escalamientos where tenant_id = p_tenant;
-  delete from elius.consumos_llm where tenant_id = p_tenant;
-  delete from elius.asignaciones_recurso where tenant_id = p_tenant;
-  delete from elius.reservas where tenant_id = p_tenant;
+  delete from plugin_airline.vuelos where tenant_id = p_tenant;
+  delete from plugin_airline.rutas where tenant_id = p_tenant;
+  delete from plugin_airline.aeronaves where tenant_id = p_tenant;
   delete from elius.escalamientos where tenant_id = p_tenant;
   delete from elius.consumos_llm where tenant_id = p_tenant;
   delete from elius.contactos where tenant_id = p_tenant;   -- cascada: identidades, conversaciones y mensajes
   delete from elius.parametros_negocio where tenant_id = p_tenant and clave like 'demo\\_%';
 end $$;
 
--- Crea los clientes del caso (uno por conversación) y deja el catálogo con los datos actuales
+{PLUGIN_SQL}-- Crea los clientes del caso (uno por conversación) y deja el catálogo con los datos actuales
 create or replace function elius.sembrar_clientes_demo(p_tenant uuid, p_vertical text)
 returns void language plpgsql security definer set search_path = '' as $$
 declare
@@ -134,6 +138,7 @@ begin
     exception when exclusion_violation then null;
     end;
   end loop;
+  perform elius.sembrar_plugin_demo(p_tenant, p_vertical);
   insert into elius.parametros_negocio (tenant_id, clave, valor, tipo_dato, descripcion) values
     (p_tenant, 'demo_indice', '0', 'numero', 'Mensajes de prueba ya entregados (caso de demostración)'),
     (p_tenant, 'demo_version', '{VERSION}', 'texto', 'Versión del guion sembrado');
@@ -359,7 +364,7 @@ begin
 end $$;
 
 revoke execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() from public, anon;
-revoke execute on function elius.efectos_demo(uuid, uuid, uuid, text, jsonb, int), elius.sembrar_clientes_demo(uuid, text), elius.limpiar_caso_demo(uuid), elius.estado_demo(uuid, jsonb) from public, anon, authenticated;
+revoke execute on function elius.efectos_demo(uuid, uuid, uuid, text, jsonb, int), elius.sembrar_clientes_demo(uuid, text), elius.sembrar_plugin_demo(uuid, text), elius.limpiar_caso_demo(uuid), elius.estado_demo(uuid, jsonb) from public, anon, authenticated;
 grant execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() to authenticated;
 comment on function platform.cargar_caso_demo(text) is 'Crea el negocio de prueba de un caso (restaurante/veterinaria/aerolinea) con catálogo e imágenes';
 comment on function elius.siguiente_mensaje_demo() is 'Entrega el siguiente mensaje del guion del caso de prueba; tras aprobar o rechazar un comprobante, Eli continúa esa conversación';
