@@ -23,11 +23,11 @@ Las claves públicas de Supabase van dentro del navegador por diseño: lo que pr
 
 1. En Supabase → Authentication → Users → *Add user* se crea cada persona (con contraseña propia).
 2. Super Admin: `database/supabase/instalacion/EXTRA_primer_super_admin.sql`.
-3. Negocio demo y profesor: `EXTRA_negocio_demo.sql` crea el negocio y deja al profesor como Administrador de ese negocio.
+3. Negocio del dueño (opcional): `EXTRA_negocio_demo.sql`. La profesora no entra a ese negocio: al iniciar sesión elige un caso de prueba y el panel le crea el suyo.
 
 ## 4. Revisión del profesor
 
-El profesor entra al panel con su usuario (rol Administrador del negocio demo), abre **Consola SQL** y puede:
+La profesora entra al panel con su usuario, elige un caso de prueba (queda como Administrador de ese negocio de prueba), abre **Consola SQL** y puede:
 
 | Puede | No puede |
 | --- | --- |

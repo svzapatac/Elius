@@ -10,7 +10,7 @@ def datos_sql(v):
     c = CASOS[v]
     d = {'negocio': c['negocio'], 'categorias': c['categoria'], 'contactos': c['contactos'],
          'items': [dict(cat=i[0], tipo=i[1], sku=i[2], nombre=i[3], desc=i[4], precio=i[5], iva=i[6], dur=i[7]) for i in c['items']],
-         'guion': [dict(conv=g[0], emisor=g[1], texto=g[2]) for g in c['guion']]}
+         'guion': [dict(conv=g[0], emisor=g[1], texto=g[2], img=g[3]) for g in c['guion']]}
     return json.dumps(d, ensure_ascii=False)
 
 ramas = '\n'.join(f"    when '{v}' then '{q(datos_sql(v))}'::jsonb" for v in CASOS)
@@ -26,6 +26,27 @@ returns jsonb language sql immutable set search_path = '' as $$
 {ramas}
   end;
 $$;
+
+-- Crea los clientes del caso (uno por conversación) en un negocio de prueba
+create or replace function elius.sembrar_clientes_demo(p_tenant uuid, p_vertical text)
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  v_d jsonb := elius.datos_caso_demo(p_vertical);
+  v_canal uuid; v_contacto uuid; v_ident uuid; r jsonb;
+begin
+  select id into v_canal from elius.canales where tenant_id = p_tenant order by creado_en limit 1;
+  delete from elius.contactos where tenant_id = p_tenant;   -- cascada: identidades, conversaciones y mensajes
+  for r in select * from jsonb_array_elements(v_d->'contactos') loop
+    insert into elius.contactos (tenant_id, nombres, apellidos, telefono, origen)
+    values (p_tenant, r->>0, r->>1, r->>2, 'whatsapp') returning id into v_contacto;
+    insert into elius.identidades_contacto (tenant_id, contacto_id, canal_id, id_externo, nombre_en_canal)
+    values (p_tenant, v_contacto, v_canal, r->>2, (r->>0) || ' ' || (r->>1)) returning id into v_ident;
+    insert into elius.conversaciones (tenant_id, identidad_id, flujo) values (p_tenant, v_ident, 'general');
+  end loop;
+  insert into elius.parametros_negocio (tenant_id, clave, valor, tipo_dato, descripcion)
+  values (p_tenant, 'demo_indice', '0', 'numero', 'Mensajes de prueba ya entregados (caso de demostración)')
+  on conflict (tenant_id, clave) do update set valor = '0';
+end $$;
 
 -- Crea (o reutiliza) el negocio de prueba del caso para el usuario que llama y lo deja activo
 create or replace function platform.cargar_caso_demo(p_vertical text)
@@ -44,6 +65,10 @@ begin
 
   select id into v_tenant from platform.tenants where slug = v_slug;
   if v_tenant is not null then
+    -- si quedó de una versión anterior del caso (otro número de clientes), se vuelve a sembrar
+    if (select count(*) from elius.conversaciones where tenant_id = v_tenant) <> jsonb_array_length(v_d->'contactos') then
+      perform elius.sembrar_clientes_demo(v_tenant, p_vertical);
+    end if;
     perform platform.cambiar_tenant(v_tenant);
     return v_tenant;
   end if;
@@ -70,23 +95,13 @@ begin
     values (v_tenant, v_item, 'foto', '/demo/' || p_vertical || '-' || k || '.svg', r->>'nombre', 0);
   end loop;
 
-  for r in select * from jsonb_array_elements(v_d->'contactos') loop
-    insert into elius.contactos (tenant_id, nombres, apellidos, telefono, origen)
-    values (v_tenant, r->>0, r->>1, r->>2, 'whatsapp') returning id into v_contacto;
-    insert into elius.identidades_contacto (tenant_id, contacto_id, canal_id, id_externo, nombre_en_canal)
-    values (v_tenant, v_contacto, v_canal, r->>2, (r->>0) || ' ' || (r->>1)) returning id into v_ident;
-    insert into elius.conversaciones (tenant_id, identidad_id, flujo)
-    values (v_tenant, v_ident, 'general');
-  end loop;
-
-  insert into elius.parametros_negocio (tenant_id, clave, valor, tipo_dato, descripcion)
-  values (v_tenant, 'demo_indice', '0', 'numero', 'Mensajes de prueba ya entregados (caso de demostración)');
+  perform elius.sembrar_clientes_demo(v_tenant, p_vertical);
 
   perform platform.cambiar_tenant(v_tenant);
   return v_tenant;
 end $$;
 
--- Entrega el siguiente mensaje del guion (20 por caso). El panel lo llama cada pocos segundos.
+-- Entrega el siguiente mensaje del guion (20 clientes por caso, cada uno con la respuesta de Eli). El panel lo llama cada pocos segundos.
 -- Si una persona tomó la conversación, Eli no responde en ella (RN-C19) y se salta ese mensaje.
 create or replace function elius.siguiente_mensaje_demo()
 returns jsonb language plpgsql security definer set search_path = '' as $$
@@ -118,13 +133,15 @@ begin
   end loop;
 
   v_texto := v_g->>'texto';
-  insert into elius.mensajes (tenant_id, conversacion_id, emisor, tipo_contenido, contenido, estado_entrega, procesado)
-  values (v_tenant, v_conv, v_g->>'emisor', case when v_texto like '📎%' then 'imagen' else 'texto' end, v_texto,
+  insert into elius.mensajes (tenant_id, conversacion_id, emisor, tipo_contenido, contenido, url_adjunto, estado_entrega, procesado)
+  values (v_tenant, v_conv, v_g->>'emisor',
+          case when v_texto like '📎%' or (v_g->>'img') is not null then 'imagen' else 'texto' end, v_texto,
+          case when (v_g->>'img') is not null then '/demo/' || v_vertical || '-' || (v_g->>'img') || '.svg' end,
           case when v_g->>'emisor' = 'cliente' then 'recibido' else 'entregado' end, true);
   v_i := v_i + 1;
   update elius.parametros_negocio set valor = v_i::text where tenant_id = v_tenant and clave = 'demo_indice';
   return jsonb_build_object('terminado', v_i >= v_total, 'indice', v_i, 'total', v_total,
-                            'emisor', v_g->>'emisor', 'conversacion_id', v_conv);
+                            'emisor', v_g->>'emisor', 'conversacion_id', v_conv, 'clientes', (v_i + 1) / 2);
 end $$;
 
 -- Vuelve a empezar la demostración del negocio de prueba actual
@@ -144,6 +161,7 @@ begin
 end $$;
 
 revoke execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() from public, anon;
+revoke execute on function elius.sembrar_clientes_demo(uuid, text) from public, anon, authenticated;
 grant execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() to authenticated;
 comment on function platform.cargar_caso_demo(text) is 'Crea el negocio de prueba de un caso (restaurante/veterinaria/aerolinea) con catálogo e imágenes';
 comment on function elius.siguiente_mensaje_demo() is 'Entrega el siguiente mensaje (de 20) del guion del caso de prueba';
