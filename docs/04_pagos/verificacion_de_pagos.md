@@ -1,6 +1,6 @@
 # Verificación de pagos: comprobante revisado por el dueño (Factus Pay queda como extensión)
 
-> **Decisión vigente (23-nov-2026):** el sistema opera solo con el **flujo por comprobante**: el cliente paga por su medio (Nequi, Bre-B, transferencia), envía la foto y el **dueño o el operador revisa en el panel si llegó el monto** y aprueba o rechaza. No hay integración activa con Factus Pay, porque no se contó con credenciales de sandbox.
+> **Decisión vigente (23-nov-2026):** el sistema opera solo con el **flujo por comprobante**: el cliente paga por su medio (Nequi, Bre-B, transferencia), envía la foto y el **Administrador (dueño) revisa en el panel si llegó el monto** y aprueba o rechaza; el Operador y el Analista ven la lista, pero no deciden (lo impide un trigger en la base). No hay integración activa con Factus Pay, porque no se contó con credenciales de sandbox.
 >
 > `elius.estrategia_cobro(monto)` devuelve `comprobante` siempre que el negocio no tenga una fila activa en `elius.pasarelas_pago`, y ninguna instalación la crea. Por eso no hay que cambiar nada en la base. Las tablas `pasarelas_pago`, `recaudos` y `notificaciones_pasarela` quedan como **diseño listo para activar** cuando se tengan las credenciales y se escriban las Edge Functions.
 >

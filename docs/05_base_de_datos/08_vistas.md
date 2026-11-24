@@ -17,7 +17,7 @@ Sin `security_invoker`, una vista de negocio mostraría los datos de todos los n
 | --- | --- | --- |
 | `elius.v_agenda_dia` | Reservas de hoy con cliente, recursos y responsable | Operador (recepción) |
 | `elius.v_saldo_ordenes` | Total, pagado, cobro contra entrega y saldo pendiente de cada orden (RN-C17) | Operador, Analista, procedimientos de pago |
-| `elius.v_comprobantes_pendientes` | Comprobantes por aprobar, con alertas primero (RN-C16) | Operador (cajero) |
+| `elius.v_comprobantes_pendientes` | Comprobantes por aprobar, con alertas primero (RN-C16) | Administrador (el Operador y el Analista la ven sin decidir) |
 | `elius.v_recaudos_abiertos` | Cobros por llave Bre-B pendientes o vencidos | Administrador, Operador |
 | `elius.v_escalamientos_abiertos` | Pendientes del equipo con su antigüedad | Operador |
 | `elius.v_embudo_ultima_fase` | Fase más reciente de cada conversación | Analista |

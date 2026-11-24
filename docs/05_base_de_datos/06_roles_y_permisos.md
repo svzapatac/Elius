@@ -78,3 +78,11 @@ Además se usan los roles de Supabase: `anon` (sin ningún permiso sobre datos),
 - Un Operador sin acceso especial no escribe historia clínica; con él, sí (prueba 6).
 - Soporte no ve nada sin autorización; el Super Admin no ve datos de negocio (prueba 12).
 - `elius_consulta` lee los reportes y nada más; `elius_app` sin negocio fijado no ve nada y no puede cambiar la estructura; ningún usuario de conexión es superusuario ni salta RLS (prueba 16).
+
+## Ajuste del 24-nov-2026
+
+- **Aprobar o rechazar comprobantes: solo el Administrador.** El Operador y el Analista ven la lista. La regla vive en la base (trigger `t55_solo_admin_decide`), no solo en el panel.
+- **Catálogo:** solo el Administrador crea o edita; Operador y Analista consultan.
+- **Modelo de datos, Vistas, Consola SQL y Auditoría:** Administrador; el Super Admin usa Modelo de datos, Vistas y Consola SQL desde la plataforma.
+- **Analista:** solo lectura de resumen, métricas, pedidos, clientes, catálogo, conversaciones, comprobantes y agenda.
+- La pantalla de configuración de Eli se retiró del panel.

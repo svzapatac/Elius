@@ -40,7 +40,7 @@ Los procedimientos agrupan operaciones que tocan varias tablas y **deben ocurrir
 | `elius.marcar_no_asistidas()` | Solo backend, tarea programada | Marca no asistió después de la tolerancia y libera recursos | RN-R07 |
 | `elius.crear_orden(...)`, `elius.agregar_item(orden, ítem, cantidad)` | Eli, Operador | Crea la orden; el precio y los totales los pone la base | RN-C10, RN-C11 |
 | `elius.registrar_comprobante(...)` | Eli | Guarda el comprobante con el saldo como monto esperado | RN-C16 |
-| `elius.aprobar_comprobante(comprobante, resto_contra_entrega)` | Operador | **Atómico**: crea el pago, deja el resto contra entrega y confirma la orden; un repetido devuelve `ya_pagada` | RN-C16, RN-C17 |
+| `elius.aprobar_comprobante(comprobante, resto_contra_entrega)` | Administrador | **Atómico**: crea el pago, deja el resto contra entrega y confirma la orden; un repetido devuelve `ya_pagada` | RN-C16, RN-C17 |
 | `elius.rechazar_comprobante(comprobante, motivo)` | Operador | Rechaza con motivo | RN-C16 |
 | `elius.estrategia_cobro(monto)` | Eli | `llave_breb_factus` o `comprobante` | RN-C22, RN-C23 |
 | `elius.registrar_recaudo(orden, código, monto, llave, qr, expira)` | Edge Function con el JWT de Eli | Guarda el recaudo de Factus; si se repite la referencia, renueva el QR | RN-C23 |

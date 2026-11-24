@@ -594,7 +594,21 @@ select pg_temp.ok((select count(*) from elius.v_comprobantes_pendientes) >= 0 an
 with u as (update elius.contactos set nombres = 'X' returning 1) select pg_temp.ok((select count(*) from u) = 0, 'el analista no modifica clientes');
 select pg_temp.ok((select count(*) from elius.v_auditoria) = 0, 'el analista no ve la auditoría');
 select elius.cambiar_rol_demo('administrador');
+-- aviso al celular: se simula pg_net (solo en esta base de pruebas) y se revisa lo que se enviaría a ntfy
 reset role;
+create schema if not exists net;
+create table public.avisos_prueba (url text, cuerpo jsonb);
+create function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) returns bigint language sql as
+  $f$ insert into public.avisos_prueba values (url, body) returning 1::bigint $f$;
+select elius.reiniciar_demo();
+select pg_temp.login('00000000-0000-0000-0000-0000000000f1', current_setting('app.demo_restaurante')::uuid);
+set role authenticated;
+select count(elius.siguiente_mensaje_demo()) from generate_series(1, 60);
+reset role;
+select pg_temp.ok((select count(*) from public.avisos_prueba) >= 7, 'cada comprobante recibido genera un aviso al celular');
+select pg_temp.ok((select count(*) from public.avisos_prueba where url = 'https://ntfy.sh' and cuerpo->>'topic' like 'elius-pagos-%' and cuerpo->>'message' like '%envió un comprobante por $%' and cuerpo->>'click' like '%/#/comprobantes') = (select count(*) from public.avisos_prueba), 'el aviso lleva tema secreto, cliente, monto y enlace al panel');
+select pg_temp.ok((select count(*) from public.avisos_prueba where cuerpo->>'message' like '%no coincide%') >= 1, 'el aviso destaca el comprobante con monto distinto');
+drop table public.avisos_prueba; drop function net.http_post(text, jsonb, jsonb, jsonb, integer); drop schema net;
 select pg_temp.login(null);
 
 \echo 'Todas las pruebas pasaron.'
