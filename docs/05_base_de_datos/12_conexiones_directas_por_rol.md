@@ -98,17 +98,18 @@ update auth.users set encrypted_password = extensions.crypt('una-clave-larga', e
 
 Es distinta de la contraseña de la conexión directa (`alter role elius_trabajador password '…'`).
 
-## Un usuario por rol y por tipo de negocio
+## Cuatro roles por cada tipo de negocio
 
-La migración 3100 crea, solo para los negocios de demostración, estos usuarios (sin contraseña; se fija con el `update` de arriba):
+Las migraciones 3100 y 3200 crean, solo para los negocios de demostración, 12 usuarios sin contraseña (se fija con el `update` de arriba). Cada uno pertenece a un solo negocio, así que al entrar por la misma URL el panel lo lleva directo a su pantalla, sin selector de casos:
 
-| Correo | Rol | Negocio |
-|---|---|---|
-| `trabajador.restaurante@elius.local` | Trabajador | Restaurante |
-| `trabajador.veterinaria@elius.local` | Trabajador | Veterinaria |
-| `trabajador.aerolinea@elius.local` | Trabajador | Aerolínea |
-| `admin.restaurante@elius.local` | Administrador | Restaurante |
-| `admin.veterinaria@elius.local` | Administrador | Veterinaria |
-| `admin.aerolinea@elius.local` | Administrador | Aerolínea |
+| Rol | Restaurante | Veterinaria | Aerolínea |
+|---|---|---|---|
+| Super Administrador | `superadmin.restaurante@elius.local` | `superadmin.veterinaria@elius.local` | `superadmin.aerolinea@elius.local` |
+| Administrador | `admin.restaurante@elius.local` | `admin.veterinaria@elius.local` | `admin.aerolinea@elius.local` |
+| Trabajador | `trabajador.restaurante@elius.local` | `trabajador.veterinaria@elius.local` | `trabajador.aerolinea@elius.local` |
+| Soporte al cliente | `soporte.restaurante@elius.local` | `soporte.veterinaria@elius.local` | `soporte.aerolinea@elius.local` |
 
-Cada uno pertenece a un solo negocio, así que al entrar el panel lo lleva directo a su pantalla, sin selector. Los negocios demo nuevos reciben estas asignaciones automáticamente (disparador `t91`).
+- El Super Administrador de un negocio es administrador de ese negocio y además tiene el rol de plataforma `super_admin`. El Super Administrador de toda la plataforma (todos los negocios) es `bd.superadmin@elius.local`.
+- Soporte solo ve lo técnico de su negocio, con una autorización de 7 días; se renueva con `select platform.renovar_soporte_bd();`.
+- Estos usuarios (`@elius.local`) no cuentan para el límite de usuarios del plan.
+- Los negocios demo nuevos reciben las asignaciones automáticamente (disparador `t91`).
