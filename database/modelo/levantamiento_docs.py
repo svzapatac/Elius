@@ -1,5 +1,5 @@
 """Genera el Word (Arial 12) y el HTML del panel desde docs/01_levantamiento/levantamiento_informacion.md."""
-import os, re, subprocess
+import os, re, subprocess, sys
 from docx import Document
 from docx.shared import Pt, RGBColor, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -8,8 +8,11 @@ from docx.oxml import OxmlElement
 D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "01_levantamiento")
 PANEL = "/home/claude/elius-panel/public/modelo/levantamiento.html"
 MD = "levantamiento_informacion.md"; OUT = "levantamiento_informacion.docx"
+EXTRA = len(sys.argv) > 1
+if EXTRA:
+    ruta = os.path.abspath(sys.argv[1]); D = os.path.dirname(ruta); MD = os.path.basename(ruta); OUT = MD[:-3] + ".docx"
 os.chdir(D)
-subprocess.run(["pandoc", "-f", "markdown-smart", MD, "-o", "/tmp/lev_raw.docx", "--resource-path=."], check=True)
+subprocess.run(["pandoc", "-f", "markdown-smart", MD, "-o", "/tmp/lev_raw.docx", "--resource-path=.:" + os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "01_levantamiento")], check=True)
 d = Document("/tmp/lev_raw.docx"); AZ = RGBColor(0x5B, 0x3F, 0xA0); TINTA = RGBColor(0x1F, 0x1A, 0x2E)
 def arial(st):
     rpr = st.element.get_or_add_rPr(); rf = rpr.find(qn("w:rFonts"))
@@ -37,7 +40,7 @@ for st in d.styles:
 for sec in d.sections:
     sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
     p = sec.footer.paragraphs[0] if sec.footer.paragraphs else sec.footer.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run("Elius · Levantamiento de información y requerimientos · Página "); r.font.size = Pt(9); r.font.name = "Arial"
+    r = p.add_run(("Elius · Triggers · Página " if EXTRA else "Elius · Levantamiento de información y requerimientos · Página ")); r.font.size = Pt(9); r.font.name = "Arial"
     r2 = p.add_run(); r2.font.size = Pt(9)
     for t, x in (("begin", None), ("instr", " PAGE "), ("end", None)):
         if t == "instr": e = OxmlElement("w:instrText"); e.set(qn("xml:space"), "preserve"); e.text = x
@@ -63,9 +66,16 @@ for t in d.tables:
                 for r in p.runs:
                     r.font.name = "Arial"; r.font.size = Pt(10.5)
                     if i == 0: r.font.bold = True; r.font.color.rgb = AZ
+if EXTRA:
+    for t in d.tables:
+        t.autofit = False
+        for gc, w in zip(t._tbl.tblGrid.findall(qn("w:gridCol")), (3.6, 2.8, 2.0, 7.6)): gc.set(qn("w:w"), str(int(w * 567)))
+        for el in t._tbl.tblPr.findall(qn("w:tblW")): el.set(qn("w:type"), "dxa"); el.set(qn("w:w"), str(int(16 * 567)))
+        for row in t.rows:
+            for c, w in zip(row.cells, (3.6, 2.8, 2.0, 7.6)): c.width = Cm(w)
 d.save(OUT)
-h = subprocess.run(["pandoc", "-f", "markdown+ascii_identifiers-smart", MD, "-t", "html"], check=True, capture_output=True, text=True).stdout
-h = re.sub(r'<h([234]) id="([^"]+)">(\d+(?:\.\d+)*)\.? ', lambda m: f'<h{m.group(1)} id="{m.group(3).replace(".", "-")}-{m.group(2)}">{m.group(3)}{"." if m.group(1) == "2" else ""} ', h)
-h = re.sub(r'src="elius-logo.png"', 'src="/elius-logo.png"', h)
-if os.path.isdir(os.path.dirname(PANEL)): open(PANEL, "w", encoding="utf-8").write(h)
+if not EXTRA: h = subprocess.run(["pandoc", "-f", "markdown+ascii_identifiers-smart", MD, "-t", "html"], check=True, capture_output=True, text=True).stdout
+if not EXTRA: h = re.sub(r'<h([234]) id="([^"]+)">(\d+(?:\.\d+)*)\.? ', lambda m: f'<h{m.group(1)} id="{m.group(3).replace(".", "-")}-{m.group(2)}">{m.group(3)}{"." if m.group(1) == "2" else ""} ', h)
+if not EXTRA: h = re.sub(r'src="elius-logo.png"', 'src="/elius-logo.png"', h)
+if not EXTRA and os.path.isdir(os.path.dirname(PANEL)): open(PANEL, "w", encoding="utf-8").write(h)
 print("ok")
