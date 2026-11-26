@@ -10,7 +10,7 @@ PANEL = "/home/claude/elius-panel/public/modelo/levantamiento.html"
 MD = "levantamiento_informacion.md"; OUT = "levantamiento_informacion.docx"
 os.chdir(D)
 subprocess.run(["pandoc", "-f", "markdown-smart", MD, "-o", "/tmp/lev_raw.docx", "--resource-path=."], check=True)
-d = Document("/tmp/lev_raw.docx"); AZ = RGBColor(0x1F, 0x3A, 0x5F)
+d = Document("/tmp/lev_raw.docx"); AZ = RGBColor(0x5B, 0x3F, 0xA0); TINTA = RGBColor(0x1F, 0x1A, 0x2E)
 def arial(st):
     rpr = st.element.get_or_add_rPr(); rf = rpr.find(qn("w:rFonts"))
     if rf is None: rf = OxmlElement("w:rFonts"); rpr.append(rf)
@@ -25,10 +25,15 @@ for s in d.styles:
     if s.style_id in ("SourceCode", "VerbatimChar"): s.font.name = "Consolas"; s.font.size = Pt(10)
     if s.style_id in H:
         for c in rpr.findall(qn("w:color")): rpr.remove(c)
-        s.font.size = Pt(H[s.style_id]); s.font.bold = True; s.font.color.rgb = AZ
+        s.font.size = Pt(H[s.style_id]); s.font.bold = True; s.font.color.rgb = AZ if s.style_id != "Heading4" else TINTA
         pf = s.paragraph_format; pf.space_before = Pt(12 if s.style_id == "Heading4" else 18); pf.space_after = Pt(6); pf.keep_with_next = True
     elif s.style_id in ("BodyText", "FirstParagraph", "Compact", "Normal"):
-        s.paragraph_format.line_spacing = 1.25; s.paragraph_format.space_after = Pt(6)
+        s.font.color.rgb = TINTA; s.paragraph_format.line_spacing = 1.25; s.paragraph_format.space_after = Pt(6)
+for st in d.styles:
+    if st.style_id == "Heading2":
+        pb = OxmlElement("w:pBdr"); bt = OxmlElement("w:bottom")
+        for k, v in (("val", "single"), ("sz", "12"), ("space", "4"), ("color", "5B3FA0")): bt.set(qn("w:" + k), v)
+        pb.append(bt); st.element.get_or_add_pPr().append(pb)
 for sec in d.sections:
     sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
     p = sec.footer.paragraphs[0] if sec.footer.paragraphs else sec.footer.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -43,12 +48,12 @@ def sombra(c, hx):
 for t in d.tables:
     b = OxmlElement("w:tblBorders")
     for k in ("top", "left", "bottom", "right", "insideH", "insideV"):
-        e = OxmlElement(f"w:{k}"); e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), "B8C2D0"); b.append(e)
+        e = OxmlElement(f"w:{k}"); e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), "DCD9E0"); b.append(e)
     t._tbl.tblPr.append(b)
     for i, row in enumerate(t.rows):
         for c in row.cells:
-            if i == 0: sombra(c, "1F3A5F")
-            elif i % 2 == 0: sombra(c, "F2F5FA")
+            if i == 0: sombra(c, "ECE8F6")
+            elif i % 2 == 0: sombra(c, "F3F0F9")
             m = OxmlElement("w:tcMar")
             for k, w in (("top", 60), ("bottom", 60), ("left", 100), ("right", 100)):
                 e = OxmlElement(f"w:{k}"); e.set(qn("w:w"), str(w)); e.set(qn("w:type"), "dxa"); m.append(e)
@@ -57,7 +62,7 @@ for t in d.tables:
                 p.paragraph_format.space_after = Pt(2)
                 for r in p.runs:
                     r.font.name = "Arial"; r.font.size = Pt(10.5)
-                    if i == 0: r.font.bold = True; r.font.color.rgb = RGBColor(255, 255, 255)
+                    if i == 0: r.font.bold = True; r.font.color.rgb = AZ
 d.save(OUT)
 h = subprocess.run(["pandoc", "-f", "markdown+ascii_identifiers-smart", MD, "-t", "html"], check=True, capture_output=True, text=True).stdout
 h = re.sub(r'<h([234]) id="([^"]+)">(\d+(?:\.\d+)*)\.? ', lambda m: f'<h{m.group(1)} id="{m.group(3).replace(".", "-")}-{m.group(2)}">{m.group(3)}{"." if m.group(1) == "2" else ""} ', h)

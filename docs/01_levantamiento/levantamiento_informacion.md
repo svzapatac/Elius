@@ -155,7 +155,6 @@ Los canales entran por n8n, las Edge Functions o la API de Supabase. Toda petici
 | Edge Functions (TypeScript) | Llamadas a los modelos de lenguaje, webhooks y lógica que no cabe en SQL |
 | Flujos en n8n | Integraciones con WhatsApp y Google Calendar |
 | Extensión de Chrome | Captura conversaciones del navegador y las envía a `ext` |
-| Factus Pay | Cobro por llave Bre-B y QR por el monto exacto; avisa por webhook cuando el cliente paga |
 
 **Patrones de diseño**
 
@@ -332,9 +331,6 @@ Se identificaron 73 reglas. Cada una indica cómo la va a garantizar la base de 
 | RN-C19 | Si un humano toma la conversación, Eli deja de responder hasta que se la devuelven. | Estado de la conversación + RLS para Eli |
 | RN-C20 | El Administrador o Soporte pueden apagar a Eli de inmediato (interruptor de emergencia). | Columna activo del agente + procedimiento |
 | RN-C21 | Eli agrupa los mensajes seguidos del cliente antes de responder, y cada conversación la atiende un solo proceso a la vez. | Columna procesado + bloqueo de la conversación |
-| RN-C22 | Si el negocio tiene Factus Pay activo, Eli cobra con una llave Bre-B y un QR por el monto exacto. El pago se confirma solo con el webhook validado, sin intervención humana. | Función de estrategia de cobro + procedimiento del webhook + trigger que crea el pago |
-| RN-C23 | Factus no acepta pagos parciales ni montos distintos, y cobra entre 1.000 y 12.100.000 COP. Cada abono es un recaudo aparte; si el monto queda fuera del rango o el negocio no usa Factus, se cobra por comprobante tradicional. | CHECK de montos + función de estrategia de cobro |
-| RN-C24 | El webhook se valida comparando la clave secreta en tiempo constante. Se guarda antes de responder 2xx, es idempotente (un webhook repetido no paga dos veces) y en montos altos se confirma consultando el recaudo en la API. | Bandeja de notificaciones + procedimiento solo para el backend |
 | RN-C26 | Solo un Administrador puede aprobar o rechazar un comprobante de pago. Un Operador que lo intente recibe un error claro. | Triggers `t53/t55_solo_admin_decide` sobre el veredicto del comprobante |
 | RN-C27 | Cuando llega un comprobante pendiente, cada Administrador activo recibe un aviso en su celular con el cliente, el monto y un enlace para aprobar o rechazar. Si el monto no coincide, el aviso lo destaca. | Trigger `t56_aviso_celular_comprobante` (función `avisar_comprobante_celular`) + `pg_net` hacia el servicio de notificaciones y hacia ntfy |
 | RN-C28 | El aviso es un respaldo del flujo, no parte de él: si el servicio de notificaciones falla, el comprobante se guarda igual y el error queda como aviso en el registro de la base. | Bloque `exception` dentro del trigger |
@@ -342,7 +338,6 @@ Se identificaron 73 reglas. Cada una indica cómo la va a garantizar la base de 
 | RN-C30 | Las validaciones de dominio nuevas (teléfonos, montos positivos, fechas coherentes, estados permitidos) se agregaron como `CHECK ... NOT VALID`: protegen los datos nuevos sin romper los antiguos. | Migración 0200 de validaciones |
 | RN-C31 | ~~El Operador usa la consola SQL~~ Reemplazada el 26-nov: la consola es solo del Administrador y el Super Admin; el Operador crea tickets de soporte. | Operación |
 | RN-C32 | Todo lo que hace cada rol en su panel queda en la auditoría que ve el Administrador: cada cambio en las tablas del negocio (quién, rol, cargo, antes y después), cada consulta de la consola, cada intento bloqueado y cada mensaje que una persona envía a un cliente (solo datos de control, nunca el texto). Aplica igual a restaurante, veterinaria y aerolínea. | Trigger `t02_auditoria` en las tablas, `t02_auditoria_mensaje_humano`, `consola_auditar` y la vista `v_auditoria` |
-| RN-C25 | Factus no permite reversos ni reembolsos, porque la transferencia va de banco a banco. Una devolución se registra como un pago negativo hecho por fuera. | CHECK de reversos en pagos |
 
 ### 9.3 Extensión de Chrome
 
@@ -526,7 +521,7 @@ Hoy el negocio cobra por **comprobante**: el cliente paga por Nequi, Bre-B o tra
 
 > **Decisión de diseño:** como Eli está aprendiendo y una foto puede ser falsa o editada, **la última palabra siempre es del dueño**. Eli reduce el trabajo (lee, compara, detecta repetidos y avisa), pero no sustituye la verificación contra el banco.
 
-**Pagos parciales (RN-C17):** el cliente puede pagar una parte; el saldo se cobra en efectivo al entregar. **Devoluciones (RN-C12, RN-C25):** un pago aprobado no se edita; una devolución se registra como otro pago negativo hecho por el gerente.
+**Pagos parciales (RN-C17):** el cliente puede pagar una parte; el saldo se cobra en efectivo al entregar. **Devoluciones (RN-C12):** un pago aprobado no se edita; una devolución se registra como otro pago negativo hecho por el gerente.
 
 #### 11.2.5 Avisos y automatizaciones
 - **Lo que hace (A):** cuando algo pasa (pedido confirmado, comprobante recibido, reserva grande, vuelo retrasado) la base genera un **evento** y n8n avisa al equipo o al cliente, crea el evento en Calendar o envía recordatorios.
@@ -700,7 +695,7 @@ El modelo general es la base que comparten todos los negocios, sin importar su i
 | Esquema | Tablas | Qué resuelve |
 | --- | --- | --- |
 | `platform` | 15 | El SaaS: tenants, planes, usuarios, membresías, roles, permisos, plugins instalados y soporte |
-| `elius` | 33 | El negocio: contactos, conversaciones con Eli, catálogo, reservas, órdenes, pagos, comprobantes, cobro con Factus Pay, entregas y métricas |
+| `elius` | 33 | El negocio: contactos, conversaciones con Eli, catálogo, reservas, órdenes, pagos, comprobantes, entregas y métricas |
 | `ext` | 6 | La extensión de Chrome: conversaciones capturadas, patrones y su evidencia |
 | `audit` | 1 | La bitácora de cambios de todas las tablas |
 
@@ -723,10 +718,6 @@ El modelo general es la base que comparten todos los negocios, sin importar su i
 **elius: órdenes, pagos, comprobantes y entregas**
 
 ![órdenes, pagos, comprobantes y entregas](../../database/modelo/salida/02c_elius_ordenes_pagos.png)
-
-**elius: cobro por llave Bre-B con Factus Pay**
-
-![Factus Pay](../../database/modelo/salida/02e_elius_factus_pay.png)
 
 **elius: conocimiento de Eli, configuración y eventos**
 
@@ -972,11 +963,11 @@ Cada decisión del diseño tiene una razón y una fuente oficial que la respalda
 - **Cómo.** Cada contacto guarda fecha, canal y texto de su autorización. El diccionario de datos marca las columnas sensibles: alergias, historia clínica, necesidades de salud del pasajero y documentos. Esas columnas tienen acceso restringido por permiso.
 - **Fuente.** [Ley 1581 de 2012, texto en la Relatoría de Colombia Compra Eficiente](https://relatoria.colombiacompra.gov.co/normativa/ley-1581-de-2012/)
 
-### DT-18. Verificación de pagos: Factus Pay con llave Bre-B, y el comprobante como respaldo
+### DT-18. Verificación de pagos: comprobante revisado por el dueño
 
-- **Por qué.** Hoy una persona revisa cada comprobante a mano, y el código de Potrillos tiene parches para no cobrar dos veces. Factus Pay crea un cobro con llave Bre-B y QR por el monto exacto, y avisa por webhook cuando se paga. Así el pago se confirma solo, sin leer imágenes. Factus tiene límites: no acepta pagos parciales ni montos distintos, cobra entre 1.000 y 12.100.000 COP, no hace reversos y cobra $800 + IVA por recaudo. Por eso el comprobante tradicional sigue como respaldo.
-- **Cómo.** Patrón Strategy (DT-10): la función `estrategia_cobro` elige “llave Bre-B” si el negocio tiene Factus activo y el monto cabe en sus límites; si no, elige “comprobante”. Una Edge Function crea el recaudo con `POST /v1/collections` y lo guarda en `recaudos`. El webhook llega a otra Edge Function, que valida la clave `?key=` en tiempo constante, guarda la notificación y la aplica con `procesar_webhook_factus`. Al quedar pagado, un trigger crea el pago y otro confirma la orden. Las credenciales y la clave del webhook van en Supabase Vault.
-- **Fuente.** [Factus Pay: autenticación](https://pay-developers.factus.com.co/autenticacion/) · [Crear un recaudo](https://pay-developers.factus.com.co/recaudos/crear/) · [Ver un recaudo](https://pay-developers.factus.com.co/recaudos/ver/) · [Webhooks](https://pay-developers.factus.com.co/webhooks/) · [Preguntas frecuentes](https://pay-developers.factus.com.co/preguntas-frecuentes/)
+- **Por qué.** El cliente paga por su medio (Nequi, Bre-B o transferencia) y envía la foto del comprobante. Una imagen puede ser falsa o estar editada, y Eli todavía está en etapa de aprendizaje, así que la decisión final sobre el dinero no se le deja a la IA.
+- **Cómo.** Eli lee el comprobante (monto, aplicación, referencia, remitente, destinatario y fecha) y la base de datos marca alertas: monto distinto al esperado, comprobante repetido o destinatario que no es del negocio. El Administrador recibe un aviso en el celular y aprueba o rechaza desde el panel; un Operador o un Analista no pueden decidir (un trigger lo impide). Al aprobar se crea el pago y se confirma la orden.
+- **Qué queda para más adelante.** Conectar una pasarela de pagos que confirme el dinero sin intervención humana. El modelo se puede extender, pero hoy no hay ninguna conectada.
 
 ### DT-19. Avisos al celular: trigger, `pg_net` y un servicio de Web Push
 
@@ -1106,14 +1097,6 @@ Fuentes oficiales consultadas el 20 de noviembre de 2026.
 - [RFC 7519: JSON Web Token (IETF, mayo de 2015)](https://www.rfc-editor.org/rfc/rfc7519)
 - [Ley Estatutaria 1581 de 2012, protección de datos personales](https://relatoria.colombiacompra.gov.co/normativa/ley-1581-de-2012/)
 - [IATA Code Search](https://www.iata.org/en/publications/directories/code-search/)
-
-**Pagos**
-
-- [Factus Pay: autenticación](https://pay-developers.factus.com.co/autenticacion/)
-- [Factus Pay: crear un recaudo](https://pay-developers.factus.com.co/recaudos/crear/)
-- [Factus Pay: ver un recaudo](https://pay-developers.factus.com.co/recaudos/ver/)
-- [Factus Pay: webhooks](https://pay-developers.factus.com.co/webhooks/)
-- [Factus Pay: preguntas frecuentes](https://pay-developers.factus.com.co/preguntas-frecuentes/)
 
 **Patrones y herramientas**
 
