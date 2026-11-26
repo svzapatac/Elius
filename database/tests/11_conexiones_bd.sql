@@ -166,3 +166,16 @@ set session authorization elius_trabajador;
 select platform.usar_negocio(:'s_rest') \gset
 select pg_temp.ok((select count(*) from elius.v_mis_reportes where id = :'p2' and not abierto and notas like '%reinició el servicio%') = 1, 'Trabajador: ve que Soporte lo resolvió y con qué nota');
 reset session authorization;
+
+-- 24 · La auditoría guarda instancia, base, puerto, IP y login de BD de cada movimiento
+do $$ declare v record; begin
+  perform set_config('request.headers', '{"x-forwarded-for":"203.0.113.7, 10.0.0.1"}', true);
+  insert into audit.registros_auditoria (rol, esquema, tabla, registro_id, operacion)
+    values ('administrador', 'elius', 'prueba_origen', gen_random_uuid(), 'INSERT');
+  select * into v from audit.registros_auditoria where tabla = 'prueba_origen';
+  if v.base_datos is null or v.instancia is null or v.login_bd is null or v.aplicacion is null then
+    raise exception 'FALLA 24: faltan datos de conexión en la auditoría'; end if;
+  if v.ip_cliente <> '203.0.113.7' then raise exception 'FALLA 24: IP esperada 203.0.113.7, llegó %', v.ip_cliente; end if;
+  delete from audit.registros_auditoria where tabla = 'prueba_origen';
+  raise notice 'OK 24: auditoría con instancia %, base %, puerto %, IP %, login %', v.instancia, v.base_datos, v.puerto, v.ip_cliente, v.login_bd;
+end $$;
