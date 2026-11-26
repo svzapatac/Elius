@@ -81,3 +81,36 @@ flowchart LR
 ```
 
 **Reglas que aplican:** RN-C16, RN-C17, RN-C18, RN-C19, RN-C21, RN-C12, RN-R07, RN-R09.
+
+## Tomar una reserva y marcar la llegada (quién la atiende queda guardado)
+
+```mermaid
+flowchart TD
+  A([Abre Mi trabajo → Reservas de hoy]) --> B{¿La reserva tiene responsable?}
+  B -- No --> C[Botón Tomar reserva<br/>elius.tomar_reserva → queda como responsable]
+  B -- Sí, es otra persona --> D[Solo la ve: Atiende: correo del responsable<br/>el Administrador puede liberarla]
+  C --> E{¿Llegó el cliente?}
+  E -- Sí --> F[Botón Llegó<br/>elius.marcar_llegada → asistió]
+  E -- No --> G[Botón No llegó<br/>elius.marcar_no_llegada → no asistió, se libera la mesa]
+  F --> H[t06_marcada_por guarda quién lo marcó<br/>el Administrador lo ve en Reservas y Agenda]
+  G --> H
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class B,E dec
+  class A,H ok
+```
+
+## Crear un ticket de soporte
+
+```mermaid
+flowchart TD
+  A([Abre Tickets de soporte]) --> B[Elige categoría, prioridad y escribe el asunto y qué pasó]
+  B --> C[elius.crear_ticket → TCK-000N, estado abierto]
+  C --> D[Soporte lo toma y lo resuelve con una solución]
+  D --> E[El Operador ve en Mis tickets el estado y la solución]
+  classDef default fill:#dbeafe,stroke:#3b82f6,color:#1e293b
+  classDef dec fill:#fef9c3,stroke:#ca8a04,color:#1e293b
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#1e293b
+  class A,E ok
+```
