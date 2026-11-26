@@ -520,3 +520,9 @@ set role authenticated;
 select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,11)') <> 'ok', 'El Operador no ejecuta los flujos de prueba');
 reset role;
 select set_config('request.jwt.claims', '', false);
+
+-- 36 · Auditoría legible: las acciones de negocio salen con una frase clara
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'tickets' and detalle like 'Creó el ticket TCK-%') >= 1, 'La auditoría dice qué ticket se creó');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'comprobantes_pago' and detalle like 'Aprobó el comprobante de $%') >= 1, 'La auditoría dice qué comprobante se aprobó');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'pagos' and detalle like 'Registró un pago de $%') >= 1, 'La auditoría dice qué pago se registró');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'reservas' and (detalle like 'Tomó la reserva%' or detalle like 'Liberó la reserva%')) >= 1, 'La auditoría dice quién tomó o liberó una reserva');
