@@ -526,3 +526,18 @@ select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'tickets
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'comprobantes_pago' and detalle like 'Aprobó el comprobante de $%') >= 1, 'La auditoría dice qué comprobante se aprobó');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'pagos' and detalle like 'Registró un pago de $%') >= 1, 'La auditoría dice qué pago se registró');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'reservas' and (detalle like 'Tomó la reserva%' or detalle like 'Liberó la reserva%')) >= 1, 'La auditoría dice quién tomó o liberó una reserva');
+
+\echo '== 37. Flujo de prueba: reserva, petición de humano y cancelación'
+select slug as s_rest from platform.tenants where slug like 'demo-restaurante-%' order by creado_en limit 1 \gset
+select id as t_rest from platform.tenants where slug = :'s_rest' \gset
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((elius.paso_flujo_reserva_prueba(11) ->> 'mensaje') is not null, 'flujo 3: llega el cliente y pide mesa');
+select pg_temp.ok((elius.paso_flujo_reserva_prueba(12) ->> 'reserva') like 'R-%', 'flujo 3: Eli crea la reserva');
+select pg_temp.ok((elius.paso_flujo_reserva_prueba(13) ->> 'mensaje') is not null, 'flujo 3: el cliente pide una persona');
+select pg_temp.ok((elius.paso_flujo_reserva_prueba(14) ->> 'mensaje') is not null, 'flujo 3: Eli responde y escala');
+select pg_temp.ok(exists (select 1 from elius.escalamientos where motivo = 'Cancelar reserva' and resuelto_en is null), 'flujo 3: el caso queda abierto en Pendientes');
+select pg_temp.ok((elius.paso_flujo_reserva_prueba(15) ->> 'mensaje') is not null, 'flujo 3: el cliente explica la situación');
+select pg_temp.ok((select elius.cancelar_reserva(r.id, 'El cliente avisó que no puede asistir') from elius.reservas r join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Flujo 3') is not null, 'flujo 3: el Administrador cancela la reserva');
+select pg_temp.ok(exists (select 1 from elius.v_auditoria where detalle like 'Reserva R-%: confirmada → cancelada'), 'flujo 3: la cancelación queda en la auditoría');
+reset session authorization;
