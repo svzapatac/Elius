@@ -179,3 +179,14 @@ do $$ declare v record; begin
   delete from audit.registros_auditoria where tabla = 'prueba_origen';
   raise notice 'OK 24: auditoría con instancia %, base %, puerto %, IP %, login %', v.instancia, v.base_datos, v.puerto, v.ip_cliente, v.login_bd;
 end $$;
+
+-- 25 · La auditoría guarda el correo de quien hizo el cambio
+do $$ declare v record; u uuid; begin
+  select id into u from auth.users where email = 'admin.restaurante@elius.local';
+  insert into audit.registros_auditoria (usuario_id, rol, esquema, tabla, registro_id, operacion)
+    values (u, 'administrador', 'elius', 'prueba_quien', gen_random_uuid(), 'INSERT');
+  select * into v from audit.registros_auditoria where tabla = 'prueba_quien';
+  if v.usuario_email is distinct from 'admin.restaurante@elius.local' then raise exception 'FALLA 25: correo % ', v.usuario_email; end if;
+  delete from audit.registros_auditoria where tabla = 'prueba_quien';
+  raise notice 'OK 25: la auditoría dice quién: %', v.usuario_email;
+end $$;
