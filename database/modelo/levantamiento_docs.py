@@ -8,7 +8,7 @@ from docx.oxml import OxmlElement
 D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "01_levantamiento")
 PANEL = "/home/claude/elius-panel/public/modelo/levantamiento.html"
 MD = "levantamiento_informacion.md"; OUT = "levantamiento_informacion.docx"
-EXTRA = len(sys.argv) > 1
+EXTRA = len(sys.argv) > 1; LAND = os.environ.get("LAND") == "1"; PT = 9 if LAND else 10.5; ANCHOS = (3.7, 2.6, 1.3, 2.6, 3.3, 9.1, 2.2) if LAND else ANCHOS
 if EXTRA:
     ruta = os.path.abspath(sys.argv[1]); D = os.path.dirname(ruta); MD = os.path.basename(ruta); OUT = MD[:-3] + ".docx"
 os.chdir(D)
@@ -38,9 +38,10 @@ for st in d.styles:
         for k, v in (("val", "single"), ("sz", "12"), ("space", "4"), ("color", "5B3FA0")): bt.set(qn("w:" + k), v)
         pb.append(bt); st.element.get_or_add_pPr().append(pb)
 for sec in d.sections:
-    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
+    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(1.8 if LAND else 2.5)
+    if LAND: sec.orientation = 1; sec.page_width, sec.page_height = Cm(29.7), Cm(21.0)
     p = sec.footer.paragraphs[0] if sec.footer.paragraphs else sec.footer.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(("Elius · Triggers · Página " if EXTRA else "Elius · Levantamiento de información y requerimientos · Página ")); r.font.size = Pt(9); r.font.name = "Arial"
+    r = p.add_run((("Elius · Diccionario de datos · Página " if LAND else "Elius · Triggers · Página ") if EXTRA else "Elius · Levantamiento de información y requerimientos · Página ")); r.font.size = Pt(9); r.font.name = "Arial"
     r2 = p.add_run(); r2.font.size = Pt(9)
     for t, x in (("begin", None), ("instr", " PAGE "), ("end", None)):
         if t == "instr": e = OxmlElement("w:instrText"); e.set(qn("xml:space"), "preserve"); e.text = x
@@ -58,21 +59,24 @@ for t in d.tables:
             if i == 0: sombra(c, "ECE8F6")
             elif i % 2 == 0: sombra(c, "F3F0F9")
             m = OxmlElement("w:tcMar")
-            for k, w in (("top", 60), ("bottom", 60), ("left", 100), ("right", 100)):
+            for k, w in (("top", 25 if LAND else 60), ("bottom", 25 if LAND else 60), ("left", 80), ("right", 80)):
                 e = OxmlElement(f"w:{k}"); e.set(qn("w:w"), str(w)); e.set(qn("w:type"), "dxa"); m.append(e)
             c._tc.get_or_add_tcPr().append(m)
             for p in c.paragraphs:
-                p.paragraph_format.space_after = Pt(2)
+                p.paragraph_format.space_after = Pt(0); p.paragraph_format.line_spacing = 1.0
                 for r in p.runs:
-                    r.font.name = "Arial"; r.font.size = Pt(10.5)
+                    r.font.name = "Arial"; r.font.size = Pt(PT)
                     if i == 0: r.font.bold = True; r.font.color.rgb = AZ
+for p in d.paragraphs:
+    if p.style.style_id.startswith("Heading"):
+        for r in p.runs: r.font.name = "Arial"; r.font.size = p.style.font.size; r.font.bold = True; r.font.color.rgb = p.style.font.color.rgb
 if EXTRA:
     for t in d.tables:
         t.autofit = False
-        for gc, w in zip(t._tbl.tblGrid.findall(qn("w:gridCol")), (3.6, 2.8, 2.0, 7.6)): gc.set(qn("w:w"), str(int(w * 567)))
-        for el in t._tbl.tblPr.findall(qn("w:tblW")): el.set(qn("w:type"), "dxa"); el.set(qn("w:w"), str(int(16 * 567)))
+        for gc, w in zip(t._tbl.tblGrid.findall(qn("w:gridCol")), ANCHOS): gc.set(qn("w:w"), str(int(w * 567)))
+        for el in t._tbl.tblPr.findall(qn("w:tblW")): el.set(qn("w:type"), "dxa"); el.set(qn("w:w"), str(int(sum(ANCHOS) * 567)))
         for row in t.rows:
-            for c, w in zip(row.cells, (3.6, 2.8, 2.0, 7.6)): c.width = Cm(w)
+            for c, w in zip(row.cells, ANCHOS): c.width = Cm(w)
 d.save(OUT)
 if not EXTRA: h = subprocess.run(["pandoc", "-f", "markdown+ascii_identifiers-smart", MD, "-t", "html"], check=True, capture_output=True, text=True).stdout
 if not EXTRA: h = re.sub(r'<h([234]) id="([^"]+)">(\d+(?:\.\d+)*)\.? ', lambda m: f'<h{m.group(1)} id="{m.group(3).replace(".", "-")}-{m.group(2)}">{m.group(3)}{"." if m.group(1) == "2" else ""} ', h)
