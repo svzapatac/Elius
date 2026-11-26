@@ -17,7 +17,9 @@ select pg_temp.ok(app.mi_rol() = 'administrador' and app.current_tenant_id() = :
 select pg_temp.ok((select count(*) from elius.contactos) > 0, 'Administrador: ve los datos del negocio');
 select pg_temp.ok(pg_temp.intenta('delete from elius.contactos') = '42501', 'Administrador: DELETE bloqueado');
 select pg_temp.ok(pg_temp.intenta('truncate elius.contactos') <> 'ok', 'Administrador: TRUNCATE bloqueado');
-select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where id = (select id from elius.contactos order by creado_en limit 1)') = 'ok', 'Administrador: puede eliminar (desactivar) un cliente');
+insert into elius.contactos (nombres, apellidos, telefono, origen) values ('Sin', 'Historial', '+573000000001', 'panel');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where id = (select id from elius.contactos order by creado_en limit 1)') <> 'ok', 'RN-C13: un cliente con reservas o pedidos abiertos no se elimina');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where telefono = ''+573000000001''') = 'ok', 'Administrador: puede eliminar (desactivar) un cliente sin movimientos');
 select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = null where eliminado_en is not null') = 'ok', 'Administrador: puede restaurar');
 select pg_temp.ok(pg_temp.intenta('drop table elius.contactos') <> 'ok', 'Administrador: DROP bloqueado');
 select pg_temp.ok(pg_temp.intenta('alter table elius.contactos add column x int') <> 'ok', 'Administrador: ALTER bloqueado');
@@ -405,5 +407,61 @@ set role authenticated;
 select id as c30a from elius.contactos where eliminado_en is null order by creado_en limit 1 \gset
 select id as i30a2 from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio limit 1 \gset
 select pg_temp.ok(pg_temp.intenta('select elius.crear_pedido_manual(''' || :'c30a' || ''', ''no_aplica'', ''[{"item_id": "' || :'i30a2' || '", "cantidad": 1}]''::jsonb)') = 'ok', 'Aerolínea: pedido manual');
+reset role;
+select set_config('request.jwt.claims', '', false);
+
+-- 31 · Coherencia: reservas, pedidos, mesas, clientes y dinero
+\echo '== 31. Coherencia entre reservas, pedidos y mesas'
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select id as c31 from elius.contactos where eliminado_en is null order by creado_en offset 2 limit 1 \gset
+select id as mesa31 from elius.recursos where activo and tipo = 'mesa' and capacidad >= 2 order by capacidad limit 1 \gset
+select id as it31 from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio limit 1 \gset
+select (date_trunc('day', now() at time zone 'America/Bogota') + interval '5 days 19 hours') at time zone 'America/Bogota' as ini31 \gset
+select (date_trunc('day', now() at time zone 'America/Bogota') + interval '5 days 20 hours') at time zone 'America/Bogota' as fin31 \gset
+select elius.agendar_reserva(:'c31', 'mesa', :'ini31', :'fin31', 2, array[:'mesa31']::uuid[], 'Reserva coherencia 1') as r31 \gset
+select elius.crear_orden(:'c31', 'presencial', 'sitio', :'r31') as o31 \gset
+select elius.agregar_item(:'o31', :'it31', 1) is not null as ok_it \gset
+select pg_temp.ok(pg_temp.intenta('select elius.agendar_reserva(''' || :'c31' || ''', ''mesa'', ''' || :'ini31' || ''', ''' || :'fin31' || ''', 2, array[''' || :'mesa31' || ''']::uuid[], null)') <> 'ok', 'RN-C07: la mesa ocupada no se reserva dos veces');
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_pedido(''' || :'o31' || ''')') <> 'ok', 'RN-C09: el pedido de una reserva activa no se elimina solo');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where id = ''' || :'c31' || '''') <> 'ok', 'RN-C13: el cliente con reserva activa no se elimina');
+select pg_temp.ok(pg_temp.intenta('select elius.cancelar_reserva(''' || :'r31' || ''', ''no'')') <> 'ok', 'Cancelar exige un motivo');
+reset role;
+-- El Trabajador no cancela y no registra llegada de una reserva sin pago
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.cancelar_reserva(''' || :'r31' || ''', ''Intento del trabajador'')') = '42501', 'Operador: no cancela reservas');
+select pg_temp.ok(pg_temp.intenta('select elius.marcar_llegada(''' || :'r31' || ''')') <> 'ok', 'Operador: no registra llegada de una reserva pendiente de pago o de otro día');
+reset role;
+-- El Administrador cancela: se libera la mesa y se cancela el pedido sin pago
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.cancelar_reserva(:'r31', 'El cliente avisó que no viene') as msg31 \gset
+select pg_temp.ok((select estado from elius.reservas where id = :'r31') = 'cancelada' and (select notas from elius.reservas where id = :'r31') like '%Cancelada: El cliente%', 'Reserva cancelada con su motivo');
+select pg_temp.ok((select estado from elius.ordenes where id = :'o31') = 'cancelada', 'El pedido sin pago de esa reserva quedó cancelado');
+select pg_temp.ok((select count(*) from elius.asignaciones_recurso where reserva_id = :'r31' and estado = 'activa') = 0, 'La mesa quedó liberada');
+select elius.agendar_reserva(:'c31', 'mesa', :'ini31', :'fin31', 2, array[:'mesa31']::uuid[], 'Reserva coherencia 2') as r31b \gset
+select pg_temp.ok(:'r31b' is not null, 'La mesa liberada se puede reservar de nuevo');
+-- Eliminar libera la mesa; restaurar la vuelve a ocupar si sigue libre
+select elius.eliminar_reserva(:'r31b') is null as ok_el \gset
+select elius.agendar_reserva(:'c31', 'mesa', :'ini31', :'fin31', 2, array[:'mesa31']::uuid[], 'Reserva coherencia 3') as r31c \gset
+select pg_temp.ok(pg_temp.intenta('select elius.restaurar_reserva(''' || :'r31b' || ''')') = '23P01', 'No se restaura si otra reserva ya tomó la mesa');
+select elius.cancelar_reserva(:'r31c', 'Se cambia de horario') is not null as ok_c \gset
+select pg_temp.ok(pg_temp.intenta('select elius.restaurar_reserva(''' || :'r31b' || ''')') = 'ok', 'Se restaura cuando la mesa está libre');
+select pg_temp.ok((select count(*) from elius.asignaciones_recurso where reserva_id = :'r31b' and estado = 'activa') = 1, 'Al restaurar la mesa vuelve a quedar ocupada');
+reset role;
+-- Dinero de por medio: pago aprobado
+select elius.agendar_reserva(:'c31', 'cita', now() + interval '6 days', now() + interval '6 days 1 hour', 1, '{}', 'Con pago') as r31d \gset
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.agendar_reserva(:'c31', 'otro', now() + interval '6 days', now() + interval '6 days 1 hour', 1, '{}', 'Con pago') as r31e \gset
+select elius.crear_orden(:'c31', 'presencial', 'no_aplica', :'r31e') as o31e \gset
+select elius.agregar_item(:'o31e', :'it31', 1) is not null as ok_ie \gset
+reset role;
+insert into elius.pagos (tenant_id, orden_id, metodo, monto, estado) select :'t_r27', :'o31e', 'transferencia', total, 'aprobado' from elius.ordenes where id = :'o31e';
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_reserva(''' || :'r31e' || ''')') <> 'ok', 'RN-C12: una reserva con pago aprobado no se elimina');
+select pg_temp.ok(elius.cancelar_reserva(:'r31e', 'El cliente pidió cancelar') like '%reembolso%', 'Cancelar una reserva pagada deja anotado el reembolso');
+select pg_temp.ok((select estado from elius.ordenes where id = :'o31e') = 'confirmada', 'El pedido pagado no se cancela: el dinero se gestiona aparte');
 reset role;
 select set_config('request.jwt.claims', '', false);

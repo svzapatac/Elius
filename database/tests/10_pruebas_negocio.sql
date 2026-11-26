@@ -611,8 +611,15 @@ select pg_temp.ok((select count(*) from elius.v_resumen_mensual) >= 0, 'Reportes
 select pg_temp.ok((select count(*) from elius.v_items_mas_vendidos_mensual) >= 0, 'Reportes: ítems más vendidos por mes');
 -- llegó / no llegó
 select pg_temp.ok((select count(*) from elius.reservas where estado = 'confirmada') >= 2, 'hay reservas confirmadas para marcar');
-select elius.marcar_llegada((select id from elius.reservas where estado = 'confirmada' order by inicio limit 1));
-select elius.marcar_no_llegada((select id from elius.reservas where estado = 'confirmada' order by inicio limit 1));
+select id as rv_llega from elius.reservas where estado = 'confirmada' order by inicio limit 1 \gset
+select id as rv_noviene from elius.reservas where estado = 'confirmada' and id <> :'rv_llega' order by inicio limit 1 \gset
+update elius.reservas set inicio = now() + interval '2 days', fin = now() + interval '2 days 1 hour' where id in (:'rv_llega', :'rv_noviene');
+select pg_temp.falla(format('select elius.marcar_llegada(%L)', :'rv_llega'), 'RN-R07', 'la llegada solo se registra el día de la reserva');
+select pg_temp.falla(format('select elius.marcar_no_llegada(%L)', :'rv_noviene'), 'RN-R07', 'no llegó solo cuando ya pasó la hora');
+update elius.reservas set inicio = now() + interval '2 minutes', fin = now() + interval '1 hour' where id = :'rv_llega';
+update elius.reservas set inicio = now() - interval '2 minutes', fin = now() + interval '1 hour' where id = :'rv_noviene';
+select elius.marcar_llegada(:'rv_llega');
+select elius.marcar_no_llegada(:'rv_noviene');
 select pg_temp.ok((select count(*) from elius.reservas where estado = 'asistio' and llegada_en is not null) >= 1, 'el equipo marca que el cliente llegó');
 select pg_temp.ok((select count(*) from elius.reservas where estado = 'no_asistio') >= 1, 'el equipo marca que el cliente no llegó');
 select pg_temp.ok((select count(*) from elius.asignaciones_recurso a join elius.reservas r on r.id = a.reserva_id where r.estado = 'no_asistio' and a.estado <> 'liberada') = 0, 'al no llegar se libera el recurso');
