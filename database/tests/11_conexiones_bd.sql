@@ -1,0 +1,80 @@
+-- Conexiones directas a la base de datos, una por rol (elius_superadmin, elius_administrador, elius_trabajador, elius_soporte)
+\echo '== 20. Conexiones directas por rol'
+create or replace function pg_temp.intenta(p_sql text) returns text language plpgsql as $$
+begin execute p_sql; return 'ok'; exception when others then return sqlstate; end $$;
+create or replace function pg_temp.ok(p_cond boolean, p_msg text) returns void language plpgsql as $$
+begin if p_cond is not true then raise exception 'FALLA: %', p_msg; end if; raise notice 'OK   %', p_msg; end $$;
+select slug as s_rest from platform.tenants where slug like 'demo-restaurante-%' order by creado_en limit 1 \gset
+select id as t_rest from platform.tenants where slug = :'s_rest' \gset
+select pg_temp.ok((select count(*) from platform.accesos_bd) = 4, 'hay 4 usuarios de conexión directa');
+select pg_temp.ok((select count(*) from platform.tenants t where eliminado_en is null and
+  (select count(*) from platform.membresias m where m.tenant_id = t.id and m.usuario_id in (select usuario_id from platform.accesos_bd)) = 3) = (select count(*) from platform.tenants where eliminado_en is null), 'los 3 usuarios con membresía están en todos los negocios');
+
+-- Administrador
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(app.mi_rol() = 'administrador' and app.current_tenant_id() = :'t_rest'::uuid, 'Administrador: entra con su rol al negocio elegido');
+select pg_temp.ok((select count(*) from elius.contactos) > 0, 'Administrador: ve los datos del negocio');
+select pg_temp.ok(pg_temp.intenta('delete from elius.contactos') = '42501', 'Administrador: DELETE bloqueado');
+select pg_temp.ok(pg_temp.intenta('truncate elius.contactos') <> 'ok', 'Administrador: TRUNCATE bloqueado');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now()') = '42501', 'Administrador: no puede dar de baja (eliminado_en)');
+select pg_temp.ok(pg_temp.intenta('drop table elius.contactos') <> 'ok', 'Administrador: DROP bloqueado');
+select pg_temp.ok(pg_temp.intenta('alter table elius.contactos add column x int') <> 'ok', 'Administrador: ALTER bloqueado');
+select pg_temp.ok(pg_temp.intenta('create table elius.intruso (id int)') <> 'ok', 'Administrador: no crea tablas en el esquema del sistema');
+select pg_temp.ok(pg_temp.intenta('create table practica.mi_prueba_bd (id int)') = 'ok', 'Administrador: sí crea en practica');
+select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set precio = precio + 1 where sku = ''RES-01''') = 'ok', 'Administrador: puede actualizar precios');
+select pg_temp.ok(pg_temp.intenta('select set_config(''request.jwt.claims'', ''{"sub":"00000000-0000-0000-0000-0000000000f1","role":"authenticated"}'', false)') = 'ok'
+  and app.mi_rol() = 'administrador', 'Administrador: falsear el token no cambia su identidad');
+select pg_temp.ok(pg_temp.intenta('select set_config(''app.tenant_id'', ''00000000-0000-0000-0000-000000000abc'', false)') = 'ok' and app.current_tenant_id() is null
+  and (select count(*) from elius.contactos) = 0, 'Administrador: un negocio que no existe no devuelve nada');
+select platform.usar_negocio(:'s_rest') \gset
+reset session authorization;
+
+-- Trabajador
+set session authorization elius_trabajador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(app.mi_rol() = 'operador', 'Trabajador: entra con el rol operador');
+select pg_temp.ok((select count(*) from elius.reservas) > 0, 'Trabajador: ve la agenda');
+create temp table n_res as select count(*) n from elius.reservas;
+select pg_temp.intenta('delete from elius.reservas');
+select pg_temp.ok((select count(*) from elius.reservas) = (select n from n_res), 'Trabajador: no logra borrar (DELETE sin efecto o bloqueado)');
+create temp table pr_ant as select precio from elius.items_catalogo where sku = 'RES-02';
+select pg_temp.intenta('update elius.items_catalogo set precio = 1 where sku = ''RES-02''');
+select pg_temp.ok((select precio from elius.items_catalogo where sku = 'RES-02') = (select precio from pr_ant), 'Trabajador: no logra cambiar precios del catálogo');
+select pg_temp.ok(pg_temp.intenta('update elius.reservas set novedades = ''Llega tarde (BD)'' where id = (select id from elius.reservas order by inicio limit 1)') = 'ok', 'Trabajador: sí anota novedades');
+select pg_temp.ok(pg_temp.intenta('drop table practica.mi_prueba_bd') <> 'ok', 'Trabajador: no borra tablas');
+reset session authorization;
+
+-- Soporte (con la autorización vigente de 7 días)
+set session authorization elius_soporte;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(app.current_tenant_id() = :'t_rest'::uuid and (select count(*) from elius.contactos) > 0, 'Soporte: ve el negocio autorizado');
+select pg_temp.ok(pg_temp.intenta('delete from elius.contactos') = '42501', 'Soporte: DELETE bloqueado');
+reset session authorization;
+update platform.accesos_soporte set vence_en = now() + interval '1 minute', inicio = now() - interval '1 day' where usuario_soporte_id = '00000000-0000-0000-0000-00000000bd04';
+update platform.accesos_soporte set revocado_en = now() where usuario_soporte_id = '00000000-0000-0000-0000-00000000bd04';
+set session authorization elius_soporte;
+select pg_temp.ok((select count(*) from elius.contactos) = 0, 'Soporte: sin autorización vigente no ve datos');
+reset session authorization;
+select platform.renovar_soporte_bd() > 0 as renovado \gset
+set session authorization elius_soporte;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((select count(*) from elius.contactos) > 0, 'Soporte: renovada la autorización vuelve a ver los datos');
+reset session authorization;
+
+-- Super administrador
+set session authorization elius_superadmin;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(app.es_super_admin(), 'Superadministrador: es Super Admin de plataforma');
+select pg_temp.ok(pg_temp.intenta('insert into elius.contactos (tenant_id, nombres, apellidos, telefono, origen) values (app.current_tenant_id(), ''Prueba'', ''BD'', ''+570000000'', ''whatsapp'')') = 'ok', 'Superadministrador: inserta');
+select pg_temp.ok(pg_temp.intenta('delete from elius.contactos where telefono = ''+570000000''') = 'ok', 'Superadministrador: puede borrar (lo suyo)');
+select pg_temp.ok(pg_temp.intenta('drop table elius.contactos') <> 'ok', 'Superadministrador: no es dueño, no puede dropear tablas del sistema');
+select pg_temp.ok((select count(*) from platform.mis_negocios()) >= 1, 'Superadministrador: ve la lista de negocios');
+reset session authorization;
+
+-- Auditoría: lo hecho por el Trabajador lo ve el Administrador, con su rol
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(exists (select 1 from elius.v_auditoria where tabla = 'reservas' and rol = 'operador' and datos_nuevos ->> 'novedades' = 'Llega tarde (BD)'), 'Auditoría: el Administrador ve lo que hizo el Trabajador, con su rol');
+reset session authorization;
+drop table if exists practica.mi_prueba_bd;

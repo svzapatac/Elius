@@ -16,6 +16,7 @@ Cada documento explica una parte por separado: qué se hizo, cómo y por qué. L
 | 09 | [Procedimientos](09_procedimientos.md) | Las operaciones atómicas que llaman los paneles, Eli y los webhooks |
 | 10 | [Cómo lo hicimos](10_como_lo_hicimos.md) | El método completo, del levantamiento a las pruebas, y preguntas de sustentación |
 | 11 | [Pruebas](11_pruebas.md) | Cómo correr las 94 pruebas y qué verifica cada grupo |
+| 12 | [Conexiones directas por rol](12_conexiones_directas_por_rol.md) | Un usuario de base de datos por rol (como en MySQL Workbench), cómo se asignan contraseñas y cómo conectarse |
 | A–E | Anexos ⚙ | Inventarios exactos: [triggers](anexo_a_inventario_triggers.md), [políticas RLS](anexo_b_inventario_politicas_rls.md), [vistas](anexo_c_inventario_vistas.md), [funciones](anexo_d_inventario_funciones.md), [matriz de permisos](anexo_e_matriz_permisos.md) |
 
 ## Cifras del modelo implementado
