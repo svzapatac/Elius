@@ -383,7 +383,7 @@ select pg_temp.login(:'u_rest', :'t_rest');
 set role authenticated;
 select platform.autorizar_soporte(:'u_sop', 'Configurar el número de WhatsApp', 4) is not null as aut \gset
 reset role;
-insert into elius.errores_agente (tenant_id, origen, mensaje) values (:'t_rest', 'reporte:operador', 'No llega el aviso al celular');
+insert into elius.errores_agente (tenant_id, origen, mensaje) values (:'t_rest', 'agente:avisos', 'No llega el aviso al celular');
 select pg_temp.login(:'u_sop', :'t_rest');
 set role authenticated;
 select pg_temp.ok((select count(*) from elius.contactos) = 0, 'con autorización, Soporte NO ve los datos de los clientes');

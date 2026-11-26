@@ -96,12 +96,12 @@ insert into elius.eventos_salida (tenant_id, tipo_evento, entidad, entidad_id, e
 
 set session authorization elius_soporte;
 select platform.usar_negocio(:'s_rest') \gset
-select pg_temp.ok((select count(*) from elius.v_soporte_errores where abierto and origen = 'reporte:operador') >= 1, 'Soporte: ve el problema que reportó el Trabajador');
+select pg_temp.ok((select count(*) from elius.v_soporte_tickets_pendientes where origen = 'reporte' and creado_por_rol = 'operador') >= 1, 'Soporte: ve el problema que reportó el Trabajador como ticket pendiente');
 select pg_temp.ok((select count(*) from elius.v_soporte_eventos where estado = 'fallido') = 1, 'Soporte: ve los eventos fallidos (sin su contenido)');
 select pg_temp.ok((select count(*) from information_schema.columns where table_schema = 'elius' and table_name = 'v_soporte_eventos' and column_name = 'carga') = 0, 'Soporte: el contenido del evento no se expone');
 select elius.soporte_reintentar_evento((select id from elius.v_soporte_eventos where estado = 'fallido' limit 1)) is null as ok_r \gset
 select pg_temp.ok((select count(*) from elius.v_soporte_eventos where estado = 'fallido') = 0, 'Soporte: reintenta un evento fallido');
-select pg_temp.ok((elius.soporte_estado_integraciones() ->> 'errores_abiertos')::int >= 1, 'Soporte: ve el estado de las integraciones');
+select pg_temp.ok((elius.soporte_estado_integraciones() ->> 'tickets_abiertos')::int >= 1, 'Soporte: ve el estado de las integraciones');
 select pg_temp.ok((select count(*) from elius.v_soporte_auditoria) > 0, 'Soporte: ve la auditoría técnica');
 select pg_temp.ok(pg_temp.intenta('select * from elius.ordenes') = 'ok' and (select count(*) from elius.ordenes) = 0, 'Soporte: no ve órdenes');
 select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set precio = 1') = 'ok'
@@ -144,7 +144,7 @@ reset session authorization;
 set session authorization elius_administrador;
 select platform.usar_negocio(:'s_r') \gset
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'reservas' and rol = 'operador') >= 1, 'Auditoría: el Trabajador tomó una reserva');
-select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'errores_agente' and operacion = 'INSERT' and rol = 'operador') >= 1, 'Auditoría: el Trabajador reportó un problema');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'tickets' and operacion = 'INSERT' and rol = 'operador') >= 1, 'Auditoría: el Trabajador reportó un problema');
 select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_restaurant' and tabla = 'comandas' and rol = 'operador') >= 1, 'Auditoría: el Trabajador avanzó una comanda');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'errores_agente' and operacion = 'UPDATE' and rol = 'soporte') >= 0, 'Auditoría: consulta de lo que hizo Soporte');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'eventos_salida' and rol = 'soporte') >= 1, 'Auditoría: Soporte reintentó un evento de salida');
@@ -161,7 +161,8 @@ select pg_temp.ok((select count(*) from elius.v_mis_reportes where id = :'p2' an
 reset session authorization;
 set session authorization elius_soporte;
 select platform.usar_negocio(:'s_rest') \gset
-select elius.soporte_resolver_error(:'p2', 'Se reinició el servicio de impresión') is null as ok_res \gset
+select elius.soporte_tomar_ticket(:'p2') is null as ok_tom \gset
+select elius.soporte_resolver_ticket(:'p2', 'Se reinició el servicio de impresión') is null as ok_res \gset
 reset session authorization;
 set session authorization elius_trabajador;
 select platform.usar_negocio(:'s_rest') \gset
@@ -238,3 +239,55 @@ reset role;
 select pg_temp.ok((select count(*) from elius.items_catalogo where id = :'item_nuevo') = 0, 'La fila ya no existe en la base');
 select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'items_catalogo' and operacion = 'DELETE' and (datos_anteriores ->> 'id') = :'item_nuevo') = 1, 'El borrado definitivo quedó en la auditoría');
 select set_config('request.jwt.claims', '', false);
+
+-- 28 · Panel de Soporte con tickets: todo por vistas y procedimientos
+\echo '== 28. Tickets de soporte'
+reset session authorization;
+reset role;
+select set_config('request.jwt.claims', '', false);
+update platform.accesos_soporte set revocado_en = null, inicio = now() - interval '1 hour', vence_en = now() + interval '3 days' where usuario_soporte_id = '00000000-0000-0000-0000-00000000bd04';
+set session authorization elius_soporte;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok(pg_temp.intenta('select * from elius.tickets') <> 'ok', 'Soporte: no lee la tabla de tickets directamente');
+select pg_temp.ok(pg_temp.intenta('delete from elius.tickets') <> 'ok', 'Soporte: no borra tickets');
+select elius.generar_ticket_prueba('cliente') ->> 'id' as tk \gset
+select pg_temp.ok((select count(*) from elius.v_soporte_tickets_pendientes where id = :'tk') = 1, 'Soporte: el ticket generado aparece en pendientes');
+select pg_temp.ok((select count(*) from elius.v_soporte_historial_tickets) >= 3, 'Soporte: el historial trae tickets ya resueltos');
+select pg_temp.ok((select codigo from elius.v_soporte_tickets where id = :'tk') ~ '^TCK-[0-9]{4}$', 'El ticket tiene código TCK-0000');
+select pg_temp.ok((select count(*) from elius.v_soporte_historial_tickets where categoria = '05') >= 1, 'Soporte: busca en el historial por categoría 05 Contabilidad');
+select pg_temp.ok((select count(*) from elius.v_soporte_manual where categoria = '05') >= 1, 'Soporte: lee el manual de la categoría');
+select elius.soporte_tomar_ticket(:'tk') is null as ok_t \gset
+select pg_temp.ok((select estado from elius.v_soporte_tickets where id = :'tk') = 'en_proceso', 'Soporte: toma el ticket (en proceso)');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_resolver_ticket(''' || :'tk' || ''', ''x'')') <> 'ok', 'No se resuelve sin escribir la solución');
+select contacto_id as c_tk from elius.v_soporte_tickets where id = :'tk' \gset
+select pg_temp.ok((select telefono from elius.v_soporte_clientes where id = :'c_tk') like '+57%•••%' or (select telefono from elius.v_soporte_clientes where id = :'c_tk') = '•••', 'Soporte: ve el teléfono del cliente enmascarado');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_corregir_cliente(''' || :'c_tk' || ''', ''' || :'tk' || ''', null, null, ''3001234'', null, ''Teléfono sin indicativo'')') <> 'ok', 'Teléfono mal escrito: se rechaza');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_corregir_cliente(''' || :'c_tk' || ''', ''' || :'tk' || ''', null, null, ''+573105550123'', null, ''x'')') <> 'ok', 'Corregir exige un motivo');
+select elius.soporte_corregir_cliente(:'c_tk', :'tk', null, null, '+573105550123', null, 'Teléfono incompleto al registrarlo') as cambio \gset
+select pg_temp.ok(:'cambio' like 'teléfono:%', 'Soporte: corrige el teléfono del cliente por el procedimiento');
+select pg_temp.ok((select count(*) from elius.v_soporte_ticket_notas where ticket_id = :'tk' and tipo = 'dato_corregido') = 1, 'La corrección queda en la cronología del ticket');
+select elius.soporte_crear_usuario(:'tk', 'ayudante28@elius.local', 'operador', 'Ayudante') ->> 'email' as u_nuevo \gset
+select pg_temp.ok(:'u_nuevo' = 'ayudante28@elius.local', 'Soporte: crea un usuario con rol');
+select pg_temp.ok((select rol from elius.v_soporte_usuarios where email = 'ayudante28@elius.local') = 'operador', 'El usuario nuevo aparece con su rol');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_crear_usuario(null, ''ayudante28@elius.local'', ''operador'', null)') <> 'ok', 'No se duplica el usuario en el negocio');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_crear_usuario(null, ''otro28@elius.local'', ''superadministrador'', null)') <> 'ok', 'Soporte no crea roles de plataforma');
+select usuario_id as u28 from elius.v_soporte_usuarios where email = 'ayudante28@elius.local' \gset
+select elius.soporte_cambiar_rol_usuario(:'u28', 'analista', :'tk') is null as ok_cr \gset
+select pg_temp.ok((select rol from elius.v_soporte_usuarios where usuario_id = :'u28') = 'analista', 'Soporte: cambia el rol del usuario');
+select pg_temp.ok((elius.soporte_restablecer_clave(:'u28', :'tk') ->> 'email') = 'ayudante28@elius.local', 'Soporte: restablece la clave (se muestra una vez)');
+select elius.soporte_estado_usuario(:'u28', false, :'tk') is null as ok_es \gset
+select pg_temp.ok((select estado from elius.v_soporte_usuarios where usuario_id = :'u28') = 'inactivo', 'Soporte: desactiva al usuario');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_restablecer_clave(''00000000-0000-0000-0000-00000000bd04'', null)') <> 'ok', 'No restablece cuentas de conexión directa ni la propia');
+select elius.soporte_resolver_ticket(:'tk', 'Se corrigió el teléfono y se creó el usuario de apoyo') is null as ok_r \gset
+select pg_temp.ok((select estado from elius.v_soporte_tickets where id = :'tk') = 'resuelto' and (select count(*) from elius.v_soporte_historial_tickets where id = :'tk') = 1, 'Soporte: resuelve y pasa al historial');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_nota_ticket(''' || :'tk' || ''', ''nota tardía'')') = 'ok', 'Se pueden agregar notas aun resuelto');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_corregir_cliente(''' || :'c_tk' || ''', ''' || :'tk' || ''', ''Nombre'', null, null, null, ''motivo válido'')') <> 'ok', 'No se corrige un cliente con un ticket ya resuelto');
+reset session authorization;
+select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'contactos' and operacion = 'UPDATE' and rol = 'soporte' and registro_id = :'c_tk') >= 1, 'Auditoría: la corrección quedó con rol soporte');
+select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'tickets' and rol = 'soporte') >= 1, 'Auditoría: los cambios del ticket quedaron con rol soporte');
+-- El trabajador no ve tickets del panel técnico
+set session authorization elius_trabajador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((select count(*) from elius.v_soporte_tickets) = 0 and (select count(*) from elius.v_soporte_usuarios) = 0 and (select count(*) from elius.v_soporte_clientes) = 0, 'Trabajador: no ve las vistas de Soporte');
+select pg_temp.ok(pg_temp.intenta('select elius.generar_ticket_prueba()') <> 'ok', 'Trabajador: no genera tickets de prueba');
+reset session authorization;
