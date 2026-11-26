@@ -1,0 +1,66 @@
+"""Genera el Word (Arial 12) y el HTML del panel desde docs/01_levantamiento/levantamiento_informacion.md."""
+import os, re, subprocess
+from docx import Document
+from docx.shared import Pt, RGBColor, Cm
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "docs", "01_levantamiento")
+PANEL = "/home/claude/elius-panel/public/modelo/levantamiento.html"
+MD = "levantamiento_informacion.md"; OUT = "levantamiento_informacion.docx"
+os.chdir(D)
+subprocess.run(["pandoc", "-f", "markdown-smart", MD, "-o", "/tmp/lev_raw.docx", "--resource-path=."], check=True)
+d = Document("/tmp/lev_raw.docx"); AZ = RGBColor(0x1F, 0x3A, 0x5F)
+def arial(st):
+    rpr = st.element.get_or_add_rPr(); rf = rpr.find(qn("w:rFonts"))
+    if rf is None: rf = OxmlElement("w:rFonts"); rpr.append(rf)
+    for a in ("w:asciiTheme", "w:hAnsiTheme", "w:cstheme", "w:eastAsiaTheme"):
+        if rf.get(qn(a)) is not None: del rf.attrib[qn(a)]
+    for a in ("w:ascii", "w:hAnsi", "w:cs", "w:eastAsia"): rf.set(qn(a), "Arial")
+    return rpr
+H = {"Heading1": 20, "Heading2": 16, "Heading3": 14, "Heading4": 12, "Title": 24}
+for s in d.styles:
+    if s.type not in (1, 2): continue
+    rpr = arial(s); s.font.size = Pt(12)
+    if s.style_id in ("SourceCode", "VerbatimChar"): s.font.name = "Consolas"; s.font.size = Pt(10)
+    if s.style_id in H:
+        for c in rpr.findall(qn("w:color")): rpr.remove(c)
+        s.font.size = Pt(H[s.style_id]); s.font.bold = True; s.font.color.rgb = AZ
+        pf = s.paragraph_format; pf.space_before = Pt(12 if s.style_id == "Heading4" else 18); pf.space_after = Pt(6); pf.keep_with_next = True
+    elif s.style_id in ("BodyText", "FirstParagraph", "Compact", "Normal"):
+        s.paragraph_format.line_spacing = 1.25; s.paragraph_format.space_after = Pt(6)
+for sec in d.sections:
+    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
+    p = sec.footer.paragraphs[0] if sec.footer.paragraphs else sec.footer.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = p.add_run("Elius · Levantamiento de información y requerimientos · Página "); r.font.size = Pt(9); r.font.name = "Arial"
+    r2 = p.add_run(); r2.font.size = Pt(9)
+    for t, x in (("begin", None), ("instr", " PAGE "), ("end", None)):
+        if t == "instr": e = OxmlElement("w:instrText"); e.set(qn("xml:space"), "preserve"); e.text = x
+        else: e = OxmlElement("w:fldChar"); e.set(qn("w:fldCharType"), t)
+        r2._r.append(e)
+def sombra(c, hx):
+    s = OxmlElement("w:shd"); s.set(qn("w:val"), "clear"); s.set(qn("w:fill"), hx); c._tc.get_or_add_tcPr().append(s)
+for t in d.tables:
+    b = OxmlElement("w:tblBorders")
+    for k in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        e = OxmlElement(f"w:{k}"); e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "4"); e.set(qn("w:color"), "B8C2D0"); b.append(e)
+    t._tbl.tblPr.append(b)
+    for i, row in enumerate(t.rows):
+        for c in row.cells:
+            if i == 0: sombra(c, "1F3A5F")
+            elif i % 2 == 0: sombra(c, "F2F5FA")
+            m = OxmlElement("w:tcMar")
+            for k, w in (("top", 60), ("bottom", 60), ("left", 100), ("right", 100)):
+                e = OxmlElement(f"w:{k}"); e.set(qn("w:w"), str(w)); e.set(qn("w:type"), "dxa"); m.append(e)
+            c._tc.get_or_add_tcPr().append(m)
+            for p in c.paragraphs:
+                p.paragraph_format.space_after = Pt(2)
+                for r in p.runs:
+                    r.font.name = "Arial"; r.font.size = Pt(10.5)
+                    if i == 0: r.font.bold = True; r.font.color.rgb = RGBColor(255, 255, 255)
+d.save(OUT)
+h = subprocess.run(["pandoc", "-f", "markdown+ascii_identifiers-smart", MD, "-t", "html"], check=True, capture_output=True, text=True).stdout
+h = re.sub(r'<h([234]) id="([^"]+)">(\d+(?:\.\d+)*)\.? ', lambda m: f'<h{m.group(1)} id="{m.group(3).replace(".", "-")}-{m.group(2)}">{m.group(3)}{"." if m.group(1) == "2" else ""} ', h)
+h = re.sub(r'src="elius-logo.png"', 'src="/elius-logo.png"', h)
+if os.path.isdir(os.path.dirname(PANEL)): open(PANEL, "w", encoding="utf-8").write(h)
+print("ok")

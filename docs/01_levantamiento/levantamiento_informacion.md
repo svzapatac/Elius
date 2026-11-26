@@ -1,4 +1,6 @@
-# Elius — Documento de levantamiento de información y reglas de negocio
+![](elius-logo.png){width=5cm}
+
+# Documento de levantamiento de información y requerimientos
 
 Versión 0.5 · actualizado el 26 de noviembre de 2026 · exportado del documento de trabajo del equipo
 
