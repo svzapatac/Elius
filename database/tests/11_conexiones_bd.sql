@@ -541,3 +541,21 @@ select pg_temp.ok((elius.paso_flujo_reserva_prueba(15) ->> 'mensaje') is not nul
 select pg_temp.ok((select elius.cancelar_reserva(r.id, 'El cliente avisó que no puede asistir') from elius.reservas r join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Flujo 3') is not null, 'flujo 3: el Administrador cancela la reserva');
 select pg_temp.ok(exists (select 1 from elius.v_auditoria where detalle like 'Reserva R-%: confirmada → cancelada'), 'flujo 3: la cancelación queda en la auditoría');
 reset session authorization;
+
+\echo '== 38. Cobro del saldo en efectivo al entregar'
+select slug as s_rest from platform.tenants where slug like 'demo-restaurante-%' order by creado_en limit 1 \gset
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((elius.paso_flujo_prueba(1, 11) ->> 'mensaje') is not null, 'cobro: llega el cliente');
+select pg_temp.ok((elius.paso_flujo_prueba(1, 12) ->> 'mensaje') is not null, 'cobro: Eli arma el pedido');
+select pg_temp.ok((elius.paso_flujo_prueba(1, 3) ->> 'mensaje') is not null, 'cobro: llega el comprobante por la mitad');
+select elius.aprobar_comprobante((select c.id from elius.comprobantes_pago c where c.remitente = 'Cliente Flujo 1' order by c.creado_en desc limit 1), true);
+select pg_temp.ok((select v.estado_pago from elius.v_estado_pago_pedidos v join elius.ordenes o on o.id = v.orden_id join elius.contactos c on c.id = o.contacto_id
+  where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1) like 'Falta cobrar $% en efectivo al entregar', 'cobro: antes de entregar dice cuánto falta cobrar en efectivo');
+update elius.ordenes set estado = 'en_preparacion' where id = (select o.id from elius.ordenes o join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1);
+update elius.ordenes set estado = 'en_camino' where id = (select o.id from elius.ordenes o join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1);
+update elius.ordenes set estado = 'entregada' where id = (select o.id from elius.ordenes o join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1);
+select pg_temp.ok((select v.estado_pago from elius.v_estado_pago_pedidos v join elius.ordenes o on o.id = v.orden_id join elius.contactos c on c.id = o.contacto_id
+  where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1) = 'Pago finalizado · saldo $0', 'cobro: al entregar queda «Pago finalizado · saldo $0»');
+select pg_temp.ok(exists (select 1 from elius.pagos p join elius.ordenes o on o.id = p.orden_id join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' and p.metodo = 'efectivo'), 'cobro: se registró el pago en efectivo del saldo');
+reset session authorization;
