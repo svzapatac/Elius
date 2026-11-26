@@ -138,3 +138,17 @@ select pg_temp.ok((select count(*) from elius.v_trab_checkin where tiquete_id = 
 select pg_temp.ok((select count(*) from elius.v_trab_necesidades) >= 1 and (select count(*) from elius.v_trab_vuelos) >= 1, 'Aerolínea: ve necesidades especiales y vuelos');
 select pg_temp.ok((select count(*) from elius.v_trab_cocina) = 0, 'Aerolínea: no ve la cocina del restaurante');
 reset session authorization;
+
+\echo '== 23. Todo lo que se hace en cualquier panel queda en la auditoría'
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_r') \gset
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'reservas' and rol = 'operador') >= 1, 'Auditoría: el Trabajador tomó una reserva');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'errores_agente' and operacion = 'INSERT' and rol = 'operador') >= 1, 'Auditoría: el Trabajador reportó un problema');
+select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_restaurant' and tabla = 'comandas' and rol = 'operador') >= 1, 'Auditoría: el Trabajador avanzó una comanda');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'errores_agente' and operacion = 'UPDATE' and rol = 'soporte') >= 0, 'Auditoría: consulta de lo que hizo Soporte');
+select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'eventos_salida' and rol = 'soporte') >= 1, 'Auditoría: Soporte reintentó un evento de salida');
+select platform.usar_negocio(:'s_v') \gset
+select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_vet' and tabla = 'atenciones' and rol = 'operador') >= 1, 'Auditoría: el Trabajador registró signos y cerró una atención');
+select platform.usar_negocio(:'s_a') \gset
+select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_airline' and tabla = 'tiquetes' and rol = 'operador') >= 1, 'Auditoría: el Trabajador hizo un check-in');
+reset session authorization;

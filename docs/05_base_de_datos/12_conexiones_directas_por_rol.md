@@ -113,3 +113,8 @@ Las migraciones 3100 y 3200 crean, solo para los negocios de demostración, 12 u
 - Soporte solo ve lo técnico de su negocio, con una autorización de 7 días; se renueva con `select platform.renovar_soporte_bd();`.
 - Estos usuarios (`@elius.local`) no cuentan para el límite de usuarios del plan.
 - Los negocios demo nuevos reciben las asignaciones automáticamente (disparador `t91`).
+
+## Varios roles a la vez y auditoría de todos los paneles
+
+- **Abrir todos los roles de un negocio al mismo tiempo.** Cada pestaña del panel guarda su propia sesión (en `sessionStorage`, con una llave propia por pestaña). Así, en el mismo navegador se pueden tener abiertas a la vez una pestaña con el Superadministrador, otra con el Administrador, otra con el Trabajador y otra con Soporte, sin que una cierre a la otra. Al cerrar la pestaña se cierra esa sesión.
+- **Todo cambio queda en la auditoría.** Todas las tablas del negocio, incluidas las de los plugins, llevan el disparador de auditoría (`t02_auditoria`); solo se excluyen las técnicas de alto volumen. Lo que no pasa por esos disparadores (el reintento de un evento de salida por Soporte) se registra de forma explícita (migración 3300). El Administrador lo ve en la pantalla Auditoría, que se actualiza cada 2 segundos, con el rol y el cargo de quien lo hizo. La sección 23 de las pruebas lo comprueba para Trabajador (restaurante, veterinaria, aerolínea) y Soporte.
