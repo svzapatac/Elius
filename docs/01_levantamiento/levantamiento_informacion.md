@@ -526,8 +526,6 @@ Hoy el negocio cobra por **comprobante**: el cliente paga por Nequi, Bre-B o tra
 
 **Pagos parciales (RN-C17):** el cliente puede pagar una parte; el saldo se cobra en efectivo al entregar. **Devoluciones (RN-C12, RN-C25):** un pago aprobado no se edita; una devolución se registra como otro pago negativo hecho por el gerente.
 
-**Extensión futura (no activa):** cobro automático con llave Bre-B y QR de Factus Pay, que confirma solo por webhook sin intervención humana (RN-C22 a RN-C24). Está diseñado y probado en la base, pero **desactivado** porque no hubo credenciales de sandbox. Ver `docs/04_pagos/verificacion_de_pagos.md`.
-
 #### 11.2.5 Avisos y automatizaciones
 - **Lo que hace (A):** cuando algo pasa (pedido confirmado, comprobante recibido, reserva grande, vuelo retrasado) la base genera un **evento** y n8n avisa al equipo o al cliente, crea el evento en Calendar o envía recordatorios.
 - **Dónde se detiene:** los avisos son un **respaldo**: si el servicio de notificaciones falla, el dato se guarda igual y el error queda registrado (RN-C28).
@@ -554,7 +552,7 @@ Hoy el negocio cobra por **comprobante**: el cliente paga por Nequi, Bre-B o tra
 | Cancelar o reembolsar una reserva por su cuenta | Solo el Administrador (`cancelar_reserva`) |
 | Seguir respondiendo si un humano tomó la conversación o si fue apagada | Trigger `t20_antes_de_mensaje` (RN-C19/C20) |
 | Responder a dos mensajes a la vez en una misma conversación | `tomar_bloqueo` (RN-C21) |
-| Cobrar por Factus Pay | Está desactivado hasta tener credenciales |
+| Cobrar con una pasarela de pagos | Hoy no hay pasarela conectada; el cobro es por comprobante |
 | Confirmar contra el banco que el dinero llegó | No tiene integración bancaria |
 
 ### 11.4 Transparencia y control
@@ -581,7 +579,7 @@ Hoy el negocio cobra por **comprobante**: el cliente paga por Nequi, Bre-B o tra
 
 ### 11.6 Limitaciones conocidas (dicho con honestidad)
 1. **La lectura del comprobante es IA:** puede equivocarse con imágenes borrosas, recortadas o editadas. Por eso el gerente decide.
-2. **No hay verificación bancaria automática:** hasta activar Factus Pay (o similar), alguien debe mirar su banco.
+2. **No hay verificación bancaria automática:** hasta conectar una pasarela de pagos, alguien debe mirar su banco.
 3. **Hora y nombre del remitente se muestran, no se validan automáticamente.** Es una mejora futura: alertar si la hora del comprobante es anterior al pedido o si el remitente no coincide con el contacto.
 4. **Eli en aprendizaje:** el alcance del nivel A se irá ampliando a medida que el equipo confíe en sus resultados; cualquier ampliación pasa por el Administrador.
 5. Reglas marcadas "por validar" en el levantamiento (RN-C06, RN-V04, RN-V05, RN-A08, RN-E03) aún necesitan confirmación con el negocio.
