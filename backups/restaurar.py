@@ -1,5 +1,5 @@
 """Restaura una copia XML en una base que ya tiene el esquema (migraciones aplicadas).
-Uso:  DATABASE_URL=... python3 restaurar.py /backups/2026-11-24_0300 [--solo elius.items_catalogo,...]
+Uso:  DATABASE_URL=... AGE_PRIVADA=llave.txt python3 restaurar.py /backups/2026-11-24_0300.tar.age [--solo elius.items_catalogo,...]
 Inserta las tablas en orden de dependencias (primero las referenciadas) y omite las filas que ya existen.
 Comprueba la huella SHA-256 de cada archivo contra el manifiesto antes de leerlo."""
 import gzip, hashlib, json, os, sys
@@ -36,8 +36,23 @@ def orden_tablas(con, tablas):
     return salida
 
 
+def descifrar(archivo):
+    """Abre una copia .tar.age con la llave PRIVADA (archivo indicado en AGE_PRIVADA) en una carpeta temporal."""
+    import subprocess, tempfile
+    llave = os.environ.get('AGE_PRIVADA')
+    if not llave: sys.exit('La copia está cifrada: define AGE_PRIVADA con la ruta del archivo de la llave privada')
+    tmp = tempfile.mkdtemp(prefix='restaurar_')
+    ag = subprocess.Popen(['age', '-d', '-i', llave, archivo], stdout=subprocess.PIPE)
+    r = subprocess.run(['tar', '-C', tmp, '-xf', '-'], stdin=ag.stdout)
+    ag.stdout.close()
+    if ag.wait() != 0 or r.returncode != 0: sys.exit('No se pudo descifrar (¿llave equivocada?)')
+    return os.path.join(tmp, os.listdir(tmp)[0])
+
+
 def main():
     carpeta = sys.argv[1]
+    if carpeta.endswith('.tar.age'):
+        carpeta = descifrar(carpeta)
     solo = set()
     if '--solo' in sys.argv:
         solo = set(sys.argv[sys.argv.index('--solo') + 1].split(','))

@@ -1,27 +1,48 @@
-# Copias de seguridad en XML (Easypanel)
+# Copias de seguridad cifradas (Easypanel)
 
-Guarda los **datos** de todos los esquemas de Elius en archivos **XML comprimidos (.xml.gz)**, una tabla por archivo,
-más un `manifiesto.xml` con filas y huella sha256 de cada archivo. El esquema (tablas, vistas, funciones) no se
-respalda aquí: se recrea con las migraciones de `database/supabase/migrations`.
+Cada noche guarda los **datos** de todos los esquemas de Elius en **XML**, una tabla por archivo, con un `manifiesto.xml`
+(filas, **eliminados lógicos**, huella sha256). Todo se empaqueta y se **cifra con age**: en el volumen solo queda
+`AAAA-MM-DD_HHMM.tar.age`. Sin la llave privada nadie puede leerla, ni quien tenga acceso al servidor.
+El esquema (tablas, vistas, funciones) se recrea con las migraciones de `database/supabase/migrations`.
+
+## Qué queda guardado
+- **Todo lo que hay en la base a la hora de la copia**, incluida la auditoría (`audit.registros_auditoria`: quién, qué, antes/después, IP, instancia).
+- **Lo eliminado (desactivado) también va en la copia**: productos y clientes con `eliminado_en` siguen ahí. El manifiesto cuenta cuántos.
+- **Aunque el CIS adm borre algo de verdad**, las copias anteriores lo conservan hasta que se cumpla la retención (30 días).
+- La auditoría registra cada cambio en el instante en que ocurre; la copia nocturna es la foto del día.
+  (Recuperar la base a un segundo exacto requiere PITR, que Supabase ofrece solo en el plan Pro.)
+
+## Llaves (una sola vez)
+En tu computador (nunca en el repositorio):
+```
+age-keygen -o llave_privada_elius.txt        # imprime "Public key: age1..."
+```
+- La **pública** (`age1...`) va en el servicio como `AGE_PUBLICA`. Sirve solo para cifrar.
+- La **privada** (el archivo) la guarda solo el CIS adm, fuera de Easypanel. Sin ella no se restaura nada: no la pierdas.
 
 ## Crear el servicio en Easypanel
-1. Proyecto → **+ Servicio → App** → origen **GitHub**: repositorio `svzapatac/Elius`, rama `main`, **ruta de build `backups/`** (Dockerfile).
+1. Proyecto → **+ Servicio → App** → origen **GitHub**: `svzapatac/Elius`, rama `main`, **ruta de build `backups/`** (Dockerfile).
 2. **Montajes → Volumen**: nombre `backups`, ruta de montaje `/backups`.
-3. **Entorno** (el `DATABASE_URL` es secreto: se escribe solo aquí, nunca en el repositorio):
+3. **Entorno** (secretos: se escriben solo aquí):
    ```
-   DATABASE_URL=postgresql://postgres:<CLAVE>@db.xpvxcqvxbujblazuwomb.supabase.co:5432/postgres
-   INTERVALO_HORAS=24
-   RETENCION_DIAS=14
+   DATABASE_URL=postgresql://postgres.<ref>:<CLAVE>@<host del pooler>:5432/postgres
+   AGE_PUBLICA=age1...
+   HORA_DIARIA=02:00
+   TZ=America/Bogota
+   RETENCION_DIAS=30
    ```
-4. **Implementar**. Cada 24 h crea `/backups/AAAA-MM-DD_HHMM/` y borra las de más de 14 días.
-   Se escribe como `.parcial` y se renombra al terminar, así nunca queda una copia a medias.
+   La `DATABASE_URL` se copia del botón **Connect** de Supabase (usa el *Session pooler*: funciona por IPv4).
+4. **Implementar**. Hace una copia al arrancar (`AL_INICIAR=1`) y luego una cada noche a la hora indicada.
+   Se escribe como `.parcial` y se renombra al terminar: nunca queda una copia a medias. Si falta `AGE_PUBLICA`, **no guarda nada sin cifrar**.
 
 ## Restaurar
-En una base con las migraciones ya aplicadas:
+En una base con las migraciones ya aplicadas, con el archivo de la llave privada a mano:
 ```
-DATABASE_URL=postgresql://... python3 restaurar.py /backups/AAAA-MM-DD_HHMM
+DATABASE_URL=postgresql://... AGE_PRIVADA=llave_privada_elius.txt python3 restaurar.py /backups/AAAA-MM-DD_HHMM.tar.age
 ```
-Carga las tablas en orden de llaves foráneas. Probado: la base restaurada tiene los mismos conteos que la original.
+Descifra, verifica la huella sha256 de cada archivo y carga las tablas en orden de llaves foráneas (omite lo que ya existe).
+Para solo mirar una copia: `age -d -i llave_privada_elius.txt copia.tar.age | tar -xv`.
 
-## Por qué XML + gzip
-El XML se genera con `table_to_xml` de PostgreSQL y se comprime por tabla: ~80 tablas / 1.900 filas ≈ 200 KB.
+## Probado
+Copia de 83 tablas / 1.392 filas: la copia no contiene texto legible, una llave equivocada no abre el archivo, el manifiesto cuenta el cliente eliminado
+lógicamente y la restauración termina sin errores.
