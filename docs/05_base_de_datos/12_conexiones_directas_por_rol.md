@@ -70,3 +70,19 @@ Cada rol tiene su propio panel con funciones reales, y Soporte ya **no** ve los 
 Lo que Soporte **ya no puede ver**: clientes, conversaciones, órdenes, pagos, catálogo, configuración ni usuarios (antes tenía «con autorización» en todo eso). Solo accede a vistas y funciones acotadas: `v_soporte_errores`, `v_soporte_eventos`, `v_soporte_auditoria`, `soporte_resolver_error`, `soporte_reintentar_evento`, `soporte_estado_integraciones`.
 
 Tres servicios en Easypanel, uno por rol (`VITE_PANEL=administrador | trabajador | soporte`): ver el README del panel.
+
+## El panel del Trabajador cambia según el negocio (migración 2900)
+
+Un trabajador de restaurante, de veterinaria y de aerolínea no hacen lo mismo, así que su panel («Mi trabajo») depende del plugin del negocio. Usa los permisos que ya tiene el rol Operador sobre cada plugin; vistas `security_invoker`, así la RLS sigue mandando.
+
+| Negocio | Qué hace el Trabajador | Vistas y funciones |
+|---|---|---|
+| Restaurante | Cocina: ve las comandas por estación, las empieza y las marca listas. Ve las celebraciones del día (decoración y notas) y el menú del día | `v_trab_cocina`, `v_trab_celebraciones`, `v_trab_menu`, `trab_avanzar_comanda` |
+| Veterinaria | Ve las citas con la mascota (alergias en rojo), registra peso y temperatura (inicia la atención), la finaliza y ve las vacunas por vencer para llamar | `v_trab_citas_vet`, `v_trab_vacunas`, `trab_registrar_signos`, `trab_cerrar_atencion` |
+| Aerolínea | Hace el check-in con la silla (ventana de 48 h a 1 h antes), ve necesidades especiales y los vuelos con su ocupación | `v_trab_checkin`, `v_trab_necesidades`, `v_trab_vuelos`, `trab_hacer_checkin` |
+
+Un Trabajador de un negocio no ve lo de otro plugin (probado: el de veterinaria no ve la cocina, el de aerolínea tampoco).
+
+## Un solo panel: cada persona entra al suyo
+
+Se entra con usuario y contraseña. El Administrador del negocio crea a la persona en *Usuarios* con el rol que le asigna (la invitación la lleva a su negocio y su rol). Al iniciar sesión el panel la lleva a su pantalla: Administrador, Trabajador (en su negocio), Analista o Soporte. Quien ya tiene un negocio real entra directo; el selector de casos es solo para las pruebas.

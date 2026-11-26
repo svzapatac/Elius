@@ -4,7 +4,7 @@ import json, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from casos_demo import CASOS, SKU
 
-VERSION = '9'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
+VERSION = '10'   # súbela si cambia el guion o el catálogo: los negocios de prueba existentes se vuelven a sembrar
 
 PLUGIN_SQL = open(os.path.join(os.path.dirname(__file__), 'plugin_demo.sql')).read()
 
@@ -64,12 +64,12 @@ create or replace function elius.limpiar_caso_demo(p_tenant uuid)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   delete from plugin_vet.mascotas where tenant_id = p_tenant;
-  delete from plugin_restaurant.menus_dia where tenant_id = p_tenant;
-  delete from plugin_restaurant.estaciones_cocina where tenant_id = p_tenant;
   delete from elius.pagos where tenant_id = p_tenant;
   delete from elius.comprobantes_pago where tenant_id = p_tenant;
   delete from elius.entregas where tenant_id = p_tenant;
   delete from elius.ordenes where tenant_id = p_tenant;
+  delete from plugin_restaurant.menus_dia where tenant_id = p_tenant;
+  delete from plugin_restaurant.estaciones_cocina where tenant_id = p_tenant;
   delete from elius.asignaciones_recurso where tenant_id = p_tenant;
   delete from elius.reservas where tenant_id = p_tenant;
   delete from plugin_airline.vuelos where tenant_id = p_tenant;

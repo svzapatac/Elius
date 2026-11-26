@@ -2,6 +2,7 @@
 create or replace function elius.sembrar_plugin_demo(p_tenant uuid, p_vertical text)
 returns void language plpgsql security definer set search_path = '' as $$
 declare
+  v_ord uuid; v_oi uuid; v_est uuid; v_cm uuid; v_cli uuid;
   v_mem uuid; v_item uuid; v_menu uuid; v_ruta uuid; v_vuelo uuid; v_tv uuid; v_at uuid; v_masc uuid; v_rp uuid; v_tr uuid;
   v_aer uuid; v_o uuid; v_d uuid; r record; k int;
 begin
@@ -62,6 +63,31 @@ begin
         (array['Globos rosados','Velas y flores','Arco de globos','Tonos suaves','Letrero dorado'])[k],
         (array['Torta llega a las 7 p. m.','Mesa junto a la ventana','Traen su propia torta','Sin frutos secos','Sorpresa: apagar luces'])[k]);
     end loop;
+    -- pedidos en sala con sus comandas, para que la cocina tenga trabajo
+    k := 0;
+    for r in select * from (values
+        (1, 'RES-01', 2, 'Cocina caliente', 'recibida', 'sin chorizo en una'),
+        (1, 'RES-04', 2, 'Cocina fría y bar', 'en_preparacion', null),
+        (2, 'RES-02', 1, 'Cocina caliente', 'en_preparacion', 'término medio'),
+        (3, 'RES-05', 2, 'Postres', 'recibida', null)) t(n, sku, cant, est, est_com, nota) loop
+      if r.n <> k then
+        k := r.n;
+        select id into v_cli from elius.contactos where tenant_id = p_tenant order by telefono offset k limit 1;
+        insert into elius.ordenes (tenant_id, contacto_id, canal_venta, tipo_entrega)
+        values (p_tenant, v_cli, 'presencial', 'sitio') returning id into v_ord;
+      end if;
+      select id into v_item from elius.items_catalogo where tenant_id = p_tenant and sku = r.sku;
+      insert into elius.orden_items (tenant_id, orden_id, item_id, cantidad) values (p_tenant, v_ord, v_item, r.cant) returning id into v_oi;
+      select id into v_est from plugin_restaurant.estaciones_cocina where tenant_id = p_tenant and nombre = r.est;
+      select id into v_cm from plugin_restaurant.comandas where tenant_id = p_tenant and orden_id = v_ord and estacion_id = v_est;
+      if v_cm is null then
+        insert into plugin_restaurant.comandas (tenant_id, orden_id, estacion_id, ronda, enviada_en, estado)
+        values (p_tenant, v_ord, v_est, 1, now() - (k * interval '4 minutes'), r.est_com) returning id into v_cm;
+      end if;
+      insert into plugin_restaurant.comanda_items (tenant_id, comanda_id, orden_item_id, cantidad, nota_cocina)
+      values (p_tenant, v_cm, v_oi, r.cant, r.nota);
+    end loop;
+    update elius.ordenes set estado = 'en_preparacion' where tenant_id = p_tenant and canal_venta = 'presencial' and estado <> 'en_preparacion';
 
   elsif p_vertical = 'aerolinea' then
     insert into plugin_airline.aeropuertos (codigo_iata, nombre, ciudad, pais, zona_horaria)

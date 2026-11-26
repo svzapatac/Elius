@@ -107,3 +107,34 @@ select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set precio = 1') 
                   and (select count(*) from elius.items_catalogo) = 0, 'Soporte: no ve ni cambia el catálogo');
 select pg_temp.ok(pg_temp.intenta('select elius.tomar_reserva(gen_random_uuid())') <> 'ok', 'Soporte: no toma reservas');
 reset session authorization;
+
+\echo '== 22. El panel del Trabajador cambia según el negocio'
+create or replace function pg_temp.negocio(p_v text) returns text language sql as $$ select slug from platform.tenants where vertical = p_v and slug like 'demo-%' order by creado_en limit 1 $$;
+select pg_temp.negocio('restaurante') as s_r, pg_temp.negocio('veterinaria') as s_v, pg_temp.negocio('aerolinea') as s_a \gset
+set session authorization elius_trabajador;
+-- Restaurante
+select platform.usar_negocio(:'s_r') \gset
+select pg_temp.ok((select count(*) from elius.v_trab_cocina) >= 3, 'Restaurante: la cocina tiene comandas pendientes');
+select comanda_id as c1 from elius.v_trab_cocina where estado = 'recibida' limit 1 \gset
+select pg_temp.ok(elius.trab_avanzar_comanda(:'c1') = 'en_preparacion', 'Restaurante: empieza la comanda');
+select pg_temp.ok(elius.trab_avanzar_comanda(:'c1') = 'lista', 'Restaurante: deja lista la comanda');
+select pg_temp.ok((select count(*) from elius.v_trab_celebraciones) >= 1 and (select count(*) from elius.v_trab_menu) >= 1, 'Restaurante: ve celebraciones y menú del día');
+select pg_temp.ok((select count(*) from elius.v_trab_citas_vet) = 0, 'Restaurante: no ve nada de veterinaria');
+-- Veterinaria
+select platform.usar_negocio(:'s_v') \gset
+select atencion_id as a1 from elius.v_trab_citas_vet order by inicio limit 1 \gset
+select pg_temp.ok(:'a1' is not null, 'Veterinaria: ve las citas con su mascota');
+select pg_temp.ok(pg_temp.intenta('select elius.trab_cerrar_atencion(''' || :'a1' || ''')') <> 'ok', 'Veterinaria: no cierra sin registrar signos');
+select elius.trab_registrar_signos(:'a1', 12.5, 38.6) is null as ok_s \gset
+select elius.trab_cerrar_atencion(:'a1') is null as ok_c \gset
+select pg_temp.ok((select count(*) from elius.v_trab_vacunas) >= 1, 'Veterinaria: ve las vacunas por vencer');
+select pg_temp.ok((select count(*) from elius.v_trab_cocina) = 0, 'Veterinaria: no ve la cocina');
+-- Aerolínea
+select platform.usar_negocio(:'s_a') \gset
+select tiquete_id as tq from elius.v_trab_checkin where checkin_en is null order by salida_programada limit 1 \gset
+select pg_temp.ok(:'tq' is not null, 'Aerolínea: ve los pasajeros sin check-in');
+select elius.trab_hacer_checkin(:'tq', '14C') is null as ok_ck \gset
+select pg_temp.ok((select count(*) from elius.v_trab_checkin where tiquete_id = :'tq' and checkin_en is not null and silla = '14C') = 1, 'Aerolínea: hace el check-in y queda la silla');
+select pg_temp.ok((select count(*) from elius.v_trab_necesidades) >= 1 and (select count(*) from elius.v_trab_vuelos) >= 1, 'Aerolínea: ve necesidades especiales y vuelos');
+select pg_temp.ok((select count(*) from elius.v_trab_cocina) = 0, 'Aerolínea: no ve la cocina del restaurante');
+reset session authorization;
