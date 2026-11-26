@@ -77,15 +77,44 @@ from PIL import ImageFont as _IF
 _f = _IF.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 22)
 bl = {i: (max(bloques[i][1] + 2 * PAD, _f.getlength(E.M[i][1]) + 2 * PAD), bloques[i][2] + 2 * PAD + TIT) for i in orden_mod}
 bl["LEYENDA"] = tam["LEYENDA"]
-mejor = None
-for ancho in range(int(max(w for w, h in bl.values())) + 5, 7000, 40):
-    r = empacar(bl, ancho, int(os.environ.get("BSEP", "18")))
-    if not r: continue
-    pos, W, H = r
-    esc = min(gw / W, gh / H)
-    if not mejor or esc > mejor[0]: mejor = (esc, pos, W, H, ancho)
-esc, bpos, W, H, ancho = mejor
-print(f"diseño {W:.0f}x{H:.0f} pt · escala de impresión {esc:.2f} (1.00 = letra de 12 pt)")
+import random
+modulo_de = {n: i for i in orden_mod for n in E.M[i][4].split()}
+
+
+def acomodar(ord_bl):
+    """Mejor ancho para un orden de bloques: devuelve (escala, posiciones de bloque, W, H, ancho)."""
+    its = {i: bl[i] for i in ord_bl}
+    mejor_ = None
+    for ancho in range(int(max(w for w, h in bl.values())) + 5, 5200, 80):
+        r = empacar(its, ancho, int(os.environ.get("BSEP", "18")))
+        if not r: continue
+        pos, W_, H_ = r
+        e = min(gw / W_, gh / H_)
+        if not mejor_ or e > mejor_[0]: mejor_ = (e, pos, W_, H_, ancho)
+    return mejor_
+
+
+def costo(r):
+    """Longitud total de las relaciones entre módulos distintos (menor = menos líneas largas y cruzadas)."""
+    _, bp, W_, H_, _a = r
+    cen = {}
+    for i in orden_mod:
+        for n, (x, y, w, h) in bloques[i][0].items():
+            cen[n] = (bp[i][0] + PAD + x + w / 2, bp[i][1] + PAD + TIT + y + h / 2)
+    return sum(abs(cen[o][0] - cen[d][0]) + abs(cen[o][1] - cen[d][1]) for o, c, d, nu in rels if modulo_de[o] != modulo_de[d])
+
+
+base = [*orden_mod, "LEYENDA"]
+candidatos = []
+rnd = random.Random(7)
+for t in range(90):
+    o = base[:] if t == 0 else rnd.sample(base, len(base))
+    r = acomodar(o)
+    if r: candidatos.append((r, costo(r)))
+mx = max(c[0][0] for c in candidatos)
+elegido = min((c for c in candidatos if c[0][0] >= 0.93 * mx), key=lambda c: c[1])[0]
+esc, bpos, W, H, ancho = elegido
+print(f"diseño {W:.0f}x{H:.0f} pt · escala de impresión {esc:.2f} (1.00 = letra de 12 pt) · {len(candidatos)} acomodos probados")
 
 # posiciones finales de cada tabla
 puestas = {}
@@ -99,6 +128,8 @@ puestas["LEYENDA"] = (bpos["LEYENDA"][0], bpos["LEYENDA"][1], tam["LEYENDA"][0] 
 L = ["digraph G {", f'  graph [splines=true, outputorder=edgesfirst, bgcolor=transparent, pad=0, overlap=true, bb="0,0,{W:.1f},{H:.1f}"];',
      '  node [shape=plain, fontname="Helvetica", fontsize=12];',
      '  edge [dir=both, color="#5A6475", penwidth=1.1, arrowsize=0.8];']
+L.append('  "_esq0" [shape=none, label="", width=0, height=0, margin=0, pos="0,0!"];')
+L.append(f'  "_esq1" [shape=none, label="", width=0, height=0, margin=0, pos="{W:.1f},{H:.1f}!"];')
 for n in items:
     x, y, w, h = puestas[n]
     cx, cy = x + (w - GAP) / 2, H - (y + (h - GAP) / 2)
@@ -106,7 +137,8 @@ for n in items:
     L.append(f'  "{n}" [label={lab}, pos="{cx:.1f},{cy:.1f}!"];')
 for (o, col, d, nulo) in rels:
     cab = "teeodot" if nulo else "teetee"
-    L.append(f'  "{o}":"{col}" -> "{d}":"id" [arrowtail=crowodot, arrowhead={cab}];')
+    colr = E.M[modulo_de[o]][2]
+    L.append(f'  "{o}":"{col}" -> "{d}":"id" [arrowtail=crowodot, arrowhead={cab}, color="{colr}", penwidth=1.4];')
 L.append("}")
 dot = os.path.join(tmp, "p.dot")
 open(dot, "w").write("\n".join(L))
