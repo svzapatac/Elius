@@ -100,3 +100,8 @@ Además se usan los roles de Supabase: `anon` (sin ningún permiso sobre datos),
 - **CIS adm (Super Administrador de plataforma):** es el único que borra de verdad, con `elius.eliminar_definitivo(tipo, id)` y solo lo que ya está en la Papelera. Si el registro tiene historial, la base lo impide (llave foránea) y queda desactivado.
 - **Cómo se hace cumplir:** el trigger `t00_sin_baja_directa` bloquea todo `DELETE` hecho desde el panel o desde una conexión directa que no sea del CIS adm, y limita quién cambia `eliminado_en`. La Consola SQL sigue sin permitir `DELETE`, `DROP` ni `eliminado_en`.
 - **Auditoría:** cada eliminación, restauración y borrado definitivo queda con el correo, el rol y la conexión de quien lo hizo.
+
+## Ajuste 26-nov (el Operador sin consola SQL y con tickets)
+
+- El **Operador ya no usa la Consola SQL** (reemplaza el ajuste del 24-nov): queda solo para el Administrador y el Super Admin. Sin menú, sin ruta y la función `elius.consola_sql` lo rechaza.
+- **Administrador y Operador crean tickets** (`elius.crear_ticket`: categoría, prioridad, asunto y descripción). El Operador ve los suyos en «Tickets de soporte» con estado y solución; el Administrador ve los de todo el negocio.

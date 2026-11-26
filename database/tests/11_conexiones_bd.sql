@@ -463,5 +463,17 @@ set role authenticated;
 select pg_temp.ok(pg_temp.intenta('select elius.eliminar_reserva(''' || :'r31e' || ''')') <> 'ok', 'RN-C12: una reserva con pago aprobado no se elimina');
 select pg_temp.ok(elius.cancelar_reserva(:'r31e', 'El cliente pidió cancelar') like '%reembolso%', 'Cancelar una reserva pagada deja anotado el reembolso');
 select pg_temp.ok((select estado from elius.ordenes where id = :'o31e') = 'confirmada', 'El pedido pagado no se cancela: el dinero se gestiona aparte');
+-- 32 · Operador y Administrador crean tickets; el Operador no tiene consola SQL
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.crear_ticket('04', 'alta', 'No llega el aviso de comprobante', 'Desde ayer no suena el celular') as tk32 \gset
+select pg_temp.ok((select count(*) from elius.v_mis_reportes where id = :'tk32' and abierto and prioridad = 'alta' and categoria = '04') = 1, 'Operador: crea un ticket con categoría y prioridad y lo ve en Mis tickets');
+select pg_temp.ok(pg_temp.intenta('select elius.consola_sql(''select 1'')') <> 'ok', 'Operador: sin consola SQL');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.crear_ticket('01', 'media', 'Duda sobre el cierre de caja', '') as tk32b \gset
+select pg_temp.ok((select count(*) from elius.v_mis_reportes where id in (:'tk32', :'tk32b')) = 2, 'Administrador: crea tickets y ve los de todo el negocio');
+select pg_temp.ok(pg_temp.intenta('select elius.consola_sql(''select 1'')') = 'ok', 'Administrador: conserva la consola SQL');
 reset role;
 select set_config('request.jwt.claims', '', false);

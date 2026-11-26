@@ -518,23 +518,14 @@ select pg_temp.bloquea('select set_config(''app.tenant_id'', ''x'', false)', 'no
 select pg_temp.ok((elius.consola_sql('update platform.roles set nombre = ''x''') ->> 'afectadas')::int = 0, 'no se escribe en tablas de plataforma (RLS: 0 filas)');
 select pg_temp.falla($q$select elius.consola_sql('select * from elius.tabla_que_no_existe')$q$, 'does not exist', 'los errores del motor llegan a la consola');
 select pg_temp.login(:'u_vet2', :'t_vet');
-select pg_temp.ok((elius.consola_sql('select count(*) as n from elius.contactos') ->> 'tipo') = 'select', 'el Operador también consulta en la consola');
-select pg_temp.ok((elius.consola_sql('select id, nombres from elius.contactos where eliminado_en is null') ->> 'tipo') = 'select', 'el Operador consulta clientes (eliminado_en is null)');
-select pg_temp.bloquea('update elius.items_catalogo set precio = 1', 'El Operador solo consulta', 'el Operador no cambia precios por la consola');
-select pg_temp.bloquea('update elius.items_catalogo set nombre = ''x''', 'El Operador solo consulta', 'el Operador no cambia el catálogo por la consola');
-select pg_temp.bloquea('insert into elius.categorias_catalogo (nombre) values (''x'')', 'El Operador solo consulta', 'el Operador no agrega al catálogo por la consola');
-select pg_temp.bloquea('drop table elius.contactos', 'Solo se permiten', 'el Operador tampoco borra tablas');
-select pg_temp.bloquea('update elius.contactos set eliminado_en = now()', 'No se permite eliminar', 'el Operador tampoco da de baja clientes');
-select pg_temp.ok((elius.consola_sql('update elius.parametros_negocio set valor = ''1''') ->> 'afectadas')::int = 0, 'la RLS respalda: el Operador no cambia la configuración (0 filas)');
-select pg_temp.ok((elius.consola_sql('update platform.roles set nombre = ''x''') ->> 'afectadas')::int = 0, 'el Operador no cambia roles (0 filas)');
-select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'consola_sql' and rol = 'operador' and datos_nuevos ->> 'bloqueada' = 'true') >= 5, 'los intentos bloqueados del Operador quedan con su rol');
+select pg_temp.falla($q$select elius.consola_sql('select count(*) from elius.contactos')$q$, 'Solo un Administrador', 'el Operador NO tiene consola SQL');
+select pg_temp.falla($q$select elius.consola_sql('update elius.items_catalogo set precio = 1')$q$, 'Solo un Administrador', 'el Operador no cambia precios por la consola');
 -- una persona responde a un cliente desde el panel (restaurante): debe quedar en la auditoría
 select pg_temp.login(:'u_rest', :'t_rest');
 insert into elius.mensajes (tenant_id, conversacion_id, emisor, tipo_contenido, contenido, estado_entrega) values (:'t_rest', :'conv', 'humano', 'texto', 'Hola, ya casi está su pedido', 'enviado');
 select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'mensajes' and detalle like 'Respondió a un cliente%') >= 1, 'el mensaje que una persona envía a un cliente queda en la Auditoría');
 select pg_temp.ok(not exists (select 1 from elius.v_auditoria where datos_nuevos::text like '%ya casi está su pedido%'), 'la auditoría no copia el texto del mensaje (solo datos de control)');
 select pg_temp.login(:'u_vet', :'t_vet');
-select pg_temp.ok((select count(*) from elius.v_auditoria where tabla = 'consola_sql' and rol = 'operador' and detalle like 'INTENTO BLOQUEADO%') >= 1, 'el Administrador ve los intentos bloqueados del Operador');
 select pg_temp.ok(not exists (select 1 from elius.v_auditoria where tabla = 'parametros_negocio' and datos_nuevos ->> 'clave' like 'demo\_%'), 'Auditoría: no lista los contadores internos de la demostración');
 select pg_temp.login(:'u_vet2', :'t_vet');
 select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'consola_sql') >= 1 or true, 'uso auditado');
