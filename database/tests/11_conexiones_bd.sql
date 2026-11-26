@@ -341,3 +341,69 @@ select elius.generar_comprobante_prueba('repetido') ->> 'comprobante_id' as c_a2
 select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'c_a2') like '%repetido%', 't52: alerta de comprobante repetido');
 reset role;
 select set_config('request.jwt.claims', '', false);
+
+-- 30 · El Administrador crea y elimina pedidos y reservas a mano
+\echo '== 30. Pedidos y reservas manuales + Papelera'
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select id as c30 from elius.contactos where eliminado_en is null order by creado_en limit 1 \gset
+select id as i30a from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio limit 1 \gset
+select id as i30b from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio desc limit 1 \gset
+select elius.crear_pedido_manual(:'c30', 'recoger', json_build_array(json_build_object('item_id', :'i30a', 'cantidad', 2), json_build_object('item_id', :'i30b', 'cantidad', 1))::jsonb) as p30 \gset
+select pg_temp.ok((select total from elius.ordenes where id = :'p30') > 0 and (select canal_venta from elius.ordenes where id = :'p30') = 'presencial', 'Pedido manual: la base calcula el total (t41, t42) y queda presencial');
+select pg_temp.ok(pg_temp.intenta('select elius.crear_pedido_manual(''' || :'c30' || ''', ''recoger'', ''[]''::jsonb)') <> 'ok', 'Pedido sin productos se rechaza');
+select pg_temp.ok(pg_temp.intenta('delete from elius.ordenes where id = ''' || :'p30' || '''') = '42501', 'El DELETE real de un pedido está bloqueado');
+select elius.eliminar_pedido(:'p30') is null as ok_e \gset
+select pg_temp.ok((select count(*) from elius.ordenes where id = :'p30') = 0 and (select count(*) from elius.v_saldo_ordenes where orden_id = :'p30') = 0, 'Pedido eliminado: desaparece del panel y de las vistas');
+select pg_temp.ok((select count(*) from elius.v_papelera where tipo = 'pedido' and id = :'p30') = 1, 'El pedido eliminado aparece en la Papelera');
+select elius.restaurar_pedido(:'p30') is null as ok_r \gset
+select pg_temp.ok((select count(*) from elius.ordenes where id = :'p30') = 1, 'Pedido restaurado: vuelve al panel');
+-- Reserva manual
+select elius.agendar_reserva(:'c30', 'mesa', (date_trunc('day', now() at time zone 'America/Bogota') + interval '3 days 19 hours') at time zone 'America/Bogota', (date_trunc('day', now() at time zone 'America/Bogota') + interval '3 days 20 hours') at time zone 'America/Bogota', 2, '{}', 'Reserva manual de prueba') as r30 \gset
+select pg_temp.ok((select count(*) from elius.reservas where id = :'r30') = 1, 'Reserva manual creada por el Administrador');
+select elius.eliminar_reserva(:'r30') is null as ok_er \gset
+select pg_temp.ok((select count(*) from elius.reservas where id = :'r30') = 0 and (select count(*) from elius.v_agenda_calendario where reserva_id = :'r30') = 0, 'Reserva eliminada: desaparece de la agenda');
+select pg_temp.ok((select count(*) from elius.v_papelera where tipo = 'reserva' and id = :'r30') = 1, 'La reserva eliminada aparece en la Papelera');
+select elius.restaurar_reserva(:'r30') is null as ok_rr \gset
+select pg_temp.ok((select count(*) from elius.v_agenda_calendario where reserva_id = :'r30') = 1, 'Reserva restaurada: vuelve a la agenda');
+-- Pedido con pago aprobado: no se elimina
+select elius.generar_comprobante_prueba('exacto') ->> 'comprobante_id' as c30c \gset
+select elius.aprobar_comprobante(:'c30c') is not null as ok_ap \gset
+select orden_id as o30p from elius.comprobantes_pago where id = :'c30c' \gset
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_pedido(''' || :'o30p' || ''')') <> 'ok', 'RN-C12: un pedido con pago aprobado no se elimina (t07)');
+reset role;
+-- Operador no crea ni elimina
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_pedido(''' || :'p30' || ''')') <> 'ok', 'Operador: no elimina pedidos');
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_reserva(''' || :'r30' || ''')') <> 'ok', 'Operador: no elimina reservas');
+select pg_temp.ok(pg_temp.intenta('select elius.crear_pedido_manual(''' || :'c30' || ''', ''recoger'', ''[{}]''::jsonb)') <> 'ok', 'Operador: no crea pedidos a mano');
+reset role;
+-- CIS adm borra de verdad
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.eliminar_pedido(:'p30') is null as ok_e2 \gset
+select elius.eliminar_reserva(:'r30') is null as ok_er2 \gset
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_definitivo(''pedido'', ''' || :'p30' || ''')') = '42501', 'Administrador: no borra definitivamente un pedido');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_cis', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_definitivo(''pedido'', ''' || :'p30' || ''')') = 'ok', 'CIS adm: borra definitivamente el pedido de la Papelera');
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_definitivo(''reserva'', ''' || :'r30' || ''')') = 'ok', 'CIS adm: borra definitivamente la reserva de la Papelera');
+reset role;
+select pg_temp.ok((select count(*) from elius.ordenes where id = :'p30') = 0 and (select count(*) from elius.reservas where id = :'r30') = 0, 'Ya no existen en la base');
+-- Veterinaria y aerolínea
+select set_config('request.jwt.claims', json_build_object('sub', :'u_adm_v', 'role', 'authenticated', 'tenant_id', :'t_v29')::text, false) \gset
+set role authenticated;
+select id as c30v from elius.contactos where eliminado_en is null order by creado_en limit 1 \gset
+select id as i30v from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio limit 1 \gset
+select pg_temp.ok(pg_temp.intenta('select elius.crear_pedido_manual(''' || :'c30v' || ''', ''recoger'', ''[{"item_id": "' || :'i30v' || '", "cantidad": 1}]''::jsonb)') = 'ok', 'Veterinaria: pedido manual');
+select pg_temp.ok(pg_temp.intenta('select elius.agendar_reserva(''' || :'c30v' || ''', ''cita'', now() + interval ''4 days'', now() + interval ''4 days 1 hour'', 1)') in ('ok', '23514'), 'Veterinaria: reserva manual (acepta o la rechaza una regla de horario, nunca un error de permisos)');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_adm_a', 'role', 'authenticated', 'tenant_id', :'t_a29')::text, false) \gset
+set role authenticated;
+select id as c30a from elius.contactos where eliminado_en is null order by creado_en limit 1 \gset
+select id as i30a2 from elius.items_catalogo where eliminado_en is null and precio > 0 order by precio limit 1 \gset
+select pg_temp.ok(pg_temp.intenta('select elius.crear_pedido_manual(''' || :'c30a' || ''', ''no_aplica'', ''[{"item_id": "' || :'i30a2' || '", "cantidad": 1}]''::jsonb)') = 'ok', 'Aerolínea: pedido manual');
+reset role;
+select set_config('request.jwt.claims', '', false);
