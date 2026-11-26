@@ -1,3 +1,4 @@
+-- ===== 01_0100_extensiones_esquemas_roles.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0100 · Extensiones, esquemas, roles de base de datos y utilidades
 -- Modelo multi-tenant POOL: una base, tablas compartidas, tenant_id + RLS.
@@ -131,6 +132,8 @@ end $$;
 
 comment on function app.current_tenant_id() is
   'Tenant de la petición: JWT/X-Tenant-ID validado contra la membresía, o app.tenant_id para el backend de confianza';
+
+-- ===== 02_0200a_tablas.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0200 · Tablas (generado desde modelo/modelo.py)
 -- No editar a mano: cambiar modelo.py o dominios.py y volver a generar.
@@ -1376,6 +1379,8 @@ create table plugin_airline.equipajes (
   actualizado_en timestamptz not null default now(),
   constraint uq_equipajes_tenant_id unique (tenant_id, id)
 );
+
+-- ===== 03_0200b_llaves_foraneas.sql =====
 -- -----------------------------------------------------------------------------
 -- Llaves foráneas. Si origen y destino viven en un tenant, la llave es compuesta
 -- (tenant_id, columna): un registro nunca puede apuntar a otro tenant.
@@ -1571,6 +1576,8 @@ alter table plugin_airline.tiquetes add constraint fk_tiquetes_reserva_pasajero_
 alter table plugin_airline.tiquetes add constraint fk_tiquetes_tramo_id foreign key (tenant_id, tramo_id) references plugin_airline.tramos_reserva (tenant_id, id) on delete cascade;
 alter table plugin_airline.equipajes add constraint fk_equipajes_tenant foreign key (tenant_id) references platform.tenants (id) on delete cascade;
 alter table plugin_airline.equipajes add constraint fk_equipajes_tiquete_id foreign key (tenant_id, tiquete_id) references plugin_airline.tiquetes (tenant_id, id) on delete cascade;
+
+-- ===== 04_0200c_indices.sql =====
 -- -----------------------------------------------------------------------------
 -- Índices: toda llave foránea indexada empezando por tenant_id (DT-06)
 -- -----------------------------------------------------------------------------
@@ -1693,6 +1700,8 @@ create index ix_tramos_reserva_tarifa_vuelo_id on plugin_airline.tramos_reserva 
 create index ix_tiquetes_reserva_pasajero_id on plugin_airline.tiquetes (tenant_id, reserva_pasajero_id);
 create index ix_tiquetes_tramo_id on plugin_airline.tiquetes (tenant_id, tramo_id);
 create index ix_equipajes_tiquete_id on plugin_airline.equipajes (tenant_id, tiquete_id);
+
+-- ===== 05_0200d_comentarios.sql =====
 -- -----------------------------------------------------------------------------
 -- Comentarios: el diccionario de datos vive también dentro de la base
 -- -----------------------------------------------------------------------------
@@ -2625,6 +2634,8 @@ comment on column plugin_airline.equipajes.etiqueta is 'Número de etiqueta';
 comment on column plugin_airline.equipajes.estado is 'registrado, cargado, entregado, perdido';
 comment on column plugin_airline.equipajes.creado_en is 'Fecha de creación';
 comment on column plugin_airline.equipajes.actualizado_en is 'Fecha de la última modificación';
+
+-- ===== 06_0300_restricciones.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0300 · Restricciones de reglas de negocio
 -- Reglas que se pueden expresar de forma declarativa (CHECK, UNIQUE, EXCLUDE).
@@ -2783,6 +2794,8 @@ alter table plugin_airline.equipajes
 alter table plugin_airline.tiquetes
   add constraint ck_tiquetes_checkin check (estado <> 'usado' or checkin_en is not null);
 create unique index uq_vuelos_numero_salida on plugin_airline.vuelos (tenant_id, numero_vuelo, salida_programada);
+
+-- ===== 07_0400_seguridad_rls.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0400 · Seguridad: tenant, permisos, JWT y RLS
 -- DT-02 (RLS), DT-04 (JWT con tenant), DT-05 (roles generales), DT-06 (rendimiento)
@@ -3152,6 +3165,8 @@ grant execute on all functions in schema app to authenticated, service_role, eli
 revoke execute on function app.aplicar_rls(regclass, text) from public, anon, authenticated, service_role, elius_app;
 revoke all on schema reportes from public;
 -- anon (sin iniciar sesión) no recibe ningún permiso sobre datos
+
+-- ===== 08_0500_triggers.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0500 · Triggers
 -- Cada trigger hace cumplir una regla de negocio (código RN-…) que no se puede
@@ -3781,6 +3796,8 @@ begin
 end $$;
 create trigger ta5_evento_vuelo after update of estado on plugin_airline.vuelos
   for each row execute function plugin_airline.evento_vuelo();
+
+-- ===== 09_0600_vistas.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0600 · Vistas
 -- Dos familias:
@@ -4025,6 +4042,8 @@ select t.id as tenant_id, t.slug, t.vertical, t.estado, p.codigo as plan,
          where tp.tenant_id = t.id and tp.habilitado) as plugins,
        t.creado_en
 from platform.tenants t join platform.planes p on p.id = t.plan_id;
+
+-- ===== 10_0700_procedimientos.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0700 · Procedimientos (funciones RPC)
 -- Operaciones de negocio que cambian varias tablas a la vez y deben ser atómicas.
@@ -4547,6 +4566,8 @@ revoke execute on function elius.procesar_webhook_factus(uuid, boolean, jsonb) f
 revoke execute on function elius.marcar_no_asistidas() from public, anon, authenticated;
 grant execute on function elius.procesar_webhook_factus(uuid, boolean, jsonb) to service_role, elius_app;
 grant execute on function elius.marcar_no_asistidas() to service_role, elius_app;
+
+-- ===== 11_0800_roles_base_de_datos.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0800 · Usuarios de conexión a PostgreSQL y sus permisos
 -- "Conexión con usuarios: Admin, Privilegios, Consulting (non Super Admin)"
@@ -4604,6 +4625,8 @@ revoke create on schema public from public;
 alter default privileges in schema platform, elius, ext, plugin_vet, plugin_restaurant, plugin_airline
   grant select, insert, update, delete on tables to authenticated, service_role, elius_app;
 alter default privileges in schema reportes grant select on tables to elius_consulta;
+
+-- ===== 12_0900_datos_base.sql =====
 -- =============================================================================
 -- ELIUS · Migración 0900 · Datos base
 -- Planes, los 6 roles generales, plugins, catálogo de permisos y la matriz
@@ -4727,6 +4750,8 @@ insert into plugin_airline.aeropuertos (codigo_iata, nombre, ciudad, pais, zona_
   ('MIA', 'Miami International', 'Miami', 'US', 'America/New_York'),
   ('MAD', 'Adolfo Suárez Madrid-Barajas', 'Madrid', 'ES', 'Europe/Madrid'),
   ('MEX', 'Benito Juárez', 'Ciudad de México', 'MX', 'America/Mexico_City');
+
+-- ===== 13_1000_integraciones.sql =====
 -- =============================================================================
 -- ELIUS · Migración 1000 · Funciones para las Edge Functions (solo service_role)
 -- Factus Pay (DT-18) y secretos en Supabase Vault.
@@ -4779,6 +4804,8 @@ revoke execute on function elius.srv_secreto(uuid), elius.srv_actualizar_secreto
   elius.webhook_factus(uuid, boolean, jsonb) from public, anon, authenticated, elius_app;
 grant execute on function elius.srv_secreto(uuid), elius.srv_actualizar_secreto(uuid, text), elius.srv_pasarela_webhook(uuid),
   elius.webhook_factus(uuid, boolean, jsonb) to service_role;
+
+-- ===== 14_1100_consola_revision.sql =====
 -- =============================================================================
 -- ELIUS · Migración 1100 · Consola SQL de revisión (para el profesor / auditor)
 -- Permite consultar todo, insertar, actualizar y crear objetos SOLO en el esquema
@@ -4877,6 +4904,8 @@ end $$;
 revoke execute on function elius.consola_sql(text) from public, anon;
 grant execute on function elius.consola_sql(text) to authenticated;
 comment on function elius.consola_sql(text) is 'Consola SQL restringida para revisión: SELECT/INSERT/UPDATE y CREATE solo en practica';
+
+-- ===== 15_1200_casos_demo.sql =====
 -- =============================================================================
 -- 1200 · Casos de prueba por vertical (restaurante, veterinaria, aerolínea)
 -- La profesora elige un caso en el panel: se crea su negocio con catálogo (5 ítems con imagen) y llegan
@@ -5360,6 +5389,8 @@ revoke execute on function elius.efectos_demo(uuid, uuid, uuid, text, jsonb, int
 grant execute on function platform.cargar_caso_demo(text), elius.siguiente_mensaje_demo(), elius.reiniciar_demo() to authenticated;
 comment on function platform.cargar_caso_demo(text) is 'Crea el negocio de prueba de un caso (restaurante/veterinaria/aerolinea) con catálogo e imágenes';
 comment on function elius.siguiente_mensaje_demo() is 'Entrega el siguiente mensaje del guion del caso de prueba; tras aprobar o rechazar un comprobante, Eli continúa esa conversación';
+
+-- ===== 16_1300_agenda_y_roles_demo.sql =====
 -- =============================================================================
 -- 1300 · Agenda tipo calendario y cambio de rol en los casos de prueba
 -- =============================================================================
@@ -5424,6 +5455,8 @@ begin
   end if;
   return case when tg_op = 'DELETE' then old else new end;
 end $$;
+
+-- ===== 17_1400_validaciones_auditoria_reportes.sql =====
 -- =============================================================================
 -- 1400 · Validaciones de datos, auditoría consultable y reportes por mes
 -- =============================================================================
@@ -5491,6 +5524,8 @@ join elius.items_catalogo ic on ic.tenant_id = oi.tenant_id and ic.id = oi.item_
 group by oi.tenant_id, 2, ic.id, ic.nombre, ic.tipo;
 comment on view elius.v_items_mas_vendidos_mensual is 'Ítems más vendidos por mes (filtra por la columna mes)';
 grant select on elius.v_resumen_mensual, elius.v_items_mas_vendidos_mensual to authenticated, service_role, elius_app;
+
+-- ===== 18_1500_reserva_no_llego.sql =====
 -- =============================================================================
 -- 1500 · El equipo registra que el cliente NO llegó (complemento de marcar_llegada)
 -- Pasa la reserva a "no_asistio" y libera la mesa, consultorio o recurso asignado.
@@ -5505,6 +5540,8 @@ begin
     update elius.asignaciones_recurso set estado = 'liberada' where tenant_id = v_tenant and reserva_id = p_reserva;
   end if;
 end $$;
+
+-- ===== 19_1600_permisos_por_rol.sql =====
 -- =============================================================================
 -- 1600 · Permisos por rol más estrictos
 --  · Solo el Administrador aprueba o rechaza comprobantes (el Operador los ve).
@@ -5573,6 +5610,8 @@ begin
   end if;
   return jsonb_build_object('tipo', v_tipo, 'filas', v_filas, 'afectadas', v_n);
 end $$;
+
+-- ===== 20_1700_aviso_celular_comprobantes.sql =====
 -- =============================================================================
 -- 1700 · Aviso al celular cuando llega un comprobante por revisar
 --  · Envía una notificación push a la app gratuita ntfy (https://ntfy.sh) en el celular de quien revisa.
@@ -5634,6 +5673,8 @@ drop trigger if exists t53_solo_admin_decide on elius.comprobantes_pago;
 drop trigger if exists t55_solo_admin_decide on elius.comprobantes_pago;
 create trigger t55_solo_admin_decide before update of veredicto on elius.comprobantes_pago
   for each row execute function app.solo_admin_decide_comprobantes();
+
+-- ===== 21_1800_avisos_celular_panel.sql =====
 -- =============================================================================
 -- 1800 · El Administrador ve en el panel a qué tema suscribir el celular y puede mandar un aviso de prueba
 -- =============================================================================
@@ -5671,6 +5712,8 @@ end $$;
 
 revoke execute on function elius.avisos_celular_info(), elius.enviar_aviso_prueba() from public, anon;
 grant execute on function elius.avisos_celular_info(), elius.enviar_aviso_prueba() to authenticated;
+
+-- ===== 22_1900_push_navegador.sql =====
 -- =============================================================================
 -- 1900 · Notificaciones push en el navegador/celular (PWA) cuando llega un comprobante
 --  · Cada Administrador activa las notificaciones en su dispositivo desde Comprobantes (se guarda su suscripción).
@@ -5800,6 +5843,8 @@ begin
   end;
   return null;
 end $$;
+
+-- ===== 23_2000_fk_push_suscripciones.sql =====
 -- 2000 · Llave foránea de las suscripciones push hacia auth.users (platform.usuarios en el modelo).
 -- Al borrar un usuario se borran sus dispositivos. Antes la columna no tenía llave.
 delete from platform.push_suscripciones s where not exists (select 1 from auth.users u where u.id = s.usuario_id);
@@ -5809,6 +5854,8 @@ do $$ begin
       foreign key (usuario_id) references auth.users (id) on delete cascade;
   end if;
 end $$;
+
+-- ===== 24_2100_consola_no_elimina.sql =====
 -- 0900 · La consola no elimina: tampoco con baja lógica.
 -- Antes un UPDATE de eliminado_en permitía "borrar" un cliente. Ahora la consola rechaza cualquier sentencia que
 -- toque eliminado_en o que apague/cancele registros (activo = false, estado cancelado/inactivo/eliminado).
@@ -5865,6 +5912,8 @@ begin
   end if;
   return jsonb_build_object('tipo', v_tipo, 'filas', v_filas, 'afectadas', v_n);
 end $$;
+
+-- ===== 25_2200_consola_registra_intentos.sql =====
 -- 1000 · La consola registra también los intentos bloqueados, y deja consultar eliminado_en.
 -- Antes: una sentencia prohibida levantaba un error y el error deshacía hasta el registro de auditoría.
 -- Ahora: la sentencia prohibida se audita como "BLOQUEADO" y la función devuelve tipo = 'bloqueada' con el motivo
@@ -5952,6 +6001,8 @@ select a.id, a.tenant_id, a.creado_en, a.rol, a.origen, a.esquema, a.tabla, a.op
 from audit.registros_auditoria a
 left join platform.membresias m on m.tenant_id = a.tenant_id and m.usuario_id = a.usuario_id;
 grant select on elius.v_auditoria to authenticated, service_role, elius_app;
+
+-- ===== 26_2300_operador_consola_y_auditoria_total.sql =====
 -- 1100 · El Operador también usa la consola SQL (con las mismas reglas) y toda acción de un rol queda en la auditoría del Administrador.
 --  · Consola: Administrador, Super Admin y Operador. El Operador además no modifica catálogo, precios ni vuelos (y la RLS lo respalda).
 --  · La bitácora anota el rol real de quien consulta (antes ponía siempre 'administrador').
@@ -6054,6 +6105,8 @@ select a.id, a.tenant_id, a.creado_en, a.rol, a.origen, a.esquema, a.tabla, a.op
 from audit.registros_auditoria a
 left join platform.membresias m on m.tenant_id = a.tenant_id and m.usuario_id = a.usuario_id;
 grant select on elius.v_auditoria to authenticated, service_role, elius_app;
+
+-- ===== 27_2400_auditoria_sin_ruido.sql =====
 -- 1200 · Auditoría legible: se ocultan los movimientos automáticos del motor de la demostración.
 -- Con la demo corriendo se generaban cientos de filas por hora (contador demo_indice, última actividad de la conversación y
 -- del contacto) que escondían lo que hacen las personas. Siguen guardadas en audit.registros_auditoria; solo no se listan.
@@ -6080,6 +6133,8 @@ where not (a.tabla = 'parametros_negocio' and coalesce(a.datos_nuevos ->> 'clave
         where a.datos_nuevos -> k is distinct from a.datos_anteriores -> k
           and k not in ('actualizado_en', 'ultimo_mensaje_en', 'ultimo_contacto_en')));
 grant select on elius.v_auditoria to authenticated, service_role, elius_app;
+
+-- ===== 28_2500_auditoria_limpia.sql =====
 -- 1300 · Auditoría limpia: solo lo que hacen las personas.
 --  · El motor de la demostración (reiniciar, cargar caso, siguiente mensaje, cambiar de vista) ya no escribe en la auditoría:
 --    app.auditar() omite lo que ocurre dentro de esas llamadas.
@@ -6134,6 +6189,8 @@ where a.creado_en >= timestamptz '2026-11-24 07:05:00+00'                 -- his
           and k not in ('actualizado_en', 'ultimo_mensaje_en', 'ultimo_contacto_en')))
   and not (a.tabla = 'membresias' and a.operacion = 'UPDATE' and a.usuario_id::text = a.datos_nuevos ->> 'usuario_id');  -- cambiar de vista o de negocio uno mismo
 grant select on elius.v_auditoria to authenticated, service_role, elius_app;
+
+-- ===== 29_2600_plugin_demo.sql =====
 -- =============================================================================
 -- 2600 · Datos de ejemplo del plugin de cada caso de prueba
 -- Cada negocio de demostración recibe filas en SU plugin (veterinaria, restaurante o aerolínea) para que las
@@ -6330,6 +6387,8 @@ begin
 end $$;
 
 revoke execute on function elius.sembrar_plugin_demo(uuid, text), elius.sembrar_clientes_demo(uuid, text), elius.limpiar_caso_demo(uuid) from public, anon, authenticated;
+
+-- ===== 30_2700_conexiones_bd_por_rol.sql =====
 -- =============================================================================
 -- 2700 · Conexiones directas a la base de datos, una por rol (como en MySQL Workbench)
 -- Usuarios con login: elius_superadmin, elius_administrador, elius_trabajador, elius_soporte.
@@ -6596,6 +6655,8 @@ revoke execute on function platform.mis_negocios(), platform.usar_negocio(text) 
 grant execute on function platform.mis_negocios(), platform.usar_negocio(text) to elius_superadmin, elius_administrador, elius_trabajador, elius_soporte;
 comment on function platform.mis_negocios() is 'Negocios a los que tiene acceso la conexión directa (cuál está activo)';
 comment on function platform.usar_negocio(text) is 'Elige el negocio de la sesión en una conexión directa: select platform.usar_negocio(''slug'')';
+
+-- ===== 31_2800_paneles_por_rol.sql =====
 -- =============================================================================
 -- 2800 · Paneles funcionales por rol: Trabajador y Soporte al cliente
 -- Soporte deja de tener acceso amplio (antes: «con autorización» en contactos, pagos, órdenes, configuración…).
@@ -6728,6 +6789,8 @@ comment on function elius.soporte_reintentar_evento(uuid) is 'Soporte/Administra
 comment on function elius.soporte_estado_integraciones() is 'Conteos de salud (errores, eventos, avisos) sin datos del cliente';
 comment on function platform.negocios_autorizados_soporte() is 'Negocios con una autorización vigente para el usuario de Soporte';
 comment on function elius.tomar_reserva(uuid) is 'El Trabajador toma una reserva y queda como su responsable';
+
+-- ===== 32_2900_trabajador_por_vertical.sql =====
 -- =============================================================================
 -- 2900 · El panel del Trabajador cambia según el negocio (plugin)
 -- Un trabajador de restaurante, de veterinaria y de aerolínea no hacen lo mismo. Cada uno ve y usa solo lo de su plugin,
@@ -6999,3 +7062,32 @@ begin
   execute d;
 end $$;
 revoke execute on function elius.sembrar_plugin_demo(uuid, text), elius.sembrar_clientes_demo(uuid, text) from public, anon, authenticated;
+
+-- ===== 33_3000_usuarios_bd_login_panel.sql =====
+-- Los 4 usuarios de conexión directa (bd.*@elius.local) también pueden entrar al panel con correo y contraseña.
+-- Supabase Auth necesita en cada usuario: id de instancia, fechas, textos vacíos (no nulos) y una identidad de correo.
+-- Esta migración es idempotente: si ya estaba bien, no cambia nada. La contraseña NO se fija aquí (la pone quien instala).
+do $$
+begin
+  if exists (select 1 from information_schema.columns where table_schema = 'auth' and table_name = 'users' and column_name = 'instance_id') then
+    update auth.users set
+      instance_id = coalesce(instance_id, '00000000-0000-0000-0000-000000000000'),
+      aud = coalesce(aud, 'authenticated'), role = coalesce(role, 'authenticated'),
+      created_at = coalesce(created_at, now()), updated_at = coalesce(updated_at, now()),
+      email_confirmed_at = coalesce(email_confirmed_at, now()),
+      raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"provider":"email","providers":["email"]}'::jsonb,
+      confirmation_token = coalesce(confirmation_token, ''), recovery_token = coalesce(recovery_token, ''),
+      email_change = coalesce(email_change, ''), email_change_token_new = coalesce(email_change_token_new, ''),
+      email_change_token_current = coalesce(email_change_token_current, ''), phone_change = coalesce(phone_change, ''),
+      phone_change_token = coalesce(phone_change_token, ''), reauthentication_token = coalesce(reauthentication_token, '')
+    where email like 'bd.%@elius.local';
+    insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+    select gen_random_uuid(), u.id, u.id::text,
+           jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true, 'phone_verified', false),
+           'email', now(), now(), now()
+    from auth.users u
+    where u.email like 'bd.%@elius.local'
+      and not exists (select 1 from auth.identities i where i.user_id = u.id and i.provider = 'email');
+  end if;
+end $$;
+

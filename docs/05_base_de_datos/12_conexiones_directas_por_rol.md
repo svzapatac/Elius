@@ -86,3 +86,14 @@ Un Trabajador de un negocio no ve lo de otro plugin (probado: el de veterinaria 
 ## Un solo panel: cada persona entra al suyo
 
 Se entra con usuario y contraseña. El Administrador del negocio crea a la persona en *Usuarios* con el rol que le asigna (la invitación la lleva a su negocio y su rol). Al iniciar sesión el panel la lleva a su pantalla: Administrador, Trabajador (en su negocio), Analista o Soporte. Quien ya tiene un negocio real entra directo; el selector de casos es solo para las pruebas.
+
+## Entrar al panel con los usuarios `bd.*`
+
+Los cuatro usuarios `bd.superadmin@elius.local`, `bd.administrador@elius.local`, `bd.trabajador@elius.local` y `bd.soporte@elius.local` también sirven para el panel (un solo login: según el usuario, el panel lleva a la pantalla de su rol). La migración 3000 (`20261125000400_usuarios_bd_login_panel.sql`) deja completos los datos que Supabase Auth exige (id de instancia, fechas, identidad de correo). La contraseña del panel no va en el repositorio; se fija una sola vez en el editor SQL:
+
+```sql
+update auth.users set encrypted_password = extensions.crypt('una-clave-larga', extensions.gen_salt('bf'))
+ where email = 'bd.trabajador@elius.local';
+```
+
+Es distinta de la contraseña de la conexión directa (`alter role elius_trabajador password '…'`).
