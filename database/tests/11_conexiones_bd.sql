@@ -559,3 +559,36 @@ select pg_temp.ok((select v.estado_pago from elius.v_estado_pago_pedidos v join 
   where c.nombres = 'Cliente Flujo 1' order by o.creado_en desc limit 1) = 'Pago finalizado · saldo $0', 'cobro: al entregar queda «Pago finalizado · saldo $0»');
 select pg_temp.ok(exists (select 1 from elius.pagos p join elius.ordenes o on o.id = p.orden_id join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' and p.metodo = 'efectivo'), 'cobro: se registró el pago en efectivo del saldo');
 reset session authorization;
+
+\echo '== 39. Flujos 4 y 5 de veterinaria y aerolínea'
+select slug as s_vet from platform.tenants where slug like 'demo-veterinaria-%' order by creado_en limit 1 \gset
+select slug as s_air from platform.tenants where slug like 'demo-aerolinea-%' order by creado_en limit 1 \gset
+set session authorization elius_administrador;
+select platform.usar_negocio(:'s_vet') \gset
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 11) ->> 'mensaje') is not null, 'vet 4: llega el cliente');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 12) ->> 'reserva') like 'R-%', 'vet 4: Eli agenda la cita');
+select pg_temp.ok((select estado from elius.reservas r join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Vet 4') = 'pendiente_pago', 'vet 4: la cita espera el pago');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 3) ->> 'mensaje') is not null, 'vet 4: llega el comprobante');
+select elius.aprobar_comprobante((select c.id from elius.comprobantes_pago c where c.remitente = 'Cliente Vet 4' order by c.creado_en desc limit 1), false);
+select pg_temp.ok((select estado from elius.reservas r join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Vet 4') = 'confirmada', 'vet 4: al aprobar el pago la cita queda confirmada');
+select pg_temp.ok((select count(*) from elius.v_trab_citas_vet where propietario like 'Cliente Vet 4%') = 1, 'vet 4: la cita aparece en Mi trabajo');
+select elius.trab_registrar_signos((select atencion_id from elius.v_trab_citas_vet where propietario like 'Cliente Vet 4%'), 11.4, 38.6);
+select elius.trab_cerrar_atencion((select a.id from plugin_vet.atenciones a join elius.reservas r on r.id = a.reserva_id join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Vet 4'));
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 11) ->> 'mensaje') is not null, 'vet 5: llega la urgencia');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 12) ->> 'mensaje') is not null, 'vet 5: Eli escala la urgencia');
+select pg_temp.ok(exists (select 1 from elius.escalamientos where motivo = 'Urgencia' and resuelto_en is null), 'vet 5: el caso queda en Pendientes');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 13) ->> 'mensaje') is not null, 'vet 5: el cliente da más datos');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 14) ->> 'mensaje') is not null, 'vet 5: el cliente sale hacia la clínica');
+select platform.usar_negocio(:'s_air') \gset
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 11) ->> 'mensaje') is not null, 'aerolínea 4: llega el cliente');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 12) ->> 'reserva') like 'R-%', 'aerolínea 4: Eli reserva el vuelo');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 3) ->> 'mensaje') is not null, 'aerolínea 4: llega el comprobante');
+select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_vertical_prueba(4, 14)') <> 'ok', 'aerolínea 4: sin pago aprobado no se emite el tiquete');
+select elius.aprobar_comprobante((select c.id from elius.comprobantes_pago c where c.remitente = 'Cliente Air 4' order by c.creado_en desc limit 1), false);
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(4, 14) ->> 'tiquete') is not null, 'aerolínea 4: con el pago aprobado se emite el tiquete');
+select pg_temp.ok((select count(*) from elius.v_trab_checkin where pasajero like 'Cliente Air 4%') = 1, 'aerolínea 4: el pasajero aparece en Check-in');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 11) ->> 'reserva') like 'R-%', 'aerolínea 5: llega el cliente con su reserva');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 12) ->> 'mensaje') is not null, 'aerolínea 5: Eli escala el caso');
+select pg_temp.ok((elius.paso_flujo_vertical_prueba(5, 13) ->> 'mensaje') is not null, 'aerolínea 5: el cliente explica');
+select pg_temp.ok((select elius.cancelar_reserva(r.id, 'El cliente no puede viajar: familiar hospitalizado') from elius.reservas r join elius.contactos c on c.id = r.contacto_id where c.nombres = 'Cliente Air 5') is not null, 'aerolínea 5: el Administrador cancela la reserva');
+reset session authorization;
