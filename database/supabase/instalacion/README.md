@@ -28,7 +28,7 @@ Los 13 archivos aplicados en orden sobre una base limpia pasan las 94 pruebas (`
 | 12 | `12_0900_datos_base.sql` | **Datos base:** 4 planes, 6 roles, 3 plugins, 21 permisos con la matriz rol × permiso, aeropuertos |
 | 13 | `13_1000_integraciones.sql` | Funciones del servidor para Vault y el webhook de Factus |
 
-`TODO_EN_UNO.sql` es la suma de los 43 por si prefieres una sola ejecución (300 KB; el editor puede ir lento).
+`TODO_EN_UNO.sql` es la suma de los 44 por si prefieres una sola ejecución (300 KB; el editor puede ir lento).
 
 ## Después de instalar
 

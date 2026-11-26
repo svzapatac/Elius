@@ -291,3 +291,53 @@ select platform.usar_negocio(:'s_rest') \gset
 select pg_temp.ok((select count(*) from elius.v_soporte_tickets) = 0 and (select count(*) from elius.v_soporte_usuarios) = 0 and (select count(*) from elius.v_soporte_clientes) = 0, 'Trabajador: no ve las vistas de Soporte');
 select pg_temp.ok(pg_temp.intenta('select elius.generar_ticket_prueba()') <> 'ok', 'Trabajador: no genera tickets de prueba');
 reset session authorization;
+
+-- 29 · Flujos del Administrador: comprobantes de prueba y consola (C, R, U, D y mixta)
+\echo '== 29. Comprobantes de prueba y consola del Administrador'
+select slug as s_v29 from platform.tenants where slug like 'demo-veterinaria-%' order by creado_en limit 1 \gset
+select slug as s_a29 from platform.tenants where slug like 'demo-aerolinea-%' order by creado_en limit 1 \gset
+select id as t_v29 from platform.tenants where slug = :'s_v29' \gset
+select id as t_a29 from platform.tenants where slug = :'s_a29' \gset
+select u.id as u_adm_v from auth.users u where u.email = 'admin.veterinaria@elius.local' \gset
+select u.id as u_adm_a from auth.users u where u.email = 'admin.aerolinea@elius.local' \gset
+
+-- Restaurante · caso exacto
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select elius.generar_comprobante_prueba('exacto') ->> 'comprobante_id' as c_ex \gset
+select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'c_ex') is null and (select coincide from elius.comprobantes_pago where id = :'c_ex'), 'Comprobante exacto: sin alerta (t52)');
+select pg_temp.ok(pg_temp.intenta('select elius.aprobar_comprobante(''' || :'c_ex' || ''')') = 'ok', 'Administrador aprueba el comprobante');
+select pg_temp.ok((select o.estado from elius.ordenes o join elius.comprobantes_pago c on c.orden_id = o.id where c.id = :'c_ex') = 'confirmada', 't51: la orden queda confirmada al cubrirse el total');
+select pg_temp.ok(pg_temp.intenta('select elius.generar_comprobante_prueba(''xx'')') <> 'ok', 'Caso no válido se rechaza');
+-- Consola del Administrador
+select pg_temp.ok((elius.consola_sql('select count(*) as n from elius.v_comprobantes_pendientes') ->> 'tipo') = 'select', 'Consola: SELECT sobre la vista de comprobantes');
+select pg_temp.ok(pg_temp.intenta($q$select elius.consola_sql('update elius.pagos set monto = 1 where estado = ''aprobado''')$q$) <> 'ok', 'Consola: t50 impide modificar un pago aprobado');
+select pg_temp.ok(pg_temp.intenta($q$select elius.consola_sql('update elius.ordenes set total = 1')$q$) <> 'ok', 'Consola: t43 impide escribir el total a mano');
+select pg_temp.ok((elius.consola_sql('delete from elius.contactos') ->> 'tipo') = 'bloqueada', 'Consola: DELETE bloqueado y registrado');
+select pg_temp.ok((elius.consola_sql($q$insert into elius.contactos (nombres, apellidos, telefono, origen) values ('Consola', 'Crea', '+573009998877', 'panel')$q$) ->> 'afectadas')::int = 1, 'Consola: INSERT de un cliente (Create)');
+select pg_temp.ok(pg_temp.intenta($q$select elius.consola_sql('insert into elius.contactos (nombres, apellidos, telefono, origen) values (''Mal'', ''Tel'', ''3001'', ''panel'')')$q$) <> 'ok', 'Consola: teléfono mal escrito rechazado por la restricción');
+select pg_temp.ok((elius.consola_sql($q$update elius.contactos set apellidos = 'Actualizado' where telefono = '+573009998877'$q$) ->> 'afectadas')::int = 1, 'Consola: UPDATE de un cliente (Update)');
+select pg_temp.ok((select count(*) from elius.v_triggers_tabla where tabla in ('comprobantes_pago', 'pagos', 'ordenes', 'orden_items')) >= 8, 'Vista de triggers de la plata disponible');
+reset role;
+select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'comprobantes_pago' and operacion = 'INSERT' and registro_id = :'c_ex') = 1, 'Auditoría del comprobante generado');
+select pg_temp.ok((select count(*) from elius.eventos_salida where tipo_evento = 'comprobante.recibido' and entidad_id = :'c_ex') = 1, 't53: el comprobante emitió su evento');
+
+-- Veterinaria · monto distinto → alerta, rechazo
+select set_config('request.jwt.claims', json_build_object('sub', :'u_adm_v', 'role', 'authenticated', 'tenant_id', :'t_v29')::text, false) \gset
+set role authenticated;
+select elius.generar_comprobante_prueba('distinto') ->> 'comprobante_id' as c_di \gset
+select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'c_di') like 'ALERTA:%monto%distinto%', 't52: alerta de monto distinto');
+select pg_temp.ok((select coincide from elius.comprobantes_pago where id = :'c_di') = false, 'coincide = false');
+select pg_temp.ok(pg_temp.intenta('select elius.rechazar_comprobante(''' || :'c_di' || ''', ''El monto no coincide con el pedido'')') = 'ok', 'Administrador rechaza el comprobante');
+select pg_temp.ok((select count(*) from elius.pagos p join elius.comprobantes_pago c on c.orden_id = p.orden_id where c.id = :'c_di') = 0, 'Rechazado: no se creó ningún pago');
+reset role;
+
+-- Aerolínea · repetido
+select set_config('request.jwt.claims', json_build_object('sub', :'u_adm_a', 'role', 'authenticated', 'tenant_id', :'t_a29')::text, false) \gset
+set role authenticated;
+select elius.generar_comprobante_prueba('exacto') ->> 'comprobante_id' as c_a1 \gset
+select elius.aprobar_comprobante(:'c_a1') is not null as ok_a1 \gset
+select elius.generar_comprobante_prueba('repetido') ->> 'comprobante_id' as c_a2 \gset
+select pg_temp.ok((select motivo from elius.comprobantes_pago where id = :'c_a2') like '%repetido%', 't52: alerta de comprobante repetido');
+reset role;
+select set_config('request.jwt.claims', '', false);
