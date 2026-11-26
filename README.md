@@ -6,8 +6,7 @@ Plataforma SaaS multi-tenant que centraliza los datos de **Eli**, el agente de i
 
 | Carpeta | Qué contiene |
 | --- | --- |
-| [`docs/01_levantamiento`](docs/01_levantamiento/levantamiento_informacion.md) | Documento de levantamiento de información: contexto, requisitos, 73 reglas de negocio, 18 decisiones técnicas con fuentes |
-| [`docs/01_levantamiento/requerimientos_y_alcance_de_eli.md`](docs/01_levantamiento/requerimientos_y_alcance_de_eli.md) | Requerimientos: qué hace Eli, hasta dónde llega (autónomo / propone y espera / prohibido) y límites |
+| [`docs/01_levantamiento`](docs/01_levantamiento/levantamiento_informacion.md) | Documento de levantamiento de información y requerimientos (incluye qué hace Eli y sus límites): contexto, 73 reglas de negocio, 18 decisiones técnicas con fuentes |
 | [`docs/02_arquitectura`](docs/02_arquitectura/00_arquitectura_general.md) | Diagramas de flujo de la arquitectura: general y por panel (plataforma, administrador, operador, analista), canal WhatsApp/Eli y extensión de Chrome |
 | [`docs/03_flujos_usuario`](docs/03_flujos_usuario/00_indice.md) | Diagramas de flujo de usuario por panel |
 | [`docs/04_pagos`](docs/04_pagos/verificacion_de_pagos.md) | Verificación de pagos: **Factus Pay** (llave Bre-B) con el comprobante tradicional como alternativa |

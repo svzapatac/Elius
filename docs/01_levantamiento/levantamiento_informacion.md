@@ -1,6 +1,6 @@
 # Elius — Documento de levantamiento de información y reglas de negocio
 
-Versión 0.4 · actualizado el 24 de noviembre de 2026 · exportado del documento de trabajo del equipo
+Versión 0.5 · actualizado el 26 de noviembre de 2026 · exportado del documento de trabajo del equipo
 
 ## 1. Información general
 
@@ -470,7 +470,123 @@ Además se usan los roles propios de Supabase. `anon` no tiene acceso a ningún 
 
 El Super Admin de la aplicación **no es** un superusuario de PostgreSQL. Entra por la aplicación como cualquier otro rol y queda sujeto a sus permisos y a la auditoría.
 
-## 11. Requerimientos no funcionales
+## 11. Requerimientos funcionales: qué hace Eli y hasta dónde llega
+Eli es el agente de IA que atiende por WhatsApp a los clientes de cada negocio. Este documento dice, función por función, **qué hace Eli por su cuenta, qué deja a una persona y qué no puede hacer**. Eli está en **etapa de aprendizaje**: en todo lo que mueve dinero o compromete al negocio, Eli prepara y avisa, y **una persona decide**.
+
+### 11.1 Principio general: tres niveles de autonomía
+
+| Nivel | Significado | Ejemplos |
+| --- | --- | --- |
+| **A. Autónomo** | Eli lo hace solo, sin pedir permiso, porque es de bajo riesgo y reversible. | Responder preguntas del catálogo, tomar un pedido, agendar una reserva dentro de las reglas. |
+| **B. Propone y espera** | Eli lee, compara y avisa; **una persona aprueba o rechaza**. Hasta que no decide, no pasa nada. | Verificar un comprobante de pago. |
+| **C. Prohibido** | Eli no puede hacerlo; la base de datos lo impide aunque Eli quisiera. | Aprobar un pago, ver historia clínica, borrar datos, ver otro negocio. |
+
+Los niveles B y C no dependen de que Eli "se porte bien": los hace cumplir la base de datos (triggers, RLS y permisos). Por eso un error de Eli no puede saltarse la regla.
+
+### 11.2 Qué hace Eli, paso a paso
+
+#### 11.2.1 Atender al cliente por WhatsApp
+- **Lo que hace (A):** responde con el catálogo, el horario, los precios y la base de conocimiento **de su propio negocio** (RN-C14). Agrupa los mensajes seguidos del cliente antes de responder (RN-C21). Usa el tono y las instrucciones que el Administrador configuró.
+- **Dónde se detiene:** si no tiene una respuesta confiable, si el cliente pide hablar con una persona, o si el tema es una queja, un pago o una emergencia, **escala a un humano** (RN-C05). Mientras un humano tiene la conversación, Eli **no responde** (RN-C19). El Administrador o Soporte pueden **apagarla al instante** (RN-C20).
+- **No puede:** inventar productos (solo vende lo del catálogo, RN-C15), ofrecer un plato agotado (RN-R03) ni responder con datos de otro negocio.
+
+#### 11.2.2 Tomar pedidos
+- **Lo que hace (A):** crea la orden, agrega los ítems con sus modificadores (por ejemplo, el término de la carne), pide dirección y teléfono si es domicilio, y deja los totales calculados por la base (RN-C11).
+- **Dónde se detiene:** el pedido avanza por estados (recibido → en preparación → listo → entregado) y **lo mueve el equipo**, no Eli. Una orden pagada no se modifica (RN-C12). Solo se cancela antes de entrar a preparación.
+
+#### 11.2.3 Agendar reservas
+- **Lo que hace (A):** crea la reserva si hay cupo, está dentro del horario, no supera la capacidad de la mesa y respeta la anticipación máxima (RN-C07, RN-R01, RN-R02, RN-R10). Si la reserva es grande (hoy 20 personas o más) **avisa al Administrador** (RN-R08).
+- **Dónde se detiene:** la reserva queda pendiente de pago/confirmación según la política del negocio. **Eli no cancela ni reembolsa**: eso es del Administrador. Si el cliente no llega, el sistema libera el recurso y un Operador marca "llegó / no llegó" (RN-C29).
+
+#### 11.2.4 Verificar pagos (el caso más delicado)
+
+Hoy el negocio cobra por **comprobante**: el cliente paga por Nequi, Bre-B o transferencia y envía la foto.
+
+**Lo que hace Eli (B: propone y espera):**
+1. Lee la imagen del comprobante con IA y extrae: **monto, aplicación de origen, referencia, remitente, destinatario y fecha/hora**.
+2. Compara el **monto leído con el saldo que debe esa orden**.
+3. Revisa si el comprobante **ya se usó**: mismo archivo (huella digital) o misma aplicación y misma referencia que otro comprobante anterior (RN-C16).
+4. Revisa si el **destinatario es una cuenta del negocio**.
+5. Guarda todo y deja una **alerta escrita** en el comprobante, por ejemplo: *"ALERTA: comprobante repetido; monto 50.000 distinto al esperado 60.000"*.
+6. **Avisa al gerente** con una notificación en su celular: cliente, monto y un enlace para aprobar o rechazar. Si el monto no coincide, el aviso lo destaca (RN-C27).
+
+**Dónde se detiene:** Eli **no aprueba**. El comprobante queda en *pendiente* hasta que el Administrador lo revisa en el panel y lo aprueba o rechaza. Un Operador o Analista puede verlo pero **no decidir**; si lo intenta, recibe un error (RN-C26). Solo al aprobar se crea el pago y se confirma la orden y su reserva.
+
+**Qué comprueba la base sola y qué comprueba el gerente:**
+
+| Comprobación | Quién | Cómo |
+| --- | --- | --- |
+| Monto = lo que debe la orden | Automática (alerta) | Compara `monto_leido` con `monto_esperado` |
+| Comprobante ya usado | Automática (alerta) | Mismo archivo, o misma app y referencia |
+| Destinatario es del negocio | Automática (alerta) | Contra las cuentas de pago configuradas |
+| **Hora y nombre del remitente** | **Gerente** | Eli las lee y las muestra junto al comprobante; la base las guarda pero **no las usa para alertar** todavía |
+| Que el dinero **realmente llegó** a la cuenta | **Gerente** | Mira su app o extracto del banco; Eli no tiene acceso al banco |
+
+> **Decisión de diseño:** como Eli está aprendiendo y una foto puede ser falsa o editada, **la última palabra siempre es del dueño**. Eli reduce el trabajo (lee, compara, detecta repetidos y avisa), pero no sustituye la verificación contra el banco.
+
+**Pagos parciales (RN-C17):** el cliente puede pagar una parte; el saldo se cobra en efectivo al entregar. **Devoluciones (RN-C12, RN-C25):** un pago aprobado no se edita; una devolución se registra como otro pago negativo hecho por el gerente.
+
+**Extensión futura (no activa):** cobro automático con llave Bre-B y QR de Factus Pay, que confirma solo por webhook sin intervención humana (RN-C22 a RN-C24). Está diseñado y probado en la base, pero **desactivado** porque no hubo credenciales de sandbox. Ver `docs/04_pagos/verificacion_de_pagos.md`.
+
+#### 11.2.5 Avisos y automatizaciones
+- **Lo que hace (A):** cuando algo pasa (pedido confirmado, comprobante recibido, reserva grande, vuelo retrasado) la base genera un **evento** y n8n avisa al equipo o al cliente, crea el evento en Calendar o envía recordatorios.
+- **Dónde se detiene:** los avisos son un **respaldo**: si el servicio de notificaciones falla, el dato se guarda igual y el error queda registrado (RN-C28).
+
+#### 11.2.6 Aprender de lo que hace el equipo (extensión de Chrome)
+- **Lo que hace:** detecta preguntas frecuentes y objeciones en las conversaciones capturadas y las agrupa como **patrones sugeridos**.
+- **Dónde se detiene (B):** Eli **solo usa los patrones que un Administrador aprobó** (RN-E02). Solo captura en sitios autorizados por el negocio y lo capturado lo ve quien lo capturó (RN-E01, RN-E03).
+
+#### 11.2.7 Según el tipo de negocio
+| Negocio | Qué hace Eli | Límite |
+| --- | --- | --- |
+| **Restaurante** | Menú del día (solo si el dueño lo confirmó), pedidos, domicilios, reservas, celebraciones | No vende agotados; reservas grandes se avisan; la consignación no se reembolsa (política) |
+| **Veterinaria** | Citas con mascota y veterinario, recordatorio de vacunas 7 días antes, tono empático | **No ve la historia clínica** (solo veterinarios con permiso); ante una urgencia pasa **de inmediato** a un humano (RN-V03, RN-V07) |
+| **Aerolínea** | Consulta vuelos y reservas, localizador, avisos de cambios | No asigna una silla a dos pasajeros; no supera la capacidad; los avisos de cancelación son automáticos (RN-A04, A07, A09) |
+
+### 11.3 Qué NO hace Eli (límites duros)
+
+| Eli no puede… | Quién lo impide |
+| --- | --- |
+| Aprobar o rechazar un comprobante, ni crear pagos | Trigger `solo_admin_decide` (RN-C26) |
+| Ver o modificar la historia clínica | Permiso especial + RLS (RN-V03) |
+| Ver usuarios, auditoría, contraseñas o datos de otro negocio | RLS y rol Eli sin accesos especiales |
+| Borrar definitivamente información | Soft delete; solo el Super Admin elimina de verdad |
+| Cancelar o reembolsar una reserva por su cuenta | Solo el Administrador (`cancelar_reserva`) |
+| Seguir respondiendo si un humano tomó la conversación o si fue apagada | Trigger `t20_antes_de_mensaje` (RN-C19/C20) |
+| Responder a dos mensajes a la vez en una misma conversación | `tomar_bloqueo` (RN-C21) |
+| Cobrar por Factus Pay | Está desactivado hasta tener credenciales |
+| Confirmar contra el banco que el dinero llegó | No tiene integración bancaria |
+
+### 11.4 Transparencia y control
+- **Todo queda auditado** (RN-C32): cada cambio, quién lo hizo, con qué rol, antes y después; también cada intento bloqueado.
+- **Consumo de IA registrado** (RN-C13): tokens, costo y latencia por llamada.
+- **Errores de Eli** visibles para Soporte en el Centro de soporte.
+- **Interruptor de emergencia:** el Administrador o Soporte apagan a Eli de inmediato.
+
+### 11.5 Requerimientos funcionales (resumen verificable)
+
+| ID | Requerimiento | Nivel | Regla |
+| --- | --- | --- | --- |
+| RF-01 | Eli responde solo con el catálogo y conocimiento de su negocio | A | RN-C14, C15 |
+| RF-02 | Eli escala a un humano ante queja, pago, emergencia o falta de confianza | A | RN-C05 |
+| RF-03 | Eli se calla cuando un humano toma la conversación o se la apaga | C | RN-C19, C20 |
+| RF-04 | Eli crea pedidos con totales calculados por la base | A | RN-C11 |
+| RF-05 | Eli agenda reservas respetando horario, capacidad y cruces | A | RN-C07, R01, R02 |
+| RF-06 | Eli lee comprobantes y compara monto, repetido y destinatario | B | RN-C16 |
+| RF-07 | Eli avisa al gerente de cada comprobante, destacando discrepancias | B | RN-C27 |
+| RF-08 | Solo el Administrador aprueba o rechaza pagos | C | RN-C26 |
+| RF-09 | Eli propone patrones; solo los aprobados se usan | B | RN-E02 |
+| RF-10 | Eli en veterinaria no accede a la historia clínica | C | RN-V03 |
+| RF-11 | Toda acción queda auditada y el consumo de IA registrado | — | RN-C13, C32 |
+
+### 11.6 Limitaciones conocidas (dicho con honestidad)
+1. **La lectura del comprobante es IA:** puede equivocarse con imágenes borrosas, recortadas o editadas. Por eso el gerente decide.
+2. **No hay verificación bancaria automática:** hasta activar Factus Pay (o similar), alguien debe mirar su banco.
+3. **Hora y nombre del remitente se muestran, no se validan automáticamente.** Es una mejora futura: alertar si la hora del comprobante es anterior al pedido o si el remitente no coincide con el contacto.
+4. **Eli en aprendizaje:** el alcance del nivel A se irá ampliando a medida que el equipo confíe en sus resultados; cualquier ampliación pasa por el Administrador.
+5. Reglas marcadas "por validar" en el levantamiento (RN-C06, RN-V04, RN-V05, RN-A08, RN-E03) aún necesitan confirmación con el negocio.
+
+## 12. Requerimientos no funcionales
 
 | ID | Atributo | Requerimiento |
 | --- | --- | --- |
@@ -486,7 +602,7 @@ El Super Admin de la aplicación **no es** un superusuario de PostgreSQL. Entra 
 | RNF-10 | Escalabilidad | Las tablas de alto volumen (mensajes, auditoría, consumo de LLM) quedan preparadas para particionarse por mes. |
 | RNF-11 | Rendimiento en picos | Las ventas presenciales del restaurante llegan en picos. Registrar un pedido y su cobro debe seguir siendo rápido en la hora de mayor demanda. |
 
-## 12. Entregables esperados
+## 13. Entregables esperados
 
 El trabajo se entrega en dos partes: este documento con el diseño y el código SQL probado. Cubre todo lo que pide el tablero de la entrega.
 
@@ -504,11 +620,11 @@ El trabajo se entrega en dos partes: este documento con el diseño y el código 
 | 10 | Roles y permisos de aplicación | Catálogo de permisos, roles del sistema y de cada plugin, políticas RLS |
 | 11 | Pruebas | Script que demuestra el aislamiento entre tenants, los permisos por rol y las reglas de negocio principales |
 
-## 13. Modelo entidad-relación
+## 14. Modelo entidad-relación
 
 El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatorias. Un script lo verifica automáticamente. El resultado: ninguna relación 1 a 1, ninguna relación muchos a muchos directa, y las 24 tablas de transición guardan datos propios.
 
-### 13.1 Reglas del modelado
+### 14.1 Reglas del modelado
 
 | Regla obligatoria | Cómo se cumple |
 | --- | --- |
@@ -516,14 +632,14 @@ El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatoria
 | No hay relaciones muchos a muchos directas | Cada relación muchos a muchos se resuelve con una tabla de transición y dos relaciones de uno a muchos. |
 | Ninguna tabla es solo de llaves | Cada tabla de transición guarda al menos dos datos propios de la relación: cantidad, precio, fechas, estado, nivel, etc. El script rechaza cualquier tabla que solo tenga identificador, llaves y fechas de control. |
 
-### 13.2 Cómo leer los diagramas
+### 14.2 Cómo leer los diagramas
 
 - **Notación pata de gallo.** `||` significa exactamente uno, `o|` cero o uno, y `o<` cero o muchos.
 - **Colores.** Salmón = entidad; azul = tabla de transición; gris = catálogo de referencia global.
 - **Tablas punteadas.** Pertenecen a otro esquema y se muestran solo para ubicar la relación.
 - **Lo que no se dibuja.** La relación de cada tabla con `tenants` por `tenant_id` existe en todas las tablas de negocio, pero no se dibuja para no saturar. Tampoco se muestran `creado_en` ni `actualizado_en`.
 
-### 13.3 Resumen por esquema
+### 14.3 Resumen por esquema
 
 | Parte | Esquema | Tablas | Entidades | Transiciones | Referencia |
 | --- | --- | --- | --- | --- | --- |
@@ -538,7 +654,7 @@ El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatoria
 | **Subtotal plugins** |  | **26** | **12** | **13** | **1** |
 | **Total** |  | **87** | **55** | **24** | **8** |
 
-### 13.4 Tablas de transición
+### 14.4 Tablas de transición
 
 | Tabla | Resuelve el muchos a muchos entre | Datos útiles que guarda |
 | --- | --- | --- |
@@ -567,7 +683,7 @@ El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatoria
 | elius.item\_adicionales | Productos o paquetes y sus adicionales (ambos son ítems del catálogo) | Precio especial, cantidad máxima y orden |
 | plugin\_restaurant.menu\_dia\_items | Menús del día y platos | Sección, posición y si sigue disponible ese día |
 
-### 13.5 Cambios hechos para cumplir las reglas
+### 14.5 Cambios hechos para cumplir las reglas
 
 - **Detalles 1 a 1 de los plugins.** Se eliminaron las tablas de detalle de cita, reserva de mesa, reserva aérea y plato. Ahora cada plugin se conecta al núcleo con transiciones: `atenciones` (cita y mascota), `reserva_pasajeros` y `tramos_reserva` (reserva, pasajeros y vuelos), y `item_alergenos` e `item_grupos_modificador` (plato, alérgenos y opciones).
 - **Perfil de usuario 1 a 1.** Se eliminó. Los datos del usuario quedan en Supabase Auth, y el tenant predeterminado pasa a la membresía (`es_predeterminada`).
@@ -577,9 +693,9 @@ El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatoria
 
 **Revisión contra el código existente.** Al comparar con `elius-panel` y `potrillos-panel` se agregaron 12 tablas: `comprobantes_pago`, `entregas`, `item_adicionales`, `medios_item`, `escalamientos`, `eventos_embudo`, `errores_agente`, `parametros_negocio`, `suscripciones_push`, `menus_dia`, `menu_dia_items` y `celebraciones`. También se agregaron columnas a `conversaciones`, `mensajes`, `reservas`, `ordenes`, `direcciones` y `consumos_llm`. El bloqueo que hoy vive en la tabla `elius_user_locks` pasa a una columna de `conversaciones`: una tabla con una sola fila por conversación habría sido una relación 1 a 1.
 
-### 13.6 Modelo general
+### 14.6 Modelo general
 
-El modelo general es la base que comparten todos los negocios, sin importar su industria. Tiene 55 tablas en cuatro esquemas, y por sí solo ya sirve a cualquier negocio que venda por catálogo y atienda por WhatsApp con Eli. Los plugins (sección 13.7) solo agregan lo propio de cada industria.
+El modelo general es la base que comparten todos los negocios, sin importar su industria. Tiene 55 tablas en cuatro esquemas, y por sí solo ya sirve a cualquier negocio que venda por catálogo y atienda por WhatsApp con Eli. Los plugins (sección 14.7) solo agregan lo propio de cada industria.
 
 | Esquema | Tablas | Qué resuelve |
 | --- | --- | --- |
@@ -620,7 +736,7 @@ El modelo general es la base que comparten todos los negocios, sin importar su i
 
 ![extensión de Chrome](../../database/modelo/salida/03_ext_chrome.png)
 
-### 13.7 Plugins
+### 14.7 Plugins
 
 Cada plugin es un esquema aparte que se instala por tenant. Se conecta al modelo general solo con llaves foráneas que apuntan hacia el núcleo. El modelo general nunca apunta a un plugin, y los plugins no se referencian entre sí; el script de validación lo verifica. Por eso un plugin se puede instalar, quitar o agregar sin tocar el núcleo. Sus tablas también llevan `tenant_id`, y RLS solo las muestra si el plugin está habilitado para el tenant (RN-P09).
 
@@ -648,11 +764,11 @@ Cada plugin es un esquema aparte que se instala por tenant. Se conecta al modelo
 
 ![plugin aerolínea](../../database/modelo/salida/06_plugin_airline.png)
 
-### 13.8 Archivo editable
+### 14.8 Archivo editable
 
-El modelo completo, con descripciones de tablas y columnas, está en el archivo `elius_modelo.dbml`. Se importa en dbdiagram.io para editarlo o exportarlo (sección 15).
+El modelo completo, con descripciones de tablas y columnas, está en el archivo `elius_modelo.dbml`. Se importa en dbdiagram.io para editarlo o exportarlo (sección 16).
 
-### 13.9 Potrillos Terraza: del esquema actual al modelo Elius
+### 14.9 Potrillos Terraza: del esquema actual al modelo Elius
 
 El esquema de Potrillos no se copió: se corrigió. Funciona en producción, pero tiene 16 problemas de diseño: no tiene tenant, no tiene llaves foráneas entre pedidos, domicilios y comprobantes, repite datos en columnas y en JSON, y deja lógica de negocio en el navegador. Esta sección muestra cada problema, cómo lo corrige el modelo y a dónde pasa cada tabla. Las reglas que el negocio ya usa (alertas de comprobantes, pagos parciales, turnos, menú confirmado, tolerancias) se conservan como reglas de negocio en la sección 9.
 
@@ -701,7 +817,7 @@ El esquema de Potrillos no se copió: se corrigió. Funciona en producción, per
 
 El script SQL que mueve los datos actuales de Potrillos a estas tablas se entrega junto con el código de la base de datos.
 
-### 13.10 elius-panel: del esquema actual al modelo Elius
+### 14.10 elius-panel: del esquema actual al modelo Elius
 
 `elius-panel` ya generaliza a Potrillos (un solo `pedidos` y un catálogo genérico), pero conserva los mismos límites de fondo. Sirve a un solo negocio por base de datos, guarda datos en JSON y arreglos, y no tiene llaves foráneas entre el catálogo y lo que se vende. También deja secretos en el navegador. Se encontraron 18 problemas.
 
@@ -750,7 +866,7 @@ El script SQL que mueve los datos actuales de Potrillos a estas tablas se entreg
 
 Las dos secciones dejan ver el mismo patrón: los paneles nacieron a la medida de un negocio y el modelo nuevo los lleva a un SaaS para muchos negocios, sin perder lo que ya funciona.
 
-## 14. Decisiones técnicas: qué, cómo y por qué
+## 15. Decisiones técnicas: qué, cómo y por qué
 
 Cada decisión del diseño tiene una razón y una fuente oficial que la respalda. Las 18 decisiones siguen el mismo formato: por qué se tomó, cómo se implementa y dónde verificarlo.
 
@@ -805,7 +921,7 @@ Cada decisión del diseño tiene una razón y una fuente oficial que la respalda
 ### DT-09. Arquitectura microkernel: núcleo más plugins
 
 - **Por qué.** El microkernel permite agregar funcionalidades como plugins sobre un núcleo, sin afectar ese núcleo. Encaja con el objetivo de sumar verticales sin modificar las tablas comunes.
-- **Cómo.** El núcleo vive en el esquema `elius` y cada vertical en su esquema `plugin_*`. `platform.plugins` es el registro de plugins y `platform.tenant_plugins` dice cuáles tiene activos cada tenant. Las tablas del plugin se conectan al núcleo con relaciones de uno a muchos y tablas de transición, nunca 1 a 1 (sección 13).
+- **Cómo.** El núcleo vive en el esquema `elius` y cada vertical en su esquema `plugin_*`. `platform.plugins` es el registro de plugins y `platform.tenant_plugins` dice cuáles tiene activos cada tenant. Las tablas del plugin se conectan al núcleo con relaciones de uno a muchos y tablas de transición, nunca 1 a 1 (sección 14).
 - **Fuente.** [Mark Richards, Software Architecture Patterns (O’Reilly), cap. Microkernel](https://www.oreilly.com/library/view/software-architecture-patterns/9781098134280/ch04.html)
 
 ### DT-10. Patrones de diseño en la capa de aplicación
@@ -876,7 +992,7 @@ Cada decisión del diseño tiene una razón y una fuente oficial que la respalda
 - **Cómo.** Los permisos por rol viven en `platform.rol_permisos` con nivel (`lectura` o `escritura`). El Operador tiene `catalogo` en lectura y `pagos` en escritura, pero el trigger `app.solo_admin_decide_comprobantes` rechaza cambiar el veredicto de un comprobante si quien lo hace no es Administrador. La consola SQL permite solo Administrador y Super Admin (`app.es_super_admin()`). El panel además oculta los módulos y protege las rutas, como una segunda capa.
 - **Pruebas.** El script de pruebas incluye casos de cada rol: el Operador no aprueba ni edita el catálogo, el Analista lee pero no escribe y el Administrador sí hace ambas cosas.
 
-## 15. Herramientas recomendadas
+## 16. Herramientas recomendadas
 
 Con estas herramientas, el modelo E/R, el diccionario de datos y las pruebas se generan desde el código y no se hacen a mano. Así siempre coinciden con la base real.
 
@@ -899,7 +1015,7 @@ Con estas herramientas, el modelo E/R, el diccionario de datos y las pruebas se 
 3. Generar el diccionario de datos y los diagramas con tbls, y el modelo E/R editable con DBML.
 4. Medir la capacidad de referencia del tablero con pgbench. Por ejemplo, 20 clientes durante 60 segundos con tasa objetivo de 220: `pgbench -n -f reservas.sql -c 20 -T 60 --rate=220 elius`. Si la latencia por retraso crece, la base no sostiene esa tasa.
 
-## 16. Supuestos, riesgos y pendientes
+## 17. Supuestos, riesgos y pendientes
 
 **Supuestos**
 
@@ -920,7 +1036,7 @@ Con estas herramientas, el modelo E/R, el diccionario de datos y las pruebas se 
 
 **Pendientes por validar**
 
-- [ ] Medir las ventas por hora en Potrillos Terraza para dimensionar los picos, y escribir el script de migración de sus datos (sección 13.9).
+- [ ] Medir las ventas por hora en Potrillos Terraza para dimensionar los picos, y escribir el script de migración de sus datos (sección 14.9).
 - [ ] Entrevistar a una aerolínea, o decidir si se reemplaza por otra vertical que sí se pueda entrevistar.
 - [ ] Confirmar volúmenes reales de la veterinaria.
 - [ ] Confirmar las reglas marcadas “por validar” en la sección 9.
@@ -928,7 +1044,7 @@ Con estas herramientas, el modelo E/R, el diccionario de datos y las pruebas se 
 - [ ] Definir el tiempo de retención de la auditoría y de los mensajes.
 - [ ] Confirmar con el docente el alcance de “conexión con usuarios”: usuarios de PostgreSQL, roles de aplicación o ambos.
 
-## 17. Glosario
+## 18. Glosario
 
 | Término | Significado |
 | --- | --- |
@@ -948,7 +1064,7 @@ Con estas herramientas, el modelo E/R, el diccionario de datos y las pruebas se 
 | IATA | Código de 3 letras de un aeropuerto, por ejemplo BOG |
 | E.164 | Formato internacional de teléfono, por ejemplo +573001234567 |
 
-## 18. Fuentes consultadas
+## 19. Fuentes consultadas
 
 Fuentes oficiales consultadas el 20 de noviembre de 2026.
 
