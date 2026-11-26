@@ -17,7 +17,8 @@ select pg_temp.ok(app.mi_rol() = 'administrador' and app.current_tenant_id() = :
 select pg_temp.ok((select count(*) from elius.contactos) > 0, 'Administrador: ve los datos del negocio');
 select pg_temp.ok(pg_temp.intenta('delete from elius.contactos') = '42501', 'Administrador: DELETE bloqueado');
 select pg_temp.ok(pg_temp.intenta('truncate elius.contactos') <> 'ok', 'Administrador: TRUNCATE bloqueado');
-select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now()') = '42501', 'Administrador: no puede dar de baja (eliminado_en)');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where id = (select id from elius.contactos order by creado_en limit 1)') = 'ok', 'Administrador: puede eliminar (desactivar) un cliente');
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = null where eliminado_en is not null') = 'ok', 'Administrador: puede restaurar');
 select pg_temp.ok(pg_temp.intenta('drop table elius.contactos') <> 'ok', 'Administrador: DROP bloqueado');
 select pg_temp.ok(pg_temp.intenta('alter table elius.contactos add column x int') <> 'ok', 'Administrador: ALTER bloqueado');
 select pg_temp.ok(pg_temp.intenta('create table elius.intruso (id int)') <> 'ok', 'Administrador: no crea tablas en el esquema del sistema');
@@ -199,3 +200,41 @@ do $$ declare n int; v text; begin
   if v is null then raise exception 'FALLA 26: falta t43'; end if;
   raise notice 'OK 26: todos los triggers describen su regla (%)', left(v, 40);
 end $$;
+
+-- 27 · Eliminar = desactivar; borrar de verdad solo el CIS adm
+\echo '== 27. Baja lógica y papelera'
+select u.id as u_admin from auth.users u where u.email = 'admin.restaurante@elius.local' \gset
+select u.id as u_trab  from auth.users u where u.email = 'trabajador.restaurante@elius.local' \gset
+select u.id as u_cis   from auth.users u where u.email = 'superadmin.restaurante@elius.local' \gset
+select slug as s_r27 from platform.tenants where slug like 'demo-restaurante-%' order by creado_en limit 1 \gset
+select id as t_r27 from platform.tenants where slug = :'s_r27' \gset
+select id as item27 from elius.items_catalogo where tenant_id = :'t_r27' and eliminado_en is null order by nombre limit 1 \gset
+insert into elius.items_catalogo (tenant_id, nombre, tipo, precio, impuesto_pct, categoria_id) values (:'t_r27', 'Producto de papelera', 'producto', 1000, 0, (select id from elius.categorias_catalogo where tenant_id = :'t_r27' limit 1)) returning id as item_nuevo \gset
+
+-- Administrador desde el panel (API)
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('delete from elius.items_catalogo where id = ''' || :'item_nuevo' || '''') = '42501', 'Panel Administrador: el DELETE real está bloqueado');
+select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set eliminado_en = now() where id = ''' || :'item_nuevo' || '''') = 'ok', 'Panel Administrador: Eliminar = desactivar');
+select pg_temp.ok((select count(*) from elius.v_papelera where tipo = 'producto' and id = :'item_nuevo') = 1, 'Panel Administrador: lo ve en la Papelera');
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_definitivo(''producto'', ''' || :'item_nuevo' || ''')') = '42501', 'Panel Administrador: no borra definitivamente');
+select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set eliminado_en = null where id = ''' || :'item_nuevo' || '''') = 'ok', 'Panel Administrador: restaura');
+select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set eliminado_en = now() where id = ''' || :'item_nuevo' || '''') = 'ok', 'Panel Administrador: vuelve a eliminarlo');
+reset role;
+
+-- Operador desde el panel
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('update elius.contactos set eliminado_en = now() where id = (select id from elius.contactos limit 1)') <> 'ok', 'Panel Operador: no puede eliminar clientes');
+select pg_temp.ok((select count(*) from elius.v_papelera) = 0, 'Panel Operador: no ve la Papelera');
+reset role;
+
+-- CIS adm
+select set_config('request.jwt.claims', json_build_object('sub', :'u_cis', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(app.es_super_admin(), 'CIS adm: es Super Admin');
+select pg_temp.ok(pg_temp.intenta('select elius.eliminar_definitivo(''producto'', ''' || :'item_nuevo' || ''')') = 'ok', 'CIS adm: borra definitivamente lo que está en la Papelera');
+reset role;
+select pg_temp.ok((select count(*) from elius.items_catalogo where id = :'item_nuevo') = 0, 'La fila ya no existe en la base');
+select pg_temp.ok((select count(*) from audit.registros_auditoria where tabla = 'items_catalogo' and operacion = 'DELETE' and (datos_anteriores ->> 'id') = :'item_nuevo') = 1, 'El borrado definitivo quedó en la auditoría');
+select set_config('request.jwt.claims', '', false);

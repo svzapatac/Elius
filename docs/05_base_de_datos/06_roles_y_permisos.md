@@ -92,3 +92,11 @@ Además se usan los roles de Supabase: `anon` (sin ningún permiso sobre datos),
 - El **Operador** también usa la Consola SQL, con las mismas reglas que el Administrador (solo SELECT, INSERT, UPDATE y CREATE en `practica`; sin DROP, DELETE, TRUNCATE, ALTER ni bajas lógicas). Además no puede insertar ni actualizar catálogo, menú, precios ni vuelos: la consola lo rechaza y la RLS lo respalda (su permiso `catalogo` es solo lectura).
 - **Toda acción de cada rol queda en Auditoría**, que ve el Administrador: cambios en tablas, consultas de la consola, intentos bloqueados y mensajes enviados a clientes por una persona (solo datos de control). El panel permite filtrar por rol y por tipo de movimiento.
 - Lo que **no** se audita: lecturas desde las pantallas (abrir una lista no deja huella) y las tablas técnicas de alto volumen (consumo de IA, eventos del embudo, mensajes de Eli y del cliente).
+
+## Eliminar es desactivar; borrar de verdad es del CIS adm
+
+- **Administrador:** puede *eliminar* productos y clientes desde el panel. La fila no se borra: se marca (`eliminado_en`), sale de las listas y aparece en la **Papelera**, desde donde se **restaura**. El historial (órdenes, reservas, auditoría) se conserva.
+- **Operador y Soporte:** no eliminan ni restauran.
+- **CIS adm (Super Administrador de plataforma):** es el único que borra de verdad, con `elius.eliminar_definitivo(tipo, id)` y solo lo que ya está en la Papelera. Si el registro tiene historial, la base lo impide (llave foránea) y queda desactivado.
+- **Cómo se hace cumplir:** el trigger `t00_sin_baja_directa` bloquea todo `DELETE` hecho desde el panel o desde una conexión directa que no sea del CIS adm, y limita quién cambia `eliminado_en`. La Consola SQL sigue sin permitir `DELETE`, `DROP` ni `eliminado_en`.
+- **Auditoría:** cada eliminación, restauración y borrado definitivo queda con el correo, el rol y la conexión de quien lo hizo.
