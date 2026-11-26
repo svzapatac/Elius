@@ -504,26 +504,19 @@ select pg_temp.ok((select responsable_id is null from elius.v_agenda_calendario 
 reset role;
 select set_config('request.jwt.claims', '', false);
 
--- 35 · Flujos de prueba del restaurante: los pasos automáticos hacen lo que dicen
+-- 35 · Flujos de prueba del restaurante: las conversaciones predeterminadas hacen lo que dicen
 select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
 set role authenticated;
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,1)') = 'ok', 'Flujo 1 paso 1: llega el cliente y Eli arma el pedido');
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,3)') = 'ok', 'Flujo 1 paso 3: llega el comprobante de la mitad');
+select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,11)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(1,12)') = 'ok', 'Flujo 1: llega el cliente y Eli arma el pedido');
+select pg_temp.ok((select count(*) from elius.ordenes o join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 1' and o.estado = 'esperando_pago') = 1, 'Flujo 1: el pedido queda esperando pago');
+select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,3)') = 'ok', 'Flujo 1: llega el comprobante de la mitad');
 select pg_temp.ok((select count(*) from elius.comprobantes_pago where veredicto = 'pendiente' and remitente = 'Cliente Flujo 1' and motivo like 'ALERTA: monto%') = 1, 'El comprobante parcial queda pendiente con alerta de monto');
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(2,1)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(2,2)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(2,3)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(2,4)') = 'ok', 'Flujo 2: cuatro comprobantes');
-select pg_temp.ok((select count(*) from elius.comprobantes_pago where motivo like '%comprobante repetido%' and remitente like 'Cliente Flujo 2.%') = 1, 'Flujo 2: el repetido se marca');
-select pg_temp.ok((select count(*) from elius.comprobantes_pago where motivo like '%destinatario distinto%' and remitente like 'Cliente Flujo 2.%') = 1, 'Flujo 2: el destinatario distinto se marca');
-select pg_temp.ok((select count(*) from elius.comprobantes_pago where remitente = 'Cliente Flujo 2.4' and motivo is null) = 1, 'Flujo 2: el correcto no trae alerta');
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(3,1)') = 'ok', 'Flujo 3 paso 1: Eli escala la queja');
-select pg_temp.ok((select (elius.paso_flujo_prueba(3,4)->>'bloqueado') = 'true'), 'Flujo 3: tras escalar, Eli no puede responder (RN-C19)');
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(4,1)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(4,3)') = 'ok', 'Flujo 4: reserva grande y reservas de hoy');
-select pg_temp.ok((select (elius.paso_flujo_prueba(4,2)->>'bloqueado') = 'true'), 'Flujo 4: el cruce de mesa se rechaza');
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(5,1)') = 'ok', 'Flujo 5: datos para intentar romper');
-select pg_temp.ok((select count(*) from elius.pagos p join elius.ordenes o on o.id = p.orden_id join elius.contactos c on c.id = o.contacto_id where c.nombres = 'Cliente Flujo 5 pagado' and p.estado = 'aprobado') = 1, 'Flujo 5: el pedido pagado tiene su pago aprobado');
+select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(2,11)') = 'ok' and pg_temp.intenta('select elius.paso_flujo_prueba(2,12)') = 'ok', 'Flujo 2: el cliente se queja y Eli escala');
+select pg_temp.ok((select count(*) from elius.escalamientos e join elius.conversaciones cv on cv.id = e.conversacion_id join elius.identidades_contacto i on i.id = cv.identidad_id where i.nombre_en_canal = 'Cliente Flujo 2 Prueba' and e.resuelto_en is null and e.asignado_a is not null) = 1, 'Flujo 2: el caso queda asignado por turnos');
+select pg_temp.ok((select (elius.paso_flujo_prueba(2,4)->>'bloqueado') = 'true'), 'Flujo 2: tras escalar, Eli no puede responder (RN-C19)');
 reset role;
--- el Operador no ejecuta los flujos
 select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
 set role authenticated;
-select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,1)') <> 'ok', 'El Operador no ejecuta los flujos de prueba');
+select pg_temp.ok(pg_temp.intenta('select elius.paso_flujo_prueba(1,11)') <> 'ok', 'El Operador no ejecuta los flujos de prueba');
 reset role;
 select set_config('request.jwt.claims', '', false);
