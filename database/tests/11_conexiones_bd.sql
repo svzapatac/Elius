@@ -190,3 +190,12 @@ do $$ declare v record; u uuid; begin
   delete from audit.registros_auditoria where tabla = 'prueba_quien';
   raise notice 'OK 25: la auditoría dice quién: %', v.usuario_email;
 end $$;
+
+-- 26 · Los triggers tienen descripción y la vista los lista
+do $$ declare n int; v text; begin
+  select count(*) into n from elius.v_triggers_tabla where descripcion is null;
+  if n > 0 then raise exception 'FALLA 26: % triggers sin descripción: %', n, (select string_agg(esquema||'.'||tabla||':'||trigger, ', ') from elius.v_triggers_tabla where descripcion is null limit 5); end if;
+  select descripcion into v from elius.v_triggers_tabla where tabla = 'ordenes' and trigger = 't43_proteger_totales';
+  if v is null then raise exception 'FALLA 26: falta t43'; end if;
+  raise notice 'OK 26: todos los triggers describen su regla (%)', left(v, 40);
+end $$;
