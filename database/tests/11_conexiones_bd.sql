@@ -48,18 +48,19 @@ reset session authorization;
 -- Soporte (con la autorización vigente de 7 días)
 set session authorization elius_soporte;
 select platform.usar_negocio(:'s_rest') \gset
-select pg_temp.ok(app.current_tenant_id() = :'t_rest'::uuid and (select count(*) from elius.contactos) > 0, 'Soporte: ve el negocio autorizado');
-select pg_temp.ok(pg_temp.intenta('delete from elius.contactos') = '42501', 'Soporte: DELETE bloqueado');
+select pg_temp.ok(app.current_tenant_id() = :'t_rest'::uuid and (select count(*) from elius.contactos) = 0 and app.mi_rol() = 'soporte', 'Soporte: entra al negocio autorizado pero no ve datos de clientes');
+select pg_temp.intenta('delete from elius.contactos');
 reset session authorization;
+select pg_temp.ok((select count(*) from elius.contactos where tenant_id = :'t_rest') > 0, 'Soporte: DELETE no borra nada');
 update platform.accesos_soporte set vence_en = now() + interval '1 minute', inicio = now() - interval '1 day' where usuario_soporte_id = '00000000-0000-0000-0000-00000000bd04';
 update platform.accesos_soporte set revocado_en = now() where usuario_soporte_id = '00000000-0000-0000-0000-00000000bd04';
 set session authorization elius_soporte;
-select pg_temp.ok((select count(*) from elius.contactos) = 0, 'Soporte: sin autorización vigente no ve datos');
+select pg_temp.ok(app.current_tenant_id() is distinct from :'t_rest'::uuid and app.mi_rol() is null, 'Soporte: sin autorización vigente no entra al negocio');
 reset session authorization;
 select platform.renovar_soporte_bd() > 0 as renovado \gset
 set session authorization elius_soporte;
 select platform.usar_negocio(:'s_rest') \gset
-select pg_temp.ok((select count(*) from elius.contactos) > 0, 'Soporte: renovada la autorización vuelve a ver los datos');
+select pg_temp.ok(app.mi_rol() = 'soporte' and app.current_tenant_id() = :'t_rest'::uuid, 'Soporte: renovada la autorización vuelve a entrar al negocio');
 reset session authorization;
 
 -- Super administrador
@@ -78,3 +79,31 @@ select platform.usar_negocio(:'s_rest') \gset
 select pg_temp.ok(exists (select 1 from elius.v_auditoria where tabla = 'reservas' and rol = 'operador' and datos_nuevos ->> 'novedades' = 'Llega tarde (BD)'), 'Auditoría: el Administrador ve lo que hizo el Trabajador, con su rol');
 reset session authorization;
 drop table if exists practica.mi_prueba_bd;
+
+\echo '== 21. Paneles por rol: Trabajador y Soporte'
+set session authorization elius_trabajador;
+select platform.usar_negocio(:'s_rest') \gset
+select elius.reportar_problema('No me carga la agenda de mañana') as pid \gset
+select pg_temp.ok(:'pid' is not null, 'Trabajador: reporta un problema');
+select pg_temp.ok(pg_temp.intenta('select elius.soporte_resolver_error(null, ''x'')') <> 'ok', 'Trabajador: no puede resolver errores de Soporte');
+select pg_temp.ok((select count(*) from elius.v_soporte_errores) = 0, 'Trabajador: no ve el panel técnico');
+select id as r_id from elius.reservas where estado = 'confirmada' and responsable_id is null order by inicio limit 1 \gset
+select pg_temp.ok(elius.tomar_reserva(:'r_id') = 'Trabajador (BD)', 'Trabajador: toma una reserva y queda como responsable');
+select pg_temp.ok((select responsable_cargo from elius.v_agenda_calendario where reserva_id = :'r_id') = 'Trabajador (BD)', 'la agenda muestra quién tomó la reserva');
+reset session authorization;
+insert into elius.eventos_salida (tenant_id, tipo_evento, entidad, entidad_id, estado, intentos) values (:'t_rest', 'orden.pagada', 'orden', gen_random_uuid(), 'fallido', 3);
+
+set session authorization elius_soporte;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((select count(*) from elius.v_soporte_errores where abierto and origen = 'reporte:operador') >= 1, 'Soporte: ve el problema que reportó el Trabajador');
+select pg_temp.ok((select count(*) from elius.v_soporte_eventos where estado = 'fallido') = 1, 'Soporte: ve los eventos fallidos (sin su contenido)');
+select pg_temp.ok((select count(*) from information_schema.columns where table_schema = 'elius' and table_name = 'v_soporte_eventos' and column_name = 'carga') = 0, 'Soporte: el contenido del evento no se expone');
+select elius.soporte_reintentar_evento((select id from elius.v_soporte_eventos where estado = 'fallido' limit 1)) is null as ok_r \gset
+select pg_temp.ok((select count(*) from elius.v_soporte_eventos where estado = 'fallido') = 0, 'Soporte: reintenta un evento fallido');
+select pg_temp.ok((elius.soporte_estado_integraciones() ->> 'errores_abiertos')::int >= 1, 'Soporte: ve el estado de las integraciones');
+select pg_temp.ok((select count(*) from elius.v_soporte_auditoria) > 0, 'Soporte: ve la auditoría técnica');
+select pg_temp.ok(pg_temp.intenta('select * from elius.ordenes') = 'ok' and (select count(*) from elius.ordenes) = 0, 'Soporte: no ve órdenes');
+select pg_temp.ok(pg_temp.intenta('update elius.items_catalogo set precio = 1') = 'ok'
+                  and (select count(*) from elius.items_catalogo) = 0, 'Soporte: no ve ni cambia el catálogo');
+select pg_temp.ok(pg_temp.intenta('select elius.tomar_reserva(gen_random_uuid())') <> 'ok', 'Soporte: no toma reservas');
+reset session authorization;

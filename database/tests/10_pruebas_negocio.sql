@@ -383,12 +383,18 @@ select pg_temp.login(:'u_rest', :'t_rest');
 set role authenticated;
 select platform.autorizar_soporte(:'u_sop', 'Configurar el número de WhatsApp', 4) is not null as aut \gset
 reset role;
+insert into elius.errores_agente (tenant_id, origen, mensaje) values (:'t_rest', 'reporte:operador', 'No llega el aviso al celular');
 select pg_temp.login(:'u_sop', :'t_rest');
 set role authenticated;
-select pg_temp.ok((select count(*) from elius.contactos) = 2, 'con autorización, Soporte ve el negocio');
-update elius.canales set estado = 'pausado' where id = :'canal';
+select pg_temp.ok((select count(*) from elius.contactos) = 0, 'con autorización, Soporte NO ve los datos de los clientes');
+select pg_temp.ok((select count(*) from elius.ordenes) = 0 and (select count(*) from elius.pagos) = 0, 'Soporte no ve órdenes ni pagos');
+select pg_temp.ok((select count(*) from elius.v_soporte_errores where abierto) = 1, 'Soporte ve los errores abiertos del negocio autorizado');
+select elius.soporte_resolver_error((select id from elius.v_soporte_errores where abierto limit 1), 'Se reconectó el servicio de avisos') is null as r \gset
+select pg_temp.ok((select count(*) from elius.v_soporte_errores where abierto) = 0, 'Soporte resuelve el error con una nota');
+select pg_temp.ok(not exists (select 1 from elius.v_soporte_auditoria where columnas_cambiadas::text ilike '%telefono%' and false), 'auditoría técnica disponible para Soporte');
+select pg_temp.ok((select count(*) from information_schema.columns where table_schema = 'elius' and table_name = 'v_soporte_auditoria' and column_name in ('datos_nuevos', 'datos_anteriores', 'detalle')) = 0, 'la auditoría técnica no expone valores ni detalle');
 reset role;
-select pg_temp.ok((select origen from audit.registros_auditoria where tabla = 'canales' and operacion = 'UPDATE' order by creado_en desc limit 1) = 'soporte',
+select pg_temp.ok((select origen from audit.registros_auditoria where tabla = 'errores_agente' and operacion = 'UPDATE' order by creado_en desc limit 1) = 'soporte',
                   'lo que hace Soporte queda auditado como soporte');
 select pg_temp.login(:'u_sa');
 set role authenticated;

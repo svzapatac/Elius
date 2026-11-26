@@ -56,3 +56,17 @@ select * from elius.contactos;                  -- solo los de ese negocio
 | Soporte sin autorización vigente | No ve datos |
 
 Pruebas automáticas: `database/tests/11_conexiones_bd.sql`.
+
+## Paneles funcionales por rol (migración 2800)
+
+Cada rol tiene su propio panel con funciones reales, y Soporte ya **no** ve los datos del negocio:
+
+| Rol | Qué hace en su panel |
+|---|---|
+| Trabajador (Operador) | Ve la agenda, **toma una reserva** (queda como responsable), marca **llegó / no llegó**, atiende conversaciones y comprobantes, y **reporta un problema** que llega a Soporte |
+| Soporte al cliente | Elige un negocio que le autorizaron (máx. 7 días) y ve solo lo técnico: **errores** (los de Eli y los que reporta el Trabajador), **eventos de salida fallidos** (sin su contenido), **auditoría técnica** (rol, tabla, operación y columnas cambiadas, sin valores) y el **estado de las integraciones**. Puede **marcar un error como resuelto** (con nota) y **reintentar un evento** |
+| Administrador | Todo lo del negocio, más el Centro de soporte |
+
+Lo que Soporte **ya no puede ver**: clientes, conversaciones, órdenes, pagos, catálogo, configuración ni usuarios (antes tenía «con autorización» en todo eso). Solo accede a vistas y funciones acotadas: `v_soporte_errores`, `v_soporte_eventos`, `v_soporte_auditoria`, `soporte_resolver_error`, `soporte_reintentar_evento`, `soporte_estado_integraciones`.
+
+Tres servicios en Easypanel, uno por rol (`VITE_PANEL=administrador | trabajador | soporte`): ver el README del panel.
