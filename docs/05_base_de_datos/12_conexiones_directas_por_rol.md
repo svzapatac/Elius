@@ -118,3 +118,9 @@ Las migraciones 3100 y 3200 crean, solo para los negocios de demostración, 12 u
 
 - **Abrir todos los roles de un negocio al mismo tiempo.** Cada pestaña del panel guarda su propia sesión (en `sessionStorage`, con una llave propia por pestaña). Así, en el mismo navegador se pueden tener abiertas a la vez una pestaña con el Superadministrador, otra con el Administrador, otra con el Trabajador y otra con Soporte, sin que una cierre a la otra. Al cerrar la pestaña se cierra esa sesión.
 - **Todo cambio queda en la auditoría.** Todas las tablas del negocio, incluidas las de los plugins, llevan el disparador de auditoría (`t02_auditoria`); solo se excluyen las técnicas de alto volumen. Lo que no pasa por esos disparadores (el reintento de un evento de salida por Soporte) se registra de forma explícita (migración 3300). El Administrador lo ve en la pantalla Auditoría, que se actualiza cada 2 segundos, con el rol y el cargo de quien lo hizo. La sección 23 de las pruebas lo comprueba para Trabajador (restaurante, veterinaria, aerolínea) y Soporte.
+
+## El Trabajador y Soporte, en vivo
+
+- **Por responder.** En "Mi trabajo" (restaurante, veterinaria y aerolínea) hay una pestaña "Por responder" con los casos que Eli pasó a una persona: cuántos son, el motivo, el cliente, quién los tiene asignado y cuánto llevan esperando. Desde ahí abre el chat o los marca como resueltos. Se actualiza cada 4 segundos.
+- **Mis reportes.** En "Reportar un problema" el Trabajador ve sus reportes con su estado. Cuando Soporte lo marca como resuelto, en unos 3 segundos aparece "Resuelto" con la nota de Soporte (vista `elius.v_mis_reportes`, migración 3400).
+- **Centro de soporte y Auditoría** también se refrescan solos, así que lo que Soporte hace en una pestaña se ve en las demás sin recargar.

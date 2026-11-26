@@ -151,4 +151,18 @@ select platform.usar_negocio(:'s_v') \gset
 select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_vet' and tabla = 'atenciones' and rol = 'operador') >= 1, 'Auditoría: el Trabajador registró signos y cerró una atención');
 select platform.usar_negocio(:'s_a') \gset
 select pg_temp.ok((select count(*) from elius.v_auditoria where esquema = 'plugin_airline' and tabla = 'tiquetes' and rol = 'operador') >= 1, 'Auditoría: el Trabajador hizo un check-in');
+-- El Trabajador ve en vivo cómo Soporte atiende su reporte
+reset session authorization;
+set session authorization elius_trabajador;
+select platform.usar_negocio(:'s_rest') \gset
+select elius.reportar_problema('La impresora de comandas no responde') as p2 \gset
+select pg_temp.ok((select count(*) from elius.v_mis_reportes where id = :'p2' and abierto) = 1, 'Trabajador: ve su reporte como abierto');
+reset session authorization;
+set session authorization elius_soporte;
+select platform.usar_negocio(:'s_rest') \gset
+select elius.soporte_resolver_error(:'p2', 'Se reinició el servicio de impresión') is null as ok_res \gset
+reset session authorization;
+set session authorization elius_trabajador;
+select platform.usar_negocio(:'s_rest') \gset
+select pg_temp.ok((select count(*) from elius.v_mis_reportes where id = :'p2' and not abierto and notas like '%reinició el servicio%') = 1, 'Trabajador: ve que Soporte lo resolvió y con qué nota');
 reset session authorization;
