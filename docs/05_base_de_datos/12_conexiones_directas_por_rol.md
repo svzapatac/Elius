@@ -97,3 +97,18 @@ update auth.users set encrypted_password = extensions.crypt('una-clave-larga', e
 ```
 
 Es distinta de la contraseña de la conexión directa (`alter role elius_trabajador password '…'`).
+
+## Un usuario por rol y por tipo de negocio
+
+La migración 3100 crea, solo para los negocios de demostración, estos usuarios (sin contraseña; se fija con el `update` de arriba):
+
+| Correo | Rol | Negocio |
+|---|---|---|
+| `trabajador.restaurante@elius.local` | Trabajador | Restaurante |
+| `trabajador.veterinaria@elius.local` | Trabajador | Veterinaria |
+| `trabajador.aerolinea@elius.local` | Trabajador | Aerolínea |
+| `admin.restaurante@elius.local` | Administrador | Restaurante |
+| `admin.veterinaria@elius.local` | Administrador | Veterinaria |
+| `admin.aerolinea@elius.local` | Administrador | Aerolínea |
+
+Cada uno pertenece a un solo negocio, así que al entrar el panel lo lleva directo a su pantalla, sin selector. Los negocios demo nuevos reciben estas asignaciones automáticamente (disparador `t91`).
