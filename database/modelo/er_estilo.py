@@ -4,8 +4,9 @@ import html, os, subprocess, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo import TABLAS, nombre_completo, fks
 
-SALIDA = sys.argv[1] if len(sys.argv) > 1 else "er"
-os.makedirs(SALIDA, exist_ok=True)
+SALIDA = sys.argv[1] if len(sys.argv) > 1 and __name__ == "__main__" else "er"
+if __name__ == "__main__":
+    os.makedirs(SALIDA, exist_ok=True)
 
 # (archivo, título, color de encabezado, [esquema.tabla...]) · "general" o "plugin"
 M = [
@@ -118,14 +119,15 @@ def dibujar(archivo, titulo, propias, rels, compacto=False, rank="TB"):
 
 
 R = relaciones()
-# Vistas por módulo
-for i, (a, tit, _c, _g, ts) in enumerate(M):
-    p = set(ts.split())
-    dibujar(a, tit, p, [r for r in R if r[0] in p or (r[2] in p and False)])
-# Modelo general completo y plugins completos
-for archivo, tit, grupo in (("00a-modelo-general-completo", "Elius · Modelo general (todas las tablas)", "general"),
-                            ("00b-plugins-completo", "Elius · Plugins: veterinaria, restaurante y aerolínea", "plugin"),
-                            ("00-modelo-er-completo", "Elius · Modelo E/R completo (83 tablas)", None)):
-    p = {n for n in IDX if grupo is None or M[MOD[n]][3] == grupo}
-    dibujar(archivo, tit, p, [r for r in R if r[0] in p and r[2] in p])
-print("ok", len(os.listdir(SALIDA)))
+if __name__ == "__main__":
+    # Vistas por módulo
+    for i, (a, tit, _c, _g, ts) in enumerate(M):
+        p = set(ts.split())
+        dibujar(a, tit, p, [r for r in R if r[0] in p or (r[2] in p and False)])
+    # Modelo general completo y plugins completos
+    for archivo, tit, grupo in (("00a-modelo-general-completo", "Elius · Modelo general (todas las tablas)", "general"),
+                                ("00b-plugins-completo", "Elius · Plugins: veterinaria, restaurante y aerolínea", "plugin"),
+                                ("00-modelo-er-completo", "Elius · Modelo E/R completo (87 tablas)", None)):
+        p = {n for n in IDX if grupo is None or M[MOD[n]][3] == grupo}
+        dibujar(archivo, tit, p, [r for r in R if r[0] in p and r[2] in p])
+    print("ok", len(os.listdir(SALIDA)))
