@@ -12,8 +12,8 @@
 <text text-anchor="start" x="593.5" y="-835" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="30.00">PLUGIN · Restaurante</text>
 <g id="clust1" class="cluster">
 <title>cluster_1</title>
-<path fill="#f5f7fb" stroke="#dde2ee" d="M521,-8C521,-8 841,-8 841,-8 847,-8 853,-14 853,-20 853,-20 853,-66 853,-66 853,-72 847,-78 841,-78 841,-78 521,-78 521,-78 515,-78 509,-72 509,-66 509,-66 509,-20 509,-20 509,-14 515,-8 521,-8"/>
-<text text-anchor="start" x="517" y="-62.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="16.00" fill="#0033dd">Roles, permisos, accesos y auditoría</text>
+<path fill="#f5f7fb" stroke="#dde2ee" d="M320,-8C320,-8 640,-8 640,-8 646,-8 652,-14 652,-20 652,-20 652,-66 652,-66 652,-72 646,-78 640,-78 640,-78 320,-78 320,-78 314,-78 308,-72 308,-66 308,-66 308,-20 308,-20 308,-14 314,-8 320,-8"/>
+<text text-anchor="start" x="316" y="-62.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="16.00" fill="#0033dd">Roles, permisos, accesos y auditoría</text>
 </g>
 <g id="clust2" class="cluster">
 <title>cluster_4</title>
@@ -26,17 +26,17 @@
 <text text-anchor="start" x="1278" y="-497.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="16.00" fill="#0b6e4f">Órdenes, pagos y Factus Pay</text>
 </g>
 <g id="clust4" class="cluster">
-<title>cluster_9</title>
+<title>cluster_10</title>
 <path fill="#f5f7fb" stroke="#dde2ee" d="M20,-122C20,-122 1047,-122 1047,-122 1053,-122 1059,-128 1059,-134 1059,-134 1059,-801 1059,-801 1059,-807 1053,-813 1047,-813 1047,-813 20,-813 20,-813 14,-813 8,-807 8,-801 8,-801 8,-134 8,-134 8,-128 14,-122 20,-122"/>
 <text text-anchor="start" x="436.5" y="-797.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="16.00" fill="#c2410c">PLUGIN · Restaurante</text>
 </g>
 <!-- platform.membresias -->
 <g id="node1" class="node">
 <title>platform.membresias</title>
-<polygon fill="white" stroke="transparent" points="626,-16 626,-44 736,-44 736,-16 626,-16"/>
-<polygon fill="#0033dd" stroke="transparent" points="627,-17 627,-43 735,-43 735,-17 627,-17"/>
-<text text-anchor="start" x="633" y="-26.6" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="13.00" fill="white">MEMBRESIAS</text>
-<polygon fill="none" stroke="#8a93a3" points="626,-16 626,-44 736,-44 736,-16 626,-16"/>
+<polygon fill="white" stroke="transparent" points="425,-16 425,-44 535,-44 535,-16 425,-16"/>
+<polygon fill="#0033dd" stroke="transparent" points="426,-17 426,-43 534,-43 534,-17 426,-17"/>
+<text text-anchor="start" x="432" y="-26.6" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="13.00" fill="white">MEMBRESIAS</text>
+<polygon fill="none" stroke="#8a93a3" points="425,-16 425,-44 535,-44 535,-16 425,-16"/>
 </g>
 <!-- elius.items_catalogo -->
 <g id="node2" class="node">
@@ -70,414 +70,40 @@
 <text text-anchor="start" x="1285" y="-212.6" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="13.00" fill="white">ORDENES</text>
 <polygon fill="none" stroke="#8a93a3" points="1278,-202 1278,-230 1362,-230 1362,-202 1278,-202"/>
 </g>
-<!-- plugin_restaurant.item_grupos_modificador -->
+<!-- plugin_restaurant.estaciones_cocina -->
 <g id="node6" class="node">
-<title>plugin_restaurant.item_grupos_modificador</title>
-<polygon fill="white" stroke="transparent" points="264.5,-389.5 264.5,-540.5 505.5,-540.5 505.5,-389.5 264.5,-389.5"/>
-<polygon fill="#c2410c" stroke="transparent" points="266,-516 266,-539 505,-539 505,-516 266,-516"/>
-<text text-anchor="start" x="270" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ITEM_GRUPOS_MODIFICADOR</text>
-<polygon fill="#e9eefc" stroke="transparent" points="266,-495 266,-516 358,-516 358,-495 266,-495"/>
-<text text-anchor="start" x="270" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="358,-495 358,-516 449,-516 449,-495 358,-495"/>
-<text text-anchor="start" x="362" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="449,-495 449,-516 505,-516 505,-495 449,-495"/>
-<text text-anchor="start" x="485" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="266,-474 266,-495 358,-495 358,-474 266,-474"/>
-<text text-anchor="start" x="270" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="358,-474 358,-495 449,-495 449,-474 358,-474"/>
-<text text-anchor="start" x="362" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="449,-474 449,-495 505,-495 505,-474 449,-474"/>
-<text text-anchor="start" x="486" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="266,-453 266,-474 358,-474 358,-453 266,-453"/>
-<text text-anchor="start" x="270" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="358,-453 358,-474 449,-474 449,-453 358,-453"/>
-<text text-anchor="start" x="362" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">grupo_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="449,-453 449,-474 505,-474 505,-453 449,-453"/>
-<text text-anchor="start" x="486" y="-462" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="266,-432 266,-453 358,-453 358,-432 266,-432"/>
-<text text-anchor="start" x="270" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="358,-432 358,-453 449,-453 449,-432 358,-432"/>
-<text text-anchor="start" x="362" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">minimo</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="449,-432 449,-453 505,-453 505,-432 449,-432"/>
-<text text-anchor="start" x="497" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="266,-411 266,-432 358,-432 358,-411 266,-411"/>
-<text text-anchor="start" x="270" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#ffffff" stroke="transparent" points="358,-411 358,-432 449,-432 449,-411 358,-411"/>
-<text text-anchor="start" x="362" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">maximo</text>
-<polygon fill="#ffffff" stroke="transparent" points="449,-411 449,-432 505,-432 505,-411 449,-411"/>
-<text text-anchor="start" x="497" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="266,-390 266,-411 358,-411 358,-390 266,-390"/>
-<text text-anchor="start" x="270" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="358,-390 358,-411 449,-411 449,-390 358,-390"/>
-<text text-anchor="start" x="362" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">orden</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="449,-390 449,-411 505,-411 505,-390 449,-390"/>
-<text text-anchor="start" x="497" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="264.5,-389.5 264.5,-540.5 505.5,-540.5 505.5,-389.5 264.5,-389.5"/>
-</g>
-<!-- plugin_restaurant.item_grupos_modificador&#45;&gt;elius.items_catalogo -->
-<g id="edge4" class="edge">
-<title>plugin_restaurant.item_grupos_modificador&#45;&gt;elius.items_catalogo</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M512.63,-382.9C516.09,-381.51 519.55,-380.21 523,-379 638.38,-338.68 675.94,-368.87 796,-346 814.96,-342.39 819.09,-338.82 838,-335 939.22,-314.55 976.66,-350.18 1068,-302 1096.18,-287.13 1119.46,-257.92 1133.04,-237.93"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="505.8,-385.88 495.93,-385.76 501.67,-387.68 497.55,-389.47 497.55,-389.47 497.55,-389.47 501.67,-387.68 499.16,-393.19 505.8,-385.88 505.8,-385.88"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="509.1" cy="-384.44" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1133.84,-228.53 1141.36,-233.48 1140.37,-234.99 1132.85,-230.04 1133.84,-228.53"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1138.09,-230.26 1135.62,-234.02 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1131.37,-232.29 1138.89,-237.24 1137.9,-238.75 1130.38,-233.8 1131.37,-232.29"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1135.62,-234.02 1133.15,-237.77 "/>
-<text text-anchor="middle" x="849.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
-</g>
-<!-- plugin_restaurant.grupos_modificador -->
-<g id="node10" class="node">
-<title>plugin_restaurant.grupos_modificador</title>
-<polygon fill="white" stroke="transparent" points="111.5,-172 111.5,-260 306.5,-260 306.5,-172 111.5,-172"/>
-<polygon fill="#c2410c" stroke="transparent" points="113,-236 113,-259 306,-259 306,-236 113,-236"/>
-<text text-anchor="start" x="117" y="-243.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">GRUPOS_MODIFICADOR</text>
-<polygon fill="#e9eefc" stroke="transparent" points="113,-215 113,-236 174,-236 174,-215 113,-215"/>
-<text text-anchor="start" x="117" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="174,-215 174,-236 266,-236 266,-215 174,-215"/>
-<text text-anchor="start" x="178" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="266,-215 266,-236 306,-236 306,-215 266,-215"/>
-<text text-anchor="start" x="286" y="-224" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="113,-194 113,-215 174,-215 174,-194 113,-194"/>
-<text text-anchor="start" x="117" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="174,-194 174,-215 266,-215 266,-194 174,-194"/>
-<text text-anchor="start" x="178" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="266,-194 266,-215 306,-215 306,-194 266,-194"/>
-<text text-anchor="start" x="298" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="113,-173 113,-194 174,-194 174,-173 113,-173"/>
-<text text-anchor="start" x="117" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#ffffff" stroke="transparent" points="174,-173 174,-194 266,-194 266,-173 174,-173"/>
-<text text-anchor="start" x="178" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">descripcion</text>
-<polygon fill="#ffffff" stroke="transparent" points="266,-173 266,-194 306,-194 306,-173 266,-173"/>
-<text text-anchor="start" x="298" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="111.5,-172 111.5,-260 306.5,-260 306.5,-172 111.5,-172"/>
-</g>
-<!-- plugin_restaurant.item_grupos_modificador&#45;&gt;plugin_restaurant.grupos_modificador -->
-<g id="edge5" class="edge">
-<title>plugin_restaurant.item_grupos_modificador&#45;&gt;plugin_restaurant.grupos_modificador</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M322.2,-375.86C296.42,-339.68 267.49,-299.09 245.33,-267.99"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="326.49,-381.89 328.42,-391.57 329.11,-385.56 331.72,-389.22 331.72,-389.22 331.72,-389.22 329.11,-385.56 335.01,-386.87 326.49,-381.89 326.49,-381.89"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="324.4" cy="-378.96" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="236.71,-263.64 244.04,-258.41 245.08,-259.88 237.75,-265.1 236.71,-263.64"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="239.85,-260.29 242.46,-263.96 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="239.32,-267.3 246.65,-262.08 247.69,-263.54 240.36,-268.77 239.32,-267.3"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="242.46,-263.96 245.07,-267.62 "/>
-<text text-anchor="middle" x="312.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">grupo</text>
-</g>
-<!-- plugin_restaurant.item_alergenos -->
-<g id="node7" class="node">
-<title>plugin_restaurant.item_alergenos</title>
-<polygon fill="white" stroke="transparent" points="541.5,-400 541.5,-530 692.5,-530 692.5,-400 541.5,-400"/>
-<polygon fill="#c2410c" stroke="transparent" points="543,-506 543,-529 692,-529 692,-506 543,-506"/>
-<text text-anchor="start" x="547" y="-513.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ITEM_ALERGENOS</text>
-<polygon fill="#e9eefc" stroke="transparent" points="543,-485 543,-506 581,-506 581,-485 543,-485"/>
-<text text-anchor="start" x="547" y="-493" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="581,-485 581,-506 663,-506 663,-485 581,-485"/>
-<text text-anchor="start" x="585" y="-492.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="663,-485 663,-506 692,-506 692,-485 663,-485"/>
-<text text-anchor="start" x="672" y="-494" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="543,-464 543,-485 581,-485 581,-464 543,-464"/>
-<text text-anchor="start" x="547" y="-472" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="581,-464 581,-485 663,-485 663,-464 581,-464"/>
-<text text-anchor="start" x="585" y="-471.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="663,-464 663,-485 692,-485 692,-464 663,-464"/>
-<text text-anchor="start" x="673" y="-473" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="543,-443 543,-464 581,-464 581,-443 543,-443"/>
-<text text-anchor="start" x="547" y="-451" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="581,-443 581,-464 663,-464 663,-443 581,-443"/>
-<text text-anchor="start" x="585" y="-450.4" font-family="Helvetica,sans-Serif" font-size="12.00">alergeno_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="663,-443 663,-464 692,-464 692,-443 663,-443"/>
-<text text-anchor="start" x="673" y="-452" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="543,-422 543,-443 581,-443 581,-422 543,-422"/>
-<text text-anchor="start" x="547" y="-430" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="581,-422 581,-443 663,-443 663,-422 581,-422"/>
-<text text-anchor="start" x="585" y="-429.4" font-family="Helvetica,sans-Serif" font-size="12.00">nivel</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="663,-422 663,-443 692,-443 692,-422 663,-422"/>
-<text text-anchor="start" x="684" y="-429.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="543,-401 543,-422 581,-422 581,-401 543,-401"/>
-<text text-anchor="start" x="547" y="-409" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#ffffff" stroke="transparent" points="581,-401 581,-422 663,-422 663,-401 581,-401"/>
-<text text-anchor="start" x="585" y="-408.4" font-family="Helvetica,sans-Serif" font-size="12.00">nota</text>
-<polygon fill="#ffffff" stroke="transparent" points="663,-401 663,-422 692,-422 692,-401 663,-401"/>
-<text text-anchor="start" x="684" y="-408.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="541.5,-400 541.5,-530 692.5,-530 692.5,-400 541.5,-400"/>
-</g>
-<!-- plugin_restaurant.item_alergenos&#45;&gt;elius.items_catalogo -->
-<g id="edge1" class="edge">
-<title>plugin_restaurant.item_alergenos&#45;&gt;elius.items_catalogo</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M692.2,-390.29C698.31,-386.11 704.6,-382.28 711,-379 747.11,-360.49 1032.79,-322.18 1068,-302 1095.49,-286.25 1118.79,-257.5 1132.58,-237.84"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="686.37,-394.58 676.73,-396.67 682.75,-397.26 679.13,-399.93 679.13,-399.93 679.13,-399.93 682.75,-397.26 681.54,-403.19 686.37,-394.58 686.37,-394.58"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="689.27" cy="-392.45" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1133.5,-228.5 1140.94,-233.56 1139.93,-235.05 1132.49,-229.98 1133.5,-228.5"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1137.73,-230.29 1135.2,-234.01 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1130.97,-232.22 1138.41,-237.28 1137.39,-238.77 1129.96,-233.7 1130.97,-232.22"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1135.2,-234.01 1132.66,-237.73 "/>
-<text text-anchor="middle" x="929.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
-</g>
-<!-- plugin_restaurant.alergenos -->
-<g id="node13" class="node">
-<title>plugin_restaurant.alergenos</title>
-<polygon fill="white" stroke="transparent" points="429.5,-172 429.5,-260 562.5,-260 562.5,-172 429.5,-172"/>
-<polygon fill="#c2410c" stroke="transparent" points="431,-236 431,-259 562,-259 562,-236 431,-236"/>
-<text text-anchor="start" x="449" y="-243.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ALERGENOS</text>
-<polygon fill="#e9eefc" stroke="transparent" points="431,-215 431,-236 461,-236 461,-215 431,-215"/>
-<text text-anchor="start" x="435" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="461,-215 461,-236 538,-236 538,-215 461,-215"/>
-<text text-anchor="start" x="465" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="538,-215 538,-236 562,-236 562,-215 538,-215"/>
-<text text-anchor="start" x="542" y="-224" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="431,-194 431,-215 461,-215 461,-194 431,-194"/>
-<text text-anchor="start" x="435" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="461,-194 461,-215 538,-215 538,-194 461,-194"/>
-<text text-anchor="start" x="465" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="538,-194 538,-215 562,-215 562,-194 538,-194"/>
-<text text-anchor="start" x="554" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="431,-173 431,-194 461,-194 461,-173 431,-173"/>
-<text text-anchor="start" x="435" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#ffffff" stroke="transparent" points="461,-173 461,-194 538,-194 538,-173 461,-173"/>
-<text text-anchor="start" x="465" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">descripcion</text>
-<polygon fill="#ffffff" stroke="transparent" points="538,-173 538,-194 562,-194 562,-173 538,-173"/>
-<text text-anchor="start" x="554" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="429.5,-172 429.5,-260 562.5,-260 562.5,-172 429.5,-172"/>
-</g>
-<!-- plugin_restaurant.item_alergenos&#45;&gt;plugin_restaurant.alergenos -->
-<g id="edge2" class="edge">
-<title>plugin_restaurant.item_alergenos&#45;&gt;plugin_restaurant.alergenos</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M578.39,-385.19C559.72,-347.07 537.83,-302.38 521.3,-268.65"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="581.57,-391.67 581.89,-401.53 583.54,-395.71 585.52,-399.75 585.52,-399.75 585.52,-399.75 583.54,-395.71 589.16,-397.97 581.57,-391.67 581.57,-391.67"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="579.98" cy="-388.43" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="513.58,-263.11 521.66,-259.15 522.45,-260.77 514.37,-264.73 513.58,-263.11"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="517.22,-260.33 519.2,-264.37 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="515.56,-267.15 523.64,-263.2 524.43,-264.81 516.35,-268.77 515.56,-267.15"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="519.2,-264.37 521.18,-268.41 "/>
-<text text-anchor="middle" x="580" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">alergeno</text>
-</g>
-<!-- plugin_restaurant.menu_dia_items -->
-<g id="node8" class="node">
-<title>plugin_restaurant.menu_dia_items</title>
-<polygon fill="white" stroke="transparent" points="728.5,-389.5 728.5,-540.5 875.5,-540.5 875.5,-389.5 728.5,-389.5"/>
-<polygon fill="#c2410c" stroke="transparent" points="730,-516 730,-539 875,-539 875,-516 730,-516"/>
-<text text-anchor="start" x="734" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">MENU_DIA_ITEMS</text>
-<polygon fill="#e9eefc" stroke="transparent" points="730,-495 730,-516 771,-516 771,-495 730,-495"/>
-<text text-anchor="start" x="734" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="771,-495 771,-516 845,-516 845,-495 771,-495"/>
-<text text-anchor="start" x="775" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="845,-495 845,-516 875,-516 875,-495 845,-495"/>
-<text text-anchor="start" x="855" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="730,-474 730,-495 771,-495 771,-474 730,-474"/>
-<text text-anchor="start" x="734" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="771,-474 771,-495 845,-495 845,-474 771,-474"/>
-<text text-anchor="start" x="775" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">menu_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="845,-474 845,-495 875,-495 875,-474 845,-474"/>
-<text text-anchor="start" x="856" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="730,-453 730,-474 771,-474 771,-453 730,-453"/>
-<text text-anchor="start" x="734" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="771,-453 771,-474 845,-474 845,-453 771,-453"/>
-<text text-anchor="start" x="775" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="845,-453 845,-474 875,-474 875,-453 845,-453"/>
-<text text-anchor="start" x="856" y="-462" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="730,-432 730,-453 771,-453 771,-432 730,-432"/>
-<text text-anchor="start" x="734" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="771,-432 771,-453 845,-453 845,-432 771,-432"/>
-<text text-anchor="start" x="775" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">seccion</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="845,-432 845,-453 875,-453 875,-432 845,-432"/>
-<text text-anchor="start" x="867" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="730,-411 730,-432 771,-432 771,-411 730,-411"/>
-<text text-anchor="start" x="734" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#ffffff" stroke="transparent" points="771,-411 771,-432 845,-432 845,-411 771,-411"/>
-<text text-anchor="start" x="775" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">posicion</text>
-<polygon fill="#ffffff" stroke="transparent" points="845,-411 845,-432 875,-432 875,-411 845,-411"/>
-<text text-anchor="start" x="867" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="730,-390 730,-411 771,-411 771,-390 730,-390"/>
-<text text-anchor="start" x="734" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="771,-390 771,-411 845,-411 845,-390 771,-390"/>
-<text text-anchor="start" x="775" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">disponible</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="845,-390 845,-411 875,-411 875,-390 845,-390"/>
-<text text-anchor="start" x="867" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="728.5,-389.5 728.5,-540.5 875.5,-540.5 875.5,-389.5 728.5,-389.5"/>
-</g>
-<!-- plugin_restaurant.menu_dia_items&#45;&gt;elius.items_catalogo -->
-<g id="edge14" class="edge">
-<title>plugin_restaurant.menu_dia_items&#45;&gt;elius.items_catalogo</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M888.79,-382.52C890.53,-381.32 892.26,-380.14 894,-379 964.68,-332.57 999.29,-351.31 1068,-302 1093.34,-283.81 1116.72,-256.29 1131.14,-237.53"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="882.86,-386.91 873.21,-389 879.24,-389.58 875.62,-392.26 875.62,-392.26 875.62,-392.26 879.24,-389.58 878.03,-395.51 882.86,-386.91 882.86,-386.91"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="885.75" cy="-384.77" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1132.62,-228.09 1139.81,-233.5 1138.73,-234.94 1131.54,-229.53 1132.62,-228.09"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1136.76,-230.08 1134.05,-233.67 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1129.91,-231.68 1137.1,-237.1 1136.02,-238.53 1128.83,-233.12 1129.91,-231.68"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1134.05,-233.67 1131.34,-237.26 "/>
-<text text-anchor="middle" x="1014.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
-</g>
-<!-- plugin_restaurant.menus_dia -->
-<g id="node17" class="node">
-<title>plugin_restaurant.menus_dia</title>
-<polygon fill="white" stroke="transparent" points="598.5,-130 598.5,-302 763.5,-302 763.5,-130 598.5,-130"/>
-<polygon fill="#c2410c" stroke="transparent" points="600,-278 600,-301 763,-301 763,-278 600,-278"/>
-<text text-anchor="start" x="636" y="-285.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">MENUS_DIA</text>
-<polygon fill="#e9eefc" stroke="transparent" points="600,-257 600,-278 636,-278 636,-257 600,-257"/>
-<text text-anchor="start" x="604" y="-265" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="636,-257 636,-278 739,-278 739,-257 636,-257"/>
-<text text-anchor="start" x="640" y="-264.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="739,-257 739,-278 763,-278 763,-257 739,-257"/>
-<text text-anchor="start" x="743" y="-266" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="600,-236 600,-257 636,-257 636,-236 600,-236"/>
-<text text-anchor="start" x="604" y="-244" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="636,-236 636,-257 739,-257 739,-236 636,-236"/>
-<text text-anchor="start" x="640" y="-243.4" font-family="Helvetica,sans-Serif" font-size="12.00">confirmado_por</text>
-<polygon fill="#e9eefc" stroke="transparent" points="739,-236 739,-257 763,-257 763,-236 739,-236"/>
-<text text-anchor="start" x="744" y="-245" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#ffffff" stroke="transparent" points="600,-215 600,-236 636,-236 636,-215 600,-215"/>
-<text text-anchor="start" x="604" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">date</text>
-<polygon fill="#ffffff" stroke="transparent" points="636,-215 636,-236 739,-236 739,-215 636,-215"/>
-<text text-anchor="start" x="640" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">fecha</text>
-<polygon fill="#ffffff" stroke="transparent" points="739,-215 739,-236 763,-236 763,-215 739,-215"/>
-<text text-anchor="start" x="755" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="600,-194 600,-215 636,-215 636,-194 600,-194"/>
-<text text-anchor="start" x="604" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="636,-194 636,-215 739,-215 739,-194 636,-194"/>
-<text text-anchor="start" x="640" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">precio_base</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="739,-194 739,-215 763,-215 763,-194 739,-194"/>
-<text text-anchor="start" x="755" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="600,-173 600,-194 636,-194 636,-173 600,-173"/>
-<text text-anchor="start" x="604" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#ffffff" stroke="transparent" points="636,-173 636,-194 739,-194 739,-173 636,-173"/>
-<text text-anchor="start" x="640" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">url_foto</text>
-<polygon fill="#ffffff" stroke="transparent" points="739,-173 739,-194 763,-194 763,-173 739,-173"/>
-<text text-anchor="start" x="755" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="600,-152 600,-173 636,-173 636,-152 600,-152"/>
-<text text-anchor="start" x="604" y="-160" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">fecha</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="636,-152 636,-173 739,-173 739,-152 636,-152"/>
-<text text-anchor="start" x="640" y="-159.4" font-family="Helvetica,sans-Serif" font-size="12.00">confirmado_en</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="739,-152 739,-173 763,-173 763,-152 739,-152"/>
-<text text-anchor="start" x="755" y="-159.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="600,-131 600,-152 636,-152 636,-131 600,-131"/>
-<text text-anchor="start" x="604" y="-139" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
-<polygon fill="#ffffff" stroke="transparent" points="636,-131 636,-152 739,-152 739,-131 636,-131"/>
-<text text-anchor="start" x="640" y="-138.4" font-family="Helvetica,sans-Serif" font-size="12.00">activo</text>
-<polygon fill="#ffffff" stroke="transparent" points="739,-131 739,-152 763,-152 763,-131 739,-131"/>
-<text text-anchor="start" x="755" y="-138.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="598.5,-130 598.5,-302 763.5,-302 763.5,-130 598.5,-130"/>
-</g>
-<!-- plugin_restaurant.menu_dia_items&#45;&gt;plugin_restaurant.menus_dia -->
-<g id="edge13" class="edge">
-<title>plugin_restaurant.menu_dia_items&#45;&gt;plugin_restaurant.menus_dia</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M723.88,-375.78C717.53,-366.12 711.74,-356.12 707,-346 701.85,-335.01 697.72,-323.03 694.4,-310.95"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="728.05,-381.78 729.85,-391.49 730.61,-385.48 733.18,-389.18 733.18,-389.18 733.18,-389.18 730.61,-385.48 736.51,-386.86 728.05,-381.78 728.05,-381.78"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="725.99" cy="-378.83" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="688,-304.13 696.71,-301.88 697.16,-303.63 688.45,-305.88 688,-304.13"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="692.13,-302.14 693.25,-306.49 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="689.12,-308.49 697.84,-306.24 698.29,-307.98 689.57,-310.23 689.12,-308.49"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="693.25,-306.49 694.38,-310.85 "/>
-<text text-anchor="middle" x="722" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">menu</text>
-</g>
-<!-- plugin_restaurant.orden_item_opciones -->
-<g id="node9" class="node">
-<title>plugin_restaurant.orden_item_opciones</title>
-<polygon fill="white" stroke="transparent" points="666,-638.5 666,-768.5 866,-768.5 866,-638.5 666,-638.5"/>
-<polygon fill="#c2410c" stroke="transparent" points="667,-744.5 667,-767.5 865,-767.5 865,-744.5 667,-744.5"/>
-<text text-anchor="start" x="671" y="-752.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ORDEN_ITEM_OPCIONES</text>
-<polygon fill="#e9eefc" stroke="transparent" points="667,-723.5 667,-744.5 718,-744.5 718,-723.5 667,-723.5"/>
-<text text-anchor="start" x="671" y="-731.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="718,-723.5 718,-744.5 830,-744.5 830,-723.5 718,-723.5"/>
-<text text-anchor="start" x="722" y="-730.9" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="830,-723.5 830,-744.5 865,-744.5 865,-723.5 830,-723.5"/>
-<text text-anchor="start" x="845" y="-732.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="667,-702.5 667,-723.5 718,-723.5 718,-702.5 667,-702.5"/>
-<text text-anchor="start" x="671" y="-710.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="718,-702.5 718,-723.5 830,-723.5 830,-702.5 718,-702.5"/>
-<text text-anchor="start" x="722" y="-709.9" font-family="Helvetica,sans-Serif" font-size="12.00">orden_item_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="830,-702.5 830,-723.5 865,-723.5 865,-702.5 830,-702.5"/>
-<text text-anchor="start" x="846" y="-711.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="667,-681.5 667,-702.5 718,-702.5 718,-681.5 667,-681.5"/>
-<text text-anchor="start" x="671" y="-689.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="718,-681.5 718,-702.5 830,-702.5 830,-681.5 718,-681.5"/>
-<text text-anchor="start" x="722" y="-688.9" font-family="Helvetica,sans-Serif" font-size="12.00">opcion_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="830,-681.5 830,-702.5 865,-702.5 865,-681.5 830,-681.5"/>
-<text text-anchor="start" x="846" y="-690.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="667,-660.5 667,-681.5 718,-681.5 718,-660.5 667,-660.5"/>
-<text text-anchor="start" x="671" y="-668.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="718,-660.5 718,-681.5 830,-681.5 830,-660.5 718,-660.5"/>
-<text text-anchor="start" x="722" y="-667.9" font-family="Helvetica,sans-Serif" font-size="12.00">cantidad</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="830,-660.5 830,-681.5 865,-681.5 865,-660.5 830,-660.5"/>
-<text text-anchor="start" x="857" y="-667.9" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="667,-639.5 667,-660.5 718,-660.5 718,-639.5 667,-639.5"/>
-<text text-anchor="start" x="671" y="-647.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
-<polygon fill="#ffffff" stroke="transparent" points="718,-639.5 718,-660.5 830,-660.5 830,-639.5 718,-639.5"/>
-<text text-anchor="start" x="722" y="-646.9" font-family="Helvetica,sans-Serif" font-size="12.00">precio_aplicado</text>
-<polygon fill="#ffffff" stroke="transparent" points="830,-639.5 830,-660.5 865,-660.5 865,-639.5 830,-639.5"/>
-<text text-anchor="start" x="857" y="-646.9" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="666,-638.5 666,-768.5 866,-768.5 866,-638.5 666,-638.5"/>
-</g>
-<!-- plugin_restaurant.orden_item_opciones&#45;&gt;elius.orden_items -->
-<g id="edge6" class="edge">
-<title>plugin_restaurant.orden_item_opciones&#45;&gt;elius.orden_items</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M875.44,-631.68C878.63,-630.36 881.82,-629.13 885,-628 995.98,-588.48 1033.41,-622.34 1148,-595 1204.47,-581.53 1223.99,-585.07 1271,-551 1294.59,-533.91 1313.93,-506.1 1325.44,-486.98"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="868.83,-634.66 858.96,-634.67 864.73,-636.51 860.63,-638.36 860.63,-638.36 860.63,-638.36 864.73,-636.51 862.29,-642.05 868.83,-634.66 868.83,-634.66"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="872.11" cy="-633.18" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1325.69,-477.63 1333.46,-482.16 1332.55,-483.72 1324.78,-479.18 1325.69,-477.63"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1330.03,-479.12 1327.76,-483 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1323.42,-481.51 1331.19,-486.05 1330.29,-487.6 1322.51,-483.07 1323.42,-481.51"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1327.76,-483 1325.49,-486.89 "/>
-<text text-anchor="middle" x="1228" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">orden_item</text>
-</g>
-<!-- plugin_restaurant.opciones_modificador -->
-<g id="node16" class="node">
-<title>plugin_restaurant.opciones_modificador</title>
-<polygon fill="white" stroke="transparent" points="16,-389.5 16,-540.5 228,-540.5 228,-389.5 16,-389.5"/>
-<polygon fill="#c2410c" stroke="transparent" points="17,-516 17,-539 227,-539 227,-516 17,-516"/>
-<text text-anchor="start" x="21" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">OPCIONES_MODIFICADOR</text>
-<polygon fill="#e9eefc" stroke="transparent" points="17,-495 17,-516 72,-516 72,-495 17,-495"/>
-<text text-anchor="start" x="21" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="72,-495 72,-516 190,-516 190,-495 72,-495"/>
-<text text-anchor="start" x="76" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="190,-495 190,-516 227,-516 227,-495 190,-495"/>
-<text text-anchor="start" x="207" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#e9eefc" stroke="transparent" points="17,-474 17,-495 72,-495 72,-474 17,-474"/>
-<text text-anchor="start" x="21" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="72,-474 72,-495 190,-495 190,-474 72,-474"/>
-<text text-anchor="start" x="76" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">grupo_id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="190,-474 190,-495 227,-495 227,-474 190,-474"/>
-<text text-anchor="start" x="208" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
-<polygon fill="#ffffff" stroke="transparent" points="17,-453 17,-474 72,-474 72,-453 17,-453"/>
-<text text-anchor="start" x="21" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#ffffff" stroke="transparent" points="72,-453 72,-474 190,-474 190,-453 72,-453"/>
-<text text-anchor="start" x="76" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
-<polygon fill="#ffffff" stroke="transparent" points="190,-453 190,-474 227,-474 227,-453 190,-453"/>
-<text text-anchor="start" x="219" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="17,-432 17,-453 72,-453 72,-432 17,-432"/>
-<text text-anchor="start" x="21" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="72,-432 72,-453 190,-453 190,-432 72,-432"/>
-<text text-anchor="start" x="76" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">precio_adicional</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="190,-432 190,-453 227,-453 227,-432 190,-432"/>
-<text text-anchor="start" x="219" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="17,-411 17,-432 72,-432 72,-411 17,-411"/>
-<text text-anchor="start" x="21" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
-<polygon fill="#ffffff" stroke="transparent" points="72,-411 72,-432 190,-432 190,-411 72,-411"/>
-<text text-anchor="start" x="76" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">disponible</text>
-<polygon fill="#ffffff" stroke="transparent" points="190,-411 190,-432 227,-432 227,-411 190,-411"/>
-<text text-anchor="start" x="219" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="17,-390 17,-411 72,-411 72,-390 17,-390"/>
-<text text-anchor="start" x="21" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="72,-390 72,-411 190,-411 190,-390 72,-390"/>
-<text text-anchor="start" x="76" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">orden</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="190,-390 190,-411 227,-411 227,-390 190,-390"/>
-<text text-anchor="start" x="219" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="16,-389.5 16,-540.5 228,-540.5 228,-389.5 16,-389.5"/>
-</g>
-<!-- plugin_restaurant.orden_item_opciones&#45;&gt;plugin_restaurant.opciones_modificador -->
-<g id="edge7" class="edge">
-<title>plugin_restaurant.orden_item_opciones&#45;&gt;plugin_restaurant.opciones_modificador</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M656.27,-631.45C653.51,-630.24 650.75,-629.09 648,-628 478.81,-561.17 413.9,-621.02 246,-551 241.41,-549.09 236.81,-546.98 232.24,-544.74"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="662.84,-634.57 669.24,-642.08 666.91,-636.49 670.98,-638.42 670.98,-638.42 670.98,-638.42 666.91,-636.49 672.71,-634.76 662.84,-634.57 662.84,-634.57"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="659.59" cy="-633.02" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="222.79,-544.95 226.89,-536.94 228.49,-537.76 224.39,-545.77 222.79,-544.95"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="224.04,-540.54 228.04,-542.59 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="226.79,-547 230.89,-538.99 232.5,-539.81 228.39,-547.82 226.79,-547"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="228.04,-542.59 232.05,-544.64 "/>
-<text text-anchor="middle" x="528" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">opcion</text>
+<title>plugin_restaurant.estaciones_cocina</title>
+<polygon fill="white" stroke="transparent" points="768,-161.5 768,-270.5 956,-270.5 956,-161.5 768,-161.5"/>
+<polygon fill="#c2410c" stroke="transparent" points="769,-246 769,-269 955,-269 955,-246 769,-246"/>
+<text text-anchor="start" x="779" y="-253.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ESTACIONES_COCINA</text>
+<polygon fill="#e9eefc" stroke="transparent" points="769,-225 769,-246 799,-246 799,-225 769,-225"/>
+<text text-anchor="start" x="773" y="-233" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="799,-225 799,-246 931,-246 931,-225 799,-225"/>
+<text text-anchor="start" x="803" y="-232.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="931,-225 931,-246 955,-246 955,-225 931,-225"/>
+<text text-anchor="start" x="935" y="-234" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="769,-204 769,-225 799,-225 799,-204 769,-204"/>
+<text text-anchor="start" x="773" y="-212" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="799,-204 799,-225 931,-225 931,-204 799,-204"/>
+<text text-anchor="start" x="803" y="-211.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="931,-204 931,-225 955,-225 955,-204 931,-204"/>
+<text text-anchor="start" x="947" y="-211.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="769,-183 769,-204 799,-204 799,-183 769,-183"/>
+<text text-anchor="start" x="773" y="-191" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#ffffff" stroke="transparent" points="799,-183 799,-204 931,-204 931,-183 799,-183"/>
+<text text-anchor="start" x="803" y="-190.4" font-family="Helvetica,sans-Serif" font-size="12.00">tiempo_objetivo_min</text>
+<polygon fill="#ffffff" stroke="transparent" points="931,-183 931,-204 955,-204 955,-183 931,-183"/>
+<text text-anchor="start" x="947" y="-190.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="769,-162 769,-183 799,-183 799,-162 769,-162"/>
+<text text-anchor="start" x="773" y="-170" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="799,-162 799,-183 931,-183 931,-162 799,-162"/>
+<text text-anchor="start" x="803" y="-169.4" font-family="Helvetica,sans-Serif" font-size="12.00">activa</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="931,-162 931,-183 955,-183 955,-162 931,-162"/>
+<text text-anchor="start" x="947" y="-169.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="768,-161.5 768,-270.5 956,-270.5 956,-161.5 768,-161.5"/>
 </g>
 <!-- plugin_restaurant.comanda_items -->
-<g id="node11" class="node">
+<g id="node7" class="node">
 <title>plugin_restaurant.comanda_items</title>
 <polygon fill="white" stroke="transparent" points="902.5,-628 902.5,-779 1051.5,-779 1051.5,-628 902.5,-628"/>
 <polygon fill="#c2410c" stroke="transparent" points="904,-754.5 904,-777.5 1051,-777.5 1051,-754.5 904,-754.5"/>
@@ -533,7 +159,7 @@
 <text text-anchor="middle" x="1314" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">orden_item</text>
 </g>
 <!-- plugin_restaurant.comandas -->
-<g id="node15" class="node">
+<g id="node17" class="node">
 <title>plugin_restaurant.comandas</title>
 <polygon fill="white" stroke="transparent" points="911.5,-379 911.5,-551 1050.5,-551 1050.5,-379 911.5,-379"/>
 <polygon fill="#c2410c" stroke="transparent" points="913,-527 913,-550 1050,-550 1050,-527 913,-527"/>
@@ -594,8 +220,152 @@
 <polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="979.48,-555.76 979.41,-560.26 "/>
 <text text-anchor="middle" x="1002.5" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">comanda</text>
 </g>
+<!-- plugin_restaurant.menu_dia_items -->
+<g id="node8" class="node">
+<title>plugin_restaurant.menu_dia_items</title>
+<polygon fill="white" stroke="transparent" points="541.5,-389.5 541.5,-540.5 688.5,-540.5 688.5,-389.5 541.5,-389.5"/>
+<polygon fill="#c2410c" stroke="transparent" points="543,-516 543,-539 688,-539 688,-516 543,-516"/>
+<text text-anchor="start" x="547" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">MENU_DIA_ITEMS</text>
+<polygon fill="#e9eefc" stroke="transparent" points="543,-495 543,-516 584,-516 584,-495 543,-495"/>
+<text text-anchor="start" x="547" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="584,-495 584,-516 658,-516 658,-495 584,-495"/>
+<text text-anchor="start" x="588" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="658,-495 658,-516 688,-516 688,-495 658,-495"/>
+<text text-anchor="start" x="668" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="543,-474 543,-495 584,-495 584,-474 543,-474"/>
+<text text-anchor="start" x="547" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="584,-474 584,-495 658,-495 658,-474 584,-474"/>
+<text text-anchor="start" x="588" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">menu_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="658,-474 658,-495 688,-495 688,-474 658,-474"/>
+<text text-anchor="start" x="669" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="543,-453 543,-474 584,-474 584,-453 543,-453"/>
+<text text-anchor="start" x="547" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="584,-453 584,-474 658,-474 658,-453 584,-453"/>
+<text text-anchor="start" x="588" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="658,-453 658,-474 688,-474 688,-453 658,-453"/>
+<text text-anchor="start" x="669" y="-462" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="543,-432 543,-453 584,-453 584,-432 543,-432"/>
+<text text-anchor="start" x="547" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="584,-432 584,-453 658,-453 658,-432 584,-432"/>
+<text text-anchor="start" x="588" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">seccion</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="658,-432 658,-453 688,-453 688,-432 658,-432"/>
+<text text-anchor="start" x="680" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="543,-411 543,-432 584,-432 584,-411 543,-411"/>
+<text text-anchor="start" x="547" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#ffffff" stroke="transparent" points="584,-411 584,-432 658,-432 658,-411 584,-411"/>
+<text text-anchor="start" x="588" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">posicion</text>
+<polygon fill="#ffffff" stroke="transparent" points="658,-411 658,-432 688,-432 688,-411 658,-411"/>
+<text text-anchor="start" x="680" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="543,-390 543,-411 584,-411 584,-390 543,-390"/>
+<text text-anchor="start" x="547" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="584,-390 584,-411 658,-411 658,-390 584,-390"/>
+<text text-anchor="start" x="588" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">disponible</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="658,-390 658,-411 688,-411 688,-390 658,-390"/>
+<text text-anchor="start" x="680" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="541.5,-389.5 541.5,-540.5 688.5,-540.5 688.5,-389.5 541.5,-389.5"/>
+</g>
+<!-- plugin_restaurant.menu_dia_items&#45;&gt;elius.items_catalogo -->
+<g id="edge14" class="edge">
+<title>plugin_restaurant.menu_dia_items&#45;&gt;elius.items_catalogo</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M702.32,-381.54C703.87,-380.66 705.43,-379.81 707,-379 725.21,-369.57 1050.2,-312.18 1068,-302 1095.51,-286.28 1118.81,-257.53 1132.59,-237.85"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="696.19,-385.4 686.42,-386.77 692.39,-387.8 688.58,-390.2 688.58,-390.2 688.58,-390.2 692.39,-387.8 690.74,-393.62 696.19,-385.4 696.19,-385.4"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="699.24" cy="-383.48" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1133.51,-228.51 1140.95,-233.57 1139.94,-235.06 1132.49,-230 1133.51,-228.51"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1137.73,-230.3 1135.2,-234.02 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1130.98,-232.23 1138.42,-237.29 1137.4,-238.78 1129.96,-233.72 1130.98,-232.23"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1135.2,-234.02 1132.67,-237.74 "/>
+<text text-anchor="middle" x="919.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
+</g>
+<!-- plugin_restaurant.menus_dia -->
+<g id="node15" class="node">
+<title>plugin_restaurant.menus_dia</title>
+<polygon fill="white" stroke="transparent" points="397.5,-130 397.5,-302 562.5,-302 562.5,-130 397.5,-130"/>
+<polygon fill="#c2410c" stroke="transparent" points="399,-278 399,-301 562,-301 562,-278 399,-278"/>
+<text text-anchor="start" x="435" y="-285.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">MENUS_DIA</text>
+<polygon fill="#e9eefc" stroke="transparent" points="399,-257 399,-278 435,-278 435,-257 399,-257"/>
+<text text-anchor="start" x="403" y="-265" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="435,-257 435,-278 538,-278 538,-257 435,-257"/>
+<text text-anchor="start" x="439" y="-264.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="538,-257 538,-278 562,-278 562,-257 538,-257"/>
+<text text-anchor="start" x="542" y="-266" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="399,-236 399,-257 435,-257 435,-236 399,-236"/>
+<text text-anchor="start" x="403" y="-244" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="435,-236 435,-257 538,-257 538,-236 435,-236"/>
+<text text-anchor="start" x="439" y="-243.4" font-family="Helvetica,sans-Serif" font-size="12.00">confirmado_por</text>
+<polygon fill="#e9eefc" stroke="transparent" points="538,-236 538,-257 562,-257 562,-236 538,-236"/>
+<text text-anchor="start" x="543" y="-245" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#ffffff" stroke="transparent" points="399,-215 399,-236 435,-236 435,-215 399,-215"/>
+<text text-anchor="start" x="403" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">date</text>
+<polygon fill="#ffffff" stroke="transparent" points="435,-215 435,-236 538,-236 538,-215 435,-215"/>
+<text text-anchor="start" x="439" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">fecha</text>
+<polygon fill="#ffffff" stroke="transparent" points="538,-215 538,-236 562,-236 562,-215 538,-215"/>
+<text text-anchor="start" x="554" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="399,-194 399,-215 435,-215 435,-194 399,-194"/>
+<text text-anchor="start" x="403" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="435,-194 435,-215 538,-215 538,-194 435,-194"/>
+<text text-anchor="start" x="439" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">precio_base</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="538,-194 538,-215 562,-215 562,-194 538,-194"/>
+<text text-anchor="start" x="554" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="399,-173 399,-194 435,-194 435,-173 399,-173"/>
+<text text-anchor="start" x="403" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#ffffff" stroke="transparent" points="435,-173 435,-194 538,-194 538,-173 435,-173"/>
+<text text-anchor="start" x="439" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">url_foto</text>
+<polygon fill="#ffffff" stroke="transparent" points="538,-173 538,-194 562,-194 562,-173 538,-173"/>
+<text text-anchor="start" x="554" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="399,-152 399,-173 435,-173 435,-152 399,-152"/>
+<text text-anchor="start" x="403" y="-160" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">fecha</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="435,-152 435,-173 538,-173 538,-152 435,-152"/>
+<text text-anchor="start" x="439" y="-159.4" font-family="Helvetica,sans-Serif" font-size="12.00">confirmado_en</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="538,-152 538,-173 562,-173 562,-152 538,-152"/>
+<text text-anchor="start" x="554" y="-159.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="399,-131 399,-152 435,-152 435,-131 399,-131"/>
+<text text-anchor="start" x="403" y="-139" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
+<polygon fill="#ffffff" stroke="transparent" points="435,-131 435,-152 538,-152 538,-131 435,-131"/>
+<text text-anchor="start" x="439" y="-138.4" font-family="Helvetica,sans-Serif" font-size="12.00">activo</text>
+<polygon fill="#ffffff" stroke="transparent" points="538,-131 538,-152 562,-152 562,-131 538,-131"/>
+<text text-anchor="start" x="554" y="-138.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="397.5,-130 397.5,-302 562.5,-302 562.5,-130 397.5,-130"/>
+</g>
+<!-- plugin_restaurant.menu_dia_items&#45;&gt;plugin_restaurant.menus_dia -->
+<g id="edge13" class="edge">
+<title>plugin_restaurant.menu_dia_items&#45;&gt;plugin_restaurant.menus_dia</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M566.24,-374.79C554.8,-353.85 542.57,-331.48 531.03,-310.37"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="569.81,-381.32 570.58,-391.16 571.97,-385.27 574.13,-389.22 574.13,-389.22 574.13,-389.22 571.97,-385.27 577.68,-387.28 569.81,-381.32 569.81,-381.32"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="568.09" cy="-378.17" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="523.13,-305.29 531.03,-300.97 531.89,-302.55 523.99,-306.87 523.13,-305.29"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="526.64,-302.34 528.8,-306.29 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="525.29,-309.24 533.18,-304.92 534.05,-306.5 526.15,-310.82 525.29,-309.24"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="528.8,-306.29 530.96,-310.24 "/>
+<text text-anchor="middle" x="562" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">menu</text>
+</g>
+<!-- plugin_restaurant.alergenos -->
+<g id="node9" class="node">
+<title>plugin_restaurant.alergenos</title>
+<polygon fill="white" stroke="transparent" points="598.5,-172 598.5,-260 731.5,-260 731.5,-172 598.5,-172"/>
+<polygon fill="#c2410c" stroke="transparent" points="600,-236 600,-259 731,-259 731,-236 600,-236"/>
+<text text-anchor="start" x="618" y="-243.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ALERGENOS</text>
+<polygon fill="#e9eefc" stroke="transparent" points="600,-215 600,-236 630,-236 630,-215 600,-215"/>
+<text text-anchor="start" x="604" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="630,-215 630,-236 707,-236 707,-215 630,-215"/>
+<text text-anchor="start" x="634" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="707,-215 707,-236 731,-236 731,-215 707,-215"/>
+<text text-anchor="start" x="711" y="-224" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="600,-194 600,-215 630,-215 630,-194 600,-194"/>
+<text text-anchor="start" x="604" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="630,-194 630,-215 707,-215 707,-194 630,-194"/>
+<text text-anchor="start" x="634" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="707,-194 707,-215 731,-215 731,-194 707,-194"/>
+<text text-anchor="start" x="723" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="600,-173 600,-194 630,-194 630,-173 600,-173"/>
+<text text-anchor="start" x="604" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#ffffff" stroke="transparent" points="630,-173 630,-194 707,-194 707,-173 630,-173"/>
+<text text-anchor="start" x="634" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">descripcion</text>
+<polygon fill="#ffffff" stroke="transparent" points="707,-173 707,-194 731,-194 731,-173 707,-173"/>
+<text text-anchor="start" x="723" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="598.5,-172 598.5,-260 731.5,-260 731.5,-172 598.5,-172"/>
+</g>
 <!-- plugin_restaurant.celebraciones -->
-<g id="node12" class="node">
+<g id="node10" class="node">
 <title>plugin_restaurant.celebraciones</title>
 <polygon fill="white" stroke="transparent" points="466.5,-628 466.5,-779 629.5,-779 629.5,-628 466.5,-628"/>
 <polygon fill="#c2410c" stroke="transparent" points="468,-754.5 468,-777.5 629,-777.5 629,-754.5 468,-754.5"/>
@@ -650,37 +420,290 @@
 <polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1123.88,-483.26 1122.05,-487.37 "/>
 <text text-anchor="middle" x="1068.5" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">reserva</text>
 </g>
-<!-- plugin_restaurant.estaciones_cocina -->
+<!-- plugin_restaurant.opciones_modificador -->
+<g id="node11" class="node">
+<title>plugin_restaurant.opciones_modificador</title>
+<polygon fill="white" stroke="transparent" points="16,-389.5 16,-540.5 228,-540.5 228,-389.5 16,-389.5"/>
+<polygon fill="#c2410c" stroke="transparent" points="17,-516 17,-539 227,-539 227,-516 17,-516"/>
+<text text-anchor="start" x="21" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">OPCIONES_MODIFICADOR</text>
+<polygon fill="#e9eefc" stroke="transparent" points="17,-495 17,-516 72,-516 72,-495 17,-495"/>
+<text text-anchor="start" x="21" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="72,-495 72,-516 190,-516 190,-495 72,-495"/>
+<text text-anchor="start" x="76" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="190,-495 190,-516 227,-516 227,-495 190,-495"/>
+<text text-anchor="start" x="207" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="17,-474 17,-495 72,-495 72,-474 17,-474"/>
+<text text-anchor="start" x="21" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="72,-474 72,-495 190,-495 190,-474 72,-474"/>
+<text text-anchor="start" x="76" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">grupo_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="190,-474 190,-495 227,-495 227,-474 190,-474"/>
+<text text-anchor="start" x="208" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#ffffff" stroke="transparent" points="17,-453 17,-474 72,-474 72,-453 17,-453"/>
+<text text-anchor="start" x="21" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#ffffff" stroke="transparent" points="72,-453 72,-474 190,-474 190,-453 72,-453"/>
+<text text-anchor="start" x="76" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
+<polygon fill="#ffffff" stroke="transparent" points="190,-453 190,-474 227,-474 227,-453 190,-453"/>
+<text text-anchor="start" x="219" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="17,-432 17,-453 72,-453 72,-432 17,-432"/>
+<text text-anchor="start" x="21" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="72,-432 72,-453 190,-453 190,-432 72,-432"/>
+<text text-anchor="start" x="76" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">precio_adicional</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="190,-432 190,-453 227,-453 227,-432 190,-432"/>
+<text text-anchor="start" x="219" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="17,-411 17,-432 72,-432 72,-411 17,-411"/>
+<text text-anchor="start" x="21" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
+<polygon fill="#ffffff" stroke="transparent" points="72,-411 72,-432 190,-432 190,-411 72,-411"/>
+<text text-anchor="start" x="76" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">disponible</text>
+<polygon fill="#ffffff" stroke="transparent" points="190,-411 190,-432 227,-432 227,-411 190,-411"/>
+<text text-anchor="start" x="219" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="17,-390 17,-411 72,-411 72,-390 17,-390"/>
+<text text-anchor="start" x="21" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="72,-390 72,-411 190,-411 190,-390 72,-390"/>
+<text text-anchor="start" x="76" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">orden</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="190,-390 190,-411 227,-411 227,-390 190,-390"/>
+<text text-anchor="start" x="219" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="16,-389.5 16,-540.5 228,-540.5 228,-389.5 16,-389.5"/>
+</g>
+<!-- plugin_restaurant.grupos_modificador -->
+<g id="node16" class="node">
+<title>plugin_restaurant.grupos_modificador</title>
+<polygon fill="white" stroke="transparent" points="95.5,-172 95.5,-260 290.5,-260 290.5,-172 95.5,-172"/>
+<polygon fill="#c2410c" stroke="transparent" points="97,-236 97,-259 290,-259 290,-236 97,-236"/>
+<text text-anchor="start" x="101" y="-243.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">GRUPOS_MODIFICADOR</text>
+<polygon fill="#e9eefc" stroke="transparent" points="97,-215 97,-236 158,-236 158,-215 97,-215"/>
+<text text-anchor="start" x="101" y="-223" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="158,-215 158,-236 250,-236 250,-215 158,-215"/>
+<text text-anchor="start" x="162" y="-222.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="250,-215 250,-236 290,-236 290,-215 250,-215"/>
+<text text-anchor="start" x="270" y="-224" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="97,-194 97,-215 158,-215 158,-194 97,-194"/>
+<text text-anchor="start" x="101" y="-202" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="158,-194 158,-215 250,-215 250,-194 158,-194"/>
+<text text-anchor="start" x="162" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="250,-194 250,-215 290,-215 290,-194 250,-194"/>
+<text text-anchor="start" x="282" y="-201.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="97,-173 97,-194 158,-194 158,-173 97,-173"/>
+<text text-anchor="start" x="101" y="-181" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#ffffff" stroke="transparent" points="158,-173 158,-194 250,-194 250,-173 158,-173"/>
+<text text-anchor="start" x="162" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00">descripcion</text>
+<polygon fill="#ffffff" stroke="transparent" points="250,-173 250,-194 290,-194 290,-173 250,-173"/>
+<text text-anchor="start" x="282" y="-180.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="95.5,-172 95.5,-260 290.5,-260 290.5,-172 95.5,-172"/>
+</g>
+<!-- plugin_restaurant.opciones_modificador&#45;&gt;plugin_restaurant.grupos_modificador -->
+<g id="edge3" class="edge">
+<title>plugin_restaurant.opciones_modificador&#45;&gt;plugin_restaurant.grupos_modificador</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M148,-373.55C158.12,-338.35 169.34,-299.3 178.05,-269"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="145.98,-380.57 139.6,-388.1 144.74,-384.9 143.5,-389.22 143.5,-389.22 143.5,-389.22 144.74,-384.9 147.39,-390.34 145.98,-380.57 145.98,-380.57"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="146.98" cy="-377.11" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="175.98,-259.91 184.63,-262.4 184.13,-264.13 175.48,-261.64 175.98,-259.91"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="180.56,-260.29 179.31,-264.62 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="174.74,-264.24 183.39,-266.73 182.89,-268.46 174.24,-265.97 174.74,-264.24"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="179.31,-264.62 178.07,-268.94 "/>
+<text text-anchor="middle" x="173.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">grupo</text>
+</g>
+<!-- plugin_restaurant.item_alergenos -->
+<g id="node12" class="node">
+<title>plugin_restaurant.item_alergenos</title>
+<polygon fill="white" stroke="transparent" points="724.5,-400 724.5,-530 875.5,-530 875.5,-400 724.5,-400"/>
+<polygon fill="#c2410c" stroke="transparent" points="726,-506 726,-529 875,-529 875,-506 726,-506"/>
+<text text-anchor="start" x="730" y="-513.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ITEM_ALERGENOS</text>
+<polygon fill="#e9eefc" stroke="transparent" points="726,-485 726,-506 764,-506 764,-485 726,-485"/>
+<text text-anchor="start" x="730" y="-493" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="764,-485 764,-506 846,-506 846,-485 764,-485"/>
+<text text-anchor="start" x="768" y="-492.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="846,-485 846,-506 875,-506 875,-485 846,-485"/>
+<text text-anchor="start" x="855" y="-494" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="726,-464 726,-485 764,-485 764,-464 726,-464"/>
+<text text-anchor="start" x="730" y="-472" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="764,-464 764,-485 846,-485 846,-464 764,-464"/>
+<text text-anchor="start" x="768" y="-471.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="846,-464 846,-485 875,-485 875,-464 846,-464"/>
+<text text-anchor="start" x="856" y="-473" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="726,-443 726,-464 764,-464 764,-443 726,-443"/>
+<text text-anchor="start" x="730" y="-451" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="764,-443 764,-464 846,-464 846,-443 764,-443"/>
+<text text-anchor="start" x="768" y="-450.4" font-family="Helvetica,sans-Serif" font-size="12.00">alergeno_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="846,-443 846,-464 875,-464 875,-443 846,-443"/>
+<text text-anchor="start" x="856" y="-452" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="726,-422 726,-443 764,-443 764,-422 726,-422"/>
+<text text-anchor="start" x="730" y="-430" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="764,-422 764,-443 846,-443 846,-422 764,-422"/>
+<text text-anchor="start" x="768" y="-429.4" font-family="Helvetica,sans-Serif" font-size="12.00">nivel</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="846,-422 846,-443 875,-443 875,-422 846,-422"/>
+<text text-anchor="start" x="867" y="-429.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="726,-401 726,-422 764,-422 764,-401 726,-401"/>
+<text text-anchor="start" x="730" y="-409" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
+<polygon fill="#ffffff" stroke="transparent" points="764,-401 764,-422 846,-422 846,-401 764,-401"/>
+<text text-anchor="start" x="768" y="-408.4" font-family="Helvetica,sans-Serif" font-size="12.00">nota</text>
+<polygon fill="#ffffff" stroke="transparent" points="846,-401 846,-422 875,-422 875,-401 846,-401"/>
+<text text-anchor="start" x="867" y="-408.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="724.5,-400 724.5,-530 875.5,-530 875.5,-400 724.5,-400"/>
+</g>
+<!-- plugin_restaurant.item_alergenos&#45;&gt;elius.items_catalogo -->
+<g id="edge1" class="edge">
+<title>plugin_restaurant.item_alergenos&#45;&gt;elius.items_catalogo</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M878.78,-389.66C883.81,-385.9 888.9,-382.31 894,-379 964.93,-332.95 999.29,-351.31 1068,-302 1093.34,-283.81 1116.72,-256.29 1131.14,-237.53"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="872.74,-394.41 863.16,-396.78 869.2,-397.19 865.66,-399.97 865.66,-399.97 865.66,-399.97 869.2,-397.19 868.16,-403.15 872.74,-394.41 872.74,-394.41"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="875.57" cy="-392.18" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1132.62,-228.09 1139.81,-233.5 1138.73,-234.94 1131.54,-229.53 1132.62,-228.09"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1136.76,-230.08 1134.05,-233.67 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1129.91,-231.68 1137.1,-237.1 1136.02,-238.53 1128.83,-233.12 1129.91,-231.68"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1134.05,-233.67 1131.34,-237.26 "/>
+<text text-anchor="middle" x="1014.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
+</g>
+<!-- plugin_restaurant.item_alergenos&#45;&gt;plugin_restaurant.alergenos -->
+<g id="edge2" class="edge">
+<title>plugin_restaurant.item_alergenos&#45;&gt;plugin_restaurant.alergenos</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M717.47,-387.24C706.96,-374.33 697.34,-360.41 690,-346 677.98,-322.38 671.72,-293.64 668.47,-269.28"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="722.36,-392.96 725.14,-402.43 725.29,-396.37 728.22,-399.79 728.22,-399.79 728.22,-399.79 725.29,-396.37 731.29,-397.16 722.36,-392.96 722.36,-392.96"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="720.02" cy="-390.22" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="663,-261.62 671.94,-260.54 672.16,-262.32 663.22,-263.41 663,-261.62"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="667.36,-260.18 667.91,-264.65 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="663.55,-266.09 672.48,-265 672.7,-266.79 663.76,-267.87 663.55,-266.09"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="667.91,-264.65 668.45,-269.12 "/>
+<text text-anchor="middle" x="713" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">alergeno</text>
+</g>
+<!-- plugin_restaurant.item_grupos_modificador -->
+<g id="node13" class="node">
+<title>plugin_restaurant.item_grupos_modificador</title>
+<polygon fill="white" stroke="transparent" points="264.5,-389.5 264.5,-540.5 505.5,-540.5 505.5,-389.5 264.5,-389.5"/>
+<polygon fill="#c2410c" stroke="transparent" points="266,-516 266,-539 505,-539 505,-516 266,-516"/>
+<text text-anchor="start" x="270" y="-523.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ITEM_GRUPOS_MODIFICADOR</text>
+<polygon fill="#e9eefc" stroke="transparent" points="266,-495 266,-516 358,-516 358,-495 266,-495"/>
+<text text-anchor="start" x="270" y="-503" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="358,-495 358,-516 449,-516 449,-495 358,-495"/>
+<text text-anchor="start" x="362" y="-502.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="449,-495 449,-516 505,-516 505,-495 449,-495"/>
+<text text-anchor="start" x="485" y="-504" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="266,-474 266,-495 358,-495 358,-474 266,-474"/>
+<text text-anchor="start" x="270" y="-482" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="358,-474 358,-495 449,-495 449,-474 358,-474"/>
+<text text-anchor="start" x="362" y="-481.4" font-family="Helvetica,sans-Serif" font-size="12.00">item_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="449,-474 449,-495 505,-495 505,-474 449,-474"/>
+<text text-anchor="start" x="486" y="-483" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="266,-453 266,-474 358,-474 358,-453 266,-453"/>
+<text text-anchor="start" x="270" y="-461" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="358,-453 358,-474 449,-474 449,-453 358,-453"/>
+<text text-anchor="start" x="362" y="-460.4" font-family="Helvetica,sans-Serif" font-size="12.00">grupo_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="449,-453 449,-474 505,-474 505,-453 449,-453"/>
+<text text-anchor="start" x="486" y="-462" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="266,-432 266,-453 358,-453 358,-432 266,-432"/>
+<text text-anchor="start" x="270" y="-440" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="358,-432 358,-453 449,-453 449,-432 358,-432"/>
+<text text-anchor="start" x="362" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00">minimo</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="449,-432 449,-453 505,-453 505,-432 449,-432"/>
+<text text-anchor="start" x="497" y="-439.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="266,-411 266,-432 358,-432 358,-411 266,-411"/>
+<text text-anchor="start" x="270" y="-419" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#ffffff" stroke="transparent" points="358,-411 358,-432 449,-432 449,-411 358,-411"/>
+<text text-anchor="start" x="362" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00">maximo</text>
+<polygon fill="#ffffff" stroke="transparent" points="449,-411 449,-432 505,-432 505,-411 449,-411"/>
+<text text-anchor="start" x="497" y="-418.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#f5f7fb" stroke="transparent" points="266,-390 266,-411 358,-411 358,-390 266,-390"/>
+<text text-anchor="start" x="270" y="-398" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="358,-390 358,-411 449,-411 449,-390 358,-390"/>
+<text text-anchor="start" x="362" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00">orden</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="449,-390 449,-411 505,-411 505,-390 449,-390"/>
+<text text-anchor="start" x="497" y="-397.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="264.5,-389.5 264.5,-540.5 505.5,-540.5 505.5,-389.5 264.5,-389.5"/>
+</g>
+<!-- plugin_restaurant.item_grupos_modificador&#45;&gt;elius.items_catalogo -->
+<g id="edge4" class="edge">
+<title>plugin_restaurant.item_grupos_modificador&#45;&gt;elius.items_catalogo</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M513.57,-382.9C517.05,-381.51 520.53,-380.21 524,-379 639.01,-338.99 676.6,-369.93 796,-346 813.66,-342.46 817.38,-338.72 835,-335 937.34,-313.42 975.45,-350.71 1068,-302 1096.19,-287.16 1119.47,-257.94 1133.05,-237.94"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="506.65,-385.9 496.78,-385.77 502.52,-387.69 498.39,-389.48 498.39,-389.48 498.39,-389.48 502.52,-387.69 500,-393.2 506.65,-385.9 506.65,-385.9"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="509.95" cy="-384.47" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1133.84,-228.54 1141.36,-233.49 1140.38,-234.99 1132.86,-230.05 1133.84,-228.54"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1138.1,-230.26 1135.63,-234.02 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1131.37,-232.3 1138.89,-237.25 1137.9,-238.75 1130.38,-233.81 1131.37,-232.3"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1135.63,-234.02 1133.15,-237.78 "/>
+<text text-anchor="middle" x="846.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">item</text>
+</g>
+<!-- plugin_restaurant.item_grupos_modificador&#45;&gt;plugin_restaurant.grupos_modificador -->
+<g id="edge5" class="edge">
+<title>plugin_restaurant.item_grupos_modificador&#45;&gt;plugin_restaurant.grupos_modificador</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M316.89,-376.38C288.56,-339.93 256.68,-298.92 232.35,-267.62"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="321.35,-382.12 323.68,-391.71 324.11,-385.67 326.87,-389.22 326.87,-389.22 326.87,-389.22 324.11,-385.67 330.07,-386.74 321.35,-382.12 321.35,-382.12"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="319.14" cy="-379.27" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="223.65,-263.76 230.76,-258.24 231.86,-259.66 224.76,-265.19 223.65,-263.76"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="226.65,-260.29 229.41,-263.85 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="226.41,-267.32 233.52,-261.79 234.62,-263.22 227.52,-268.74 226.41,-267.32"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="229.41,-263.85 232.18,-267.4 "/>
+<text text-anchor="middle" x="304.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">grupo</text>
+</g>
+<!-- plugin_restaurant.orden_item_opciones -->
 <g id="node14" class="node">
-<title>plugin_restaurant.estaciones_cocina</title>
-<polygon fill="white" stroke="transparent" points="800,-161.5 800,-270.5 988,-270.5 988,-161.5 800,-161.5"/>
-<polygon fill="#c2410c" stroke="transparent" points="801,-246 801,-269 987,-269 987,-246 801,-246"/>
-<text text-anchor="start" x="811" y="-253.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ESTACIONES_COCINA</text>
-<polygon fill="#e9eefc" stroke="transparent" points="801,-225 801,-246 831,-246 831,-225 801,-225"/>
-<text text-anchor="start" x="805" y="-233" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
-<polygon fill="#e9eefc" stroke="transparent" points="831,-225 831,-246 963,-246 963,-225 831,-225"/>
-<text text-anchor="start" x="835" y="-232.4" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
-<polygon fill="#e9eefc" stroke="transparent" points="963,-225 963,-246 987,-246 987,-225 963,-225"/>
-<text text-anchor="start" x="967" y="-234" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="801,-204 801,-225 831,-225 831,-204 801,-204"/>
-<text text-anchor="start" x="805" y="-212" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">text</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="831,-204 831,-225 963,-225 963,-204 831,-204"/>
-<text text-anchor="start" x="835" y="-211.4" font-family="Helvetica,sans-Serif" font-size="12.00">nombre</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="963,-204 963,-225 987,-225 987,-204 963,-204"/>
-<text text-anchor="start" x="979" y="-211.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#ffffff" stroke="transparent" points="801,-183 801,-204 831,-204 831,-183 801,-183"/>
-<text text-anchor="start" x="805" y="-191" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
-<polygon fill="#ffffff" stroke="transparent" points="831,-183 831,-204 963,-204 963,-183 831,-183"/>
-<text text-anchor="start" x="835" y="-190.4" font-family="Helvetica,sans-Serif" font-size="12.00">tiempo_objetivo_min</text>
-<polygon fill="#ffffff" stroke="transparent" points="963,-183 963,-204 987,-204 987,-183 963,-183"/>
-<text text-anchor="start" x="979" y="-190.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="#f5f7fb" stroke="transparent" points="801,-162 801,-183 831,-183 831,-162 801,-162"/>
-<text text-anchor="start" x="805" y="-170" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">bool</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="831,-162 831,-183 963,-183 963,-162 831,-162"/>
-<text text-anchor="start" x="835" y="-169.4" font-family="Helvetica,sans-Serif" font-size="12.00">activa</text>
-<polygon fill="#f5f7fb" stroke="transparent" points="963,-162 963,-183 987,-183 987,-162 963,-162"/>
-<text text-anchor="start" x="979" y="-169.4" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
-<polygon fill="none" stroke="#8a93a3" points="800,-161.5 800,-270.5 988,-270.5 988,-161.5 800,-161.5"/>
+<title>plugin_restaurant.orden_item_opciones</title>
+<polygon fill="white" stroke="transparent" points="666,-638.5 666,-768.5 866,-768.5 866,-638.5 666,-638.5"/>
+<polygon fill="#c2410c" stroke="transparent" points="667,-744.5 667,-767.5 865,-767.5 865,-744.5 667,-744.5"/>
+<text text-anchor="start" x="671" y="-752.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="14.00" fill="white">ORDEN_ITEM_OPCIONES</text>
+<polygon fill="#e9eefc" stroke="transparent" points="667,-723.5 667,-744.5 718,-744.5 718,-723.5 667,-723.5"/>
+<text text-anchor="start" x="671" y="-731.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="718,-723.5 718,-744.5 830,-744.5 830,-723.5 718,-723.5"/>
+<text text-anchor="start" x="722" y="-730.9" font-family="Helvetica,sans-Serif" font-size="12.00">id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="830,-723.5 830,-744.5 865,-744.5 865,-723.5 830,-723.5"/>
+<text text-anchor="start" x="845" y="-732.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">PK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="667,-702.5 667,-723.5 718,-723.5 718,-702.5 667,-702.5"/>
+<text text-anchor="start" x="671" y="-710.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="718,-702.5 718,-723.5 830,-723.5 830,-702.5 718,-702.5"/>
+<text text-anchor="start" x="722" y="-709.9" font-family="Helvetica,sans-Serif" font-size="12.00">orden_item_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="830,-702.5 830,-723.5 865,-723.5 865,-702.5 830,-702.5"/>
+<text text-anchor="start" x="846" y="-711.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#e9eefc" stroke="transparent" points="667,-681.5 667,-702.5 718,-702.5 718,-681.5 667,-681.5"/>
+<text text-anchor="start" x="671" y="-689.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">uuid</text>
+<polygon fill="#e9eefc" stroke="transparent" points="718,-681.5 718,-702.5 830,-702.5 830,-681.5 718,-681.5"/>
+<text text-anchor="start" x="722" y="-688.9" font-family="Helvetica,sans-Serif" font-size="12.00">opcion_id</text>
+<polygon fill="#e9eefc" stroke="transparent" points="830,-681.5 830,-702.5 865,-702.5 865,-681.5 830,-681.5"/>
+<text text-anchor="start" x="846" y="-690.5" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="10.00" fill="#0033dd">FK</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="667,-660.5 667,-681.5 718,-681.5 718,-660.5 667,-660.5"/>
+<text text-anchor="start" x="671" y="-668.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">int</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="718,-660.5 718,-681.5 830,-681.5 830,-660.5 718,-660.5"/>
+<text text-anchor="start" x="722" y="-667.9" font-family="Helvetica,sans-Serif" font-size="12.00">cantidad</text>
+<polygon fill="#f5f7fb" stroke="transparent" points="830,-660.5 830,-681.5 865,-681.5 865,-660.5 830,-660.5"/>
+<text text-anchor="start" x="857" y="-667.9" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="#ffffff" stroke="transparent" points="667,-639.5 667,-660.5 718,-660.5 718,-639.5 667,-639.5"/>
+<text text-anchor="start" x="671" y="-647.5" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#5a6475">num</text>
+<polygon fill="#ffffff" stroke="transparent" points="718,-639.5 718,-660.5 830,-660.5 830,-639.5 718,-639.5"/>
+<text text-anchor="start" x="722" y="-646.9" font-family="Helvetica,sans-Serif" font-size="12.00">precio_aplicado</text>
+<polygon fill="#ffffff" stroke="transparent" points="830,-639.5 830,-660.5 865,-660.5 865,-639.5 830,-639.5"/>
+<text text-anchor="start" x="857" y="-646.9" font-family="Helvetica,sans-Serif" font-size="12.00"> </text>
+<polygon fill="none" stroke="#8a93a3" points="666,-638.5 666,-768.5 866,-768.5 866,-638.5 666,-638.5"/>
+</g>
+<!-- plugin_restaurant.orden_item_opciones&#45;&gt;elius.orden_items -->
+<g id="edge6" class="edge">
+<title>plugin_restaurant.orden_item_opciones&#45;&gt;elius.orden_items</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M875.44,-631.68C878.63,-630.36 881.82,-629.13 885,-628 995.98,-588.48 1033.41,-622.34 1148,-595 1204.47,-581.53 1223.99,-585.07 1271,-551 1294.59,-533.91 1313.93,-506.1 1325.44,-486.98"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="868.83,-634.66 858.96,-634.67 864.73,-636.51 860.63,-638.36 860.63,-638.36 860.63,-638.36 864.73,-636.51 862.29,-642.05 868.83,-634.66 868.83,-634.66"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="872.11" cy="-633.18" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1325.69,-477.63 1333.46,-482.16 1332.55,-483.72 1324.78,-479.18 1325.69,-477.63"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1330.03,-479.12 1327.76,-483 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="1323.42,-481.51 1331.19,-486.05 1330.29,-487.6 1322.51,-483.07 1323.42,-481.51"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="1327.76,-483 1325.49,-486.89 "/>
+<text text-anchor="middle" x="1228" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">orden_item</text>
+</g>
+<!-- plugin_restaurant.orden_item_opciones&#45;&gt;plugin_restaurant.opciones_modificador -->
+<g id="edge7" class="edge">
+<title>plugin_restaurant.orden_item_opciones&#45;&gt;plugin_restaurant.opciones_modificador</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M656.27,-631.45C653.51,-630.24 650.75,-629.09 648,-628 478.81,-561.17 413.9,-621.02 246,-551 241.41,-549.09 236.81,-546.98 232.24,-544.74"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="662.84,-634.57 669.24,-642.08 666.91,-636.49 670.98,-638.42 670.98,-638.42 670.98,-638.42 666.91,-636.49 672.71,-634.76 662.84,-634.57 662.84,-634.57"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="659.59" cy="-633.02" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="222.79,-544.95 226.89,-536.94 228.49,-537.76 224.39,-545.77 222.79,-544.95"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="224.04,-540.54 228.04,-542.59 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="226.79,-547 230.89,-538.99 232.5,-539.81 228.39,-547.82 226.79,-547"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="228.04,-542.59 232.05,-544.64 "/>
+<text text-anchor="middle" x="527" y="-587" font-family="Times,serif" font-size="10.00" fill="#5a6475">opcion</text>
+</g>
+<!-- plugin_restaurant.menus_dia&#45;&gt;platform.membresias -->
+<g id="edge12" class="edge">
+<title>plugin_restaurant.menus_dia&#45;&gt;platform.membresias</title>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M480,-113.43C480,-92.09 480,-71.44 480,-56.15"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="480,-120.73 475.95,-129.73 480,-125.23 480,-129.73 480,-129.73 480,-129.73 480,-125.23 484.05,-129.73 480,-120.73 480,-120.73"/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="480" cy="-117.13" rx="3.6" ry="3.6"/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="475.5,-45.11 484.5,-45.11 484.5,-46.91 475.5,-46.91 475.5,-45.11"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="480,-44.21 480,-48.71 "/>
+<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="480" cy="-52.31" rx="3.6" ry="3.6"/>
+<text text-anchor="middle" x="520.5" y="-89" font-family="Times,serif" font-size="10.00" fill="#5a6475">confirmado_por</text>
 </g>
 <!-- plugin_restaurant.comandas&#45;&gt;elius.ordenes -->
 <g id="edge8" class="edge">
@@ -697,37 +720,14 @@
 <!-- plugin_restaurant.comandas&#45;&gt;plugin_restaurant.estaciones_cocina -->
 <g id="edge9" class="edge">
 <title>plugin_restaurant.comandas&#45;&gt;plugin_restaurant.estaciones_cocina</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M897.6,-381.03C896.41,-380.33 895.21,-379.66 894,-379 835.56,-347.22 789.53,-397.97 748,-346 744.95,-342.18 745.89,-339.41 748,-335 752.1,-326.42 782.79,-301.15 814.98,-276.19"/>
+<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M897.6,-381.03C896.41,-380.33 895.21,-379.66 894,-379 835.56,-347.22 789.53,-397.97 748,-346 736.99,-332.22 760.37,-303.72 788.76,-277.01"/>
 <polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="903.85,-385.13 909.15,-393.45 907.61,-387.6 911.37,-390.07 911.37,-390.07 911.37,-390.07 907.61,-387.6 913.6,-386.68 903.85,-385.13 903.85,-385.13"/>
 <ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="900.84" cy="-383.15" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="818.83,-267.52 824.33,-274.65 822.91,-275.75 817.41,-268.62 818.83,-267.52"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="822.3,-270.53 818.74,-273.29 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="815.27,-270.27 820.77,-277.4 819.35,-278.5 813.85,-271.37 815.27,-270.27"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="818.74,-273.29 815.17,-276.04 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="791.96,-267.93 798.07,-274.54 796.74,-275.77 790.64,-269.15 791.96,-267.93"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="795.67,-270.63 792.37,-273.68 "/>
+<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="788.65,-270.98 794.76,-277.6 793.44,-278.82 787.33,-272.21 788.65,-270.98"/>
+<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="792.37,-273.68 789.06,-276.73 "/>
 <text text-anchor="middle" x="769.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">estacion</text>
-</g>
-<!-- plugin_restaurant.opciones_modificador&#45;&gt;plugin_restaurant.grupos_modificador -->
-<g id="edge3" class="edge">
-<title>plugin_restaurant.opciones_modificador&#45;&gt;plugin_restaurant.grupos_modificador</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M153.77,-373.81C166.19,-338.55 179.98,-299.39 190.68,-269.02"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="151.33,-380.73 144.52,-387.88 149.83,-384.98 148.34,-389.22 148.34,-389.22 148.34,-389.22 149.83,-384.98 152.16,-390.57 151.33,-380.73 151.33,-380.73"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="152.52" cy="-377.34" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="189.21,-259.65 197.7,-262.64 197.1,-264.33 188.61,-261.34 189.21,-259.65"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="193.75,-260.29 192.26,-264.54 "/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="187.71,-263.89 196.2,-266.88 195.6,-268.58 187.11,-265.59 187.71,-263.89"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="192.26,-264.54 190.76,-268.78 "/>
-<text text-anchor="middle" x="181.5" y="-338" font-family="Times,serif" font-size="10.00" fill="#5a6475">grupo</text>
-</g>
-<!-- plugin_restaurant.menus_dia&#45;&gt;platform.membresias -->
-<g id="edge12" class="edge">
-<title>plugin_restaurant.menus_dia&#45;&gt;platform.membresias</title>
-<path fill="none" stroke="#5a6475" stroke-width="1.3" d="M681,-113.43C681,-92.09 681,-71.44 681,-56.15"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="681,-120.73 676.95,-129.73 681,-125.23 681,-129.73 681,-129.73 681,-129.73 681,-125.23 685.05,-129.73 681,-120.73 681,-120.73"/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="681" cy="-117.13" rx="3.6" ry="3.6"/>
-<polygon fill="#5a6475" stroke="#5a6475" stroke-width="1.3" points="676.5,-45.11 685.5,-45.11 685.5,-46.91 676.5,-46.91 676.5,-45.11"/>
-<polyline fill="none" stroke="#5a6475" stroke-width="1.3" points="681,-44.21 681,-48.71 "/>
-<ellipse fill="none" stroke="#5a6475" stroke-width="1.3" cx="681" cy="-52.31" rx="3.6" ry="3.6"/>
-<text text-anchor="middle" x="721.5" y="-89" font-family="Times,serif" font-size="10.00" fill="#5a6475">confirmado_por</text>
 </g>
 </g>
 </svg>

@@ -506,7 +506,7 @@ El trabajo se entrega en dos partes: este documento con el diseño y el código 
 
 ## 13. Modelo entidad-relación
 
-El modelo tiene 83 tablas y 192 relaciones, y cumple las tres reglas obligatorias. Un script lo verifica automáticamente. El resultado: ninguna relación 1 a 1, ninguna relación muchos a muchos directa, y las 24 tablas de transición guardan datos propios.
+El modelo tiene 87 tablas y 201 relaciones, y cumple las tres reglas obligatorias. Un script lo verifica automáticamente. El resultado: ninguna relación 1 a 1, ninguna relación muchos a muchos directa, y las 24 tablas de transición guardan datos propios.
 
 ### 13.1 Reglas del modelado
 
@@ -527,16 +527,16 @@ El modelo tiene 83 tablas y 192 relaciones, y cumple las tres reglas obligatoria
 
 | Parte | Esquema | Tablas | Entidades | Transiciones | Referencia |
 | --- | --- | --- | --- | --- | --- |
-| Modelo general | `platform` | 17 | 6 | 6 | 5 |
+| Modelo general | `platform` | 18 | 6 | 6 | 6 |
 | Modelo general | `audit` | 1 | 1 | 0 | 0 |
-| Modelo general | `elius` | 33 | 29 | 4 | 0 |
+| Modelo general | `elius` | 36 | 31 | 4 | 1 |
 | Modelo general | `ext` | 6 | 5 | 1 | 0 |
-| **Subtotal modelo general** |  | **57** | **41** | **11** | **5** |
+| **Subtotal modelo general** |  | **61** | **43** | **11** | **7** |
 | Plugin | `plugin_vet` | 5 | 2 | 3 | 0 |
 | Plugin | `plugin_restaurant` | 12 | 7 | 5 | 0 |
 | Plugin | `plugin_airline` | 9 | 3 | 5 | 1 |
 | **Subtotal plugins** |  | **26** | **12** | **13** | **1** |
-| **Total** |  | **83** | **53** | **24** | **6** |
+| **Total** |  | **87** | **55** | **24** | **8** |
 
 ### 13.4 Tablas de transición
 

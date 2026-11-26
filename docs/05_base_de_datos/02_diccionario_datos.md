@@ -10,7 +10,7 @@ Cada tabla con sus columnas: tipo, si admite nulos, valor por defecto, restricci
 
 ## Modelo general
 
-### Esquema `platform` (17 tablas)
+### Esquema `platform` (18 tablas)
 
 #### `platform.planes`
 
@@ -316,6 +316,18 @@ Dispositivos de cada usuario suscritos a notificaciones push (Web Push): reciben
 | `activo` | boolean | no | true |  | false cuando el servicio de push informa que el dispositivo ya no existe |  |
 | `creado_en` | timestamptz | no | now() |  | Cuándo se activó |  |
 
+#### `platform.accesos_bd`
+
+Usuarios de base de datos con login (uno por rol) y la identidad de la aplicación que representan. Tipo: **referencia**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `usuario_bd` | text | no | gen_random_uuid() | PK | Nombre del usuario de PostgreSQL |  |
+| `usuario_id` | uuid | no |  | FK → `platform.usuarios` | Usuario de la aplicación que representa |  |
+| `descripcion` | text | no |  |  | Qué rol y negocio representa |  |
+| `creado_en` | timestamptz | no | now() |  | Cuándo se creó |  |
+
 ### Esquema `audit` (1 tablas)
 
 #### `audit.registros_auditoria`
@@ -338,8 +350,15 @@ Bitácora de cambios de todas las tablas. Tipo: **entidad**.
 | `datos_nuevos` | jsonb | sí |  |  | Valores después | Restringido |
 | `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
 | `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+| `usuario_email` | text | sí |  |  | Correo de quien hizo el cambio | Personal |
+| `instancia` | text | sí |  |  | Servidor de base de datos desde el que se hizo |  |
+| `base_datos` | text | sí |  |  | Base de datos usada |  |
+| `puerto` | integer | sí |  |  | Puerto de la conexión |  |
+| `ip_cliente` | text | sí |  |  | Dirección IP de quien se conectó | Personal |
+| `login_bd` | text | sí |  |  | Usuario de base de datos con el que se conectó |  |
+| `aplicacion` | text | sí |  |  | Programa que se conectó (panel, DBeaver, psql…) |  |
 
-### Esquema `elius` (33 tablas)
+### Esquema `elius` (36 tablas)
 
 #### `elius.contactos`
 
@@ -637,6 +656,8 @@ Citas, reservas de mesa y reservas aéreas. Tipo: **entidad**.
 | `id_evento_calendario` | text | sí |  |  | Evento en Google Calendar |  |
 | `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
 | `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+| `eliminado_en` | timestamptz | sí |  |  | Baja lógica: el Administrador envía la reserva a la Papelera |  |
+| `marcada_por` | uuid | sí |  |  | Quién marcó Llegó / No llegó (lo pone un trigger) |  |
 
 Únicos: (tenant_id, codigo)
 
@@ -686,6 +707,7 @@ Ventas: pedidos, compras de productos, tiquetes. Tipo: **entidad**.
 | `colocada_en` | timestamptz | no | now() |  | Hora del pedido |  |
 | `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
 | `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+| `eliminado_en` | timestamptz | sí |  |  | Baja lógica: el Administrador envía el pedido a la Papelera; solo el CIS adm lo borra de verdad |  |
 
 Únicos: (tenant_id, numero)
 
@@ -1028,6 +1050,67 @@ Eventos para n8n: reserva creada, vuelo cancelado…. Tipo: **entidad**.
 | `estado` | text | no | 'pendiente' | IN (pendiente, enviado, fallido) | pendiente, enviado, fallido |  |
 | `intentos` | int | no | 0 |  | Reintentos |  |
 | `procesado_en` | timestamptz | sí |  |  | Cuándo se envió |  |
+| `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
+| `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+
+#### `elius.tickets`
+
+Tickets de soporte: lo que el Administrador, el Operador o Soporte reportan, con categoría, prioridad y solución. Tipo: **entidad**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `id` | uuid | no | gen_random_uuid() | PK | Identificador único |  |
+| `tenant_id` | uuid | no | app.current_tenant_id() | FK → `platform.tenants` | Negocio dueño del ticket |  |
+| `numero` | int | no |  |  | Consecutivo por negocio |  |
+| `codigo` | text | no |  |  | Código visible, TCK-0001 |  |
+| `categoria` | text | no |  |  | 01 General · 02 Reservas · 03 Pedidos · 04 Pagos · 05 Contabilidad · 06 Usuarios · 07 Integraciones |  |
+| `prioridad` | text | no |  |  | baja, media, alta, critica |  |
+| `estado` | text | no |  |  | abierto, en_proceso, resuelto |  |
+| `asunto` | text | no |  |  | Resumen (mínimo 5 caracteres) |  |
+| `descripcion` | text | no |  |  | Detalle del problema |  |
+| `origen` | text | no |  |  | panel, reporte, soporte, demo |  |
+| `creado_por` | uuid | sí |  | FK → `platform.usuarios` | Quién lo creó |  |
+| `creado_por_rol` | text | sí |  |  | Rol con el que lo creó |  |
+| `contacto_id` | uuid | sí |  | FK → `elius.contactos` | Cliente al que se refiere (opcional) |  |
+| `asignado_a` | uuid | sí |  | FK → `platform.usuarios` | Quién de Soporte lo atiende |  |
+| `resuelto_por` | uuid | sí |  | FK → `platform.usuarios` | Quién lo resolvió |  |
+| `solucion` | text | sí |  |  | Qué se hizo (obligatoria al resolver) |  |
+| `resuelto_en` | timestamptz | sí |  |  | Cuándo se resolvió |  |
+| `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
+| `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+
+Únicos: (tenant_id, numero)
+
+#### `elius.ticket_notas`
+
+Cronología de un ticket: notas, cambios de estado, solución y datos corregidos. Tipo: **entidad**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `id` | uuid | no | gen_random_uuid() | PK | Identificador único |  |
+| `tenant_id` | uuid | no | app.current_tenant_id() | FK → `platform.tenants` | Negocio dueño |  |
+| `ticket_id` | uuid | no |  | FK → `elius.tickets` | Ticket al que pertenece |  |
+| `autor_id` | uuid | sí |  | FK → `platform.usuarios` | Quién escribió |  |
+| `autor_rol` | text | no |  |  | Rol de quien escribió |  |
+| `tipo` | text | no |  |  | nota, estado, solucion, dato_corregido, usuario |  |
+| `texto` | text | no |  |  | Contenido |  |
+| `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
+| `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
+
+#### `elius.manual_soporte`
+
+Manual de Soporte: pasos para resolver cada categoría de ticket (igual para todos los negocios). Tipo: **referencia**.
+
+
+| Columna | Tipo | Nulo | Por defecto | Restricción | Descripción | Privacidad |
+| --- | --- | --- | --- | --- | --- | --- |
+| `id` | uuid | no | gen_random_uuid() | PK | Identificador único |  |
+| `categoria` | text | no |  |  | 01 a 07, igual que los tickets |  |
+| `titulo` | text | no |  |  | Título del procedimiento |  |
+| `pasos` | text | no |  |  | Pasos a seguir |  |
+| `orden` | int | no | 0 |  | Orden dentro de la categoría |  |
 | `creado_en` | timestamptz | no | now() |  | Fecha de creación |  |
 | `actualizado_en` | timestamptz | no | now() |  | Fecha de la última modificación |  |
 

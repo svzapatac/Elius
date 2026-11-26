@@ -1,12 +1,12 @@
 {
-  "tablas": 83,
+  "tablas": 87,
   "por_tipo": {
-    "entidad": 53,
+    "entidad": 55,
     "transicion": 24,
-    "referencia": 6
+    "referencia": 8
   },
-  "relaciones": 192,
-  "relaciones_sin_tenant": 120,
+  "relaciones": 201,
+  "relaciones_sin_tenant": 127,
   "transiciones": [
     {
       "tabla": "platform.rol_permisos",

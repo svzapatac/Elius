@@ -23,7 +23,7 @@ flowchart TD
 5. **Validación de las reglas del curso.** `generar.py` revisa las tres reglas en cada corrida y falla si alguna se rompe.
 6. **Generación.** Diagramas en pata de gallo (Graphviz), DBML para dbdiagram.io, la migración de tablas con llaves compuestas e índices, el diccionario y las relaciones.
 7. **SQL escrito a mano.** Lo que no es estructura se escribió y comentó migración por migración, cada objeto con la regla que cumple.
-8. **Pruebas.** Un PostgreSQL 16 local que simula Supabase aplica las 10 migraciones desde cero y corre 94 pruebas con usuarios reales de cada rol.
+8. **Pruebas.** Un PostgreSQL 16 local que simula Supabase aplica las 50 migraciones desde cero y corre 369 pruebas con usuarios reales de cada rol.
 9. **Documentación.** Los inventarios (triggers, políticas, vistas, funciones, matriz de permisos) se consultan en la base ya migrada, para que lo que se sustenta sea lo que corre.
 
 ## Cómo reproducirlo

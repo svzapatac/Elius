@@ -2,7 +2,7 @@
 
 > Archivo generado por `database/modelo/documentar.py`. No editar a mano.
 
-El modelo tiene **192 relaciones**, todas de uno a muchos. No hay relaciones 1 a 1 ni muchos a muchos directas; el script `generar.py` lo verifica cada vez que se genera el modelo.
+El modelo tiene **201 relaciones**, todas de uno a muchos. No hay relaciones 1 a 1 ni muchos a muchos directas; el script `generar.py` lo verifica cada vez que se genera el modelo.
 
 - **Cardinalidad** se lee desde la tabla padre hacia la tabla hija: `1 a 0..N` = un padre tiene cero o muchos hijos y cada hijo tiene exactamente un padre; `0..1 a 0..N` = el hijo puede no tener padre (FK opcional).
 - **Compuesta = sí**: la llave es `(tenant_id, columna)` → `(tenant_id, id)`, así una fila nunca apunta a otro tenant (DT-07).
@@ -39,7 +39,7 @@ El modelo tiene **192 relaciones**, todas de uno a muchos. No hay relaciones 1 a
 
 ## Modelo general
 
-### `platform` (28 relaciones)
+### `platform` (29 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |
 | --- | --- | --- | --- | --- | --- |
@@ -71,13 +71,14 @@ El modelo tiene **192 relaciones**, todas de uno a muchos. No hay relaciones 1 a
 | `platform.llaves_api` | `creado_por` | `platform.usuarios` | 1 a 0..N | no | CASCADE |
 | `platform.consumos_periodo` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
 | `platform.push_suscripciones` | `usuario_id` | `platform.usuarios` | 1 a 0..N | no | CASCADE |
+| `platform.accesos_bd` | `usuario_id` | `platform.usuarios` | 1 a 0..N | no | CASCADE |
 ### `audit` (2 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |
 | --- | --- | --- | --- | --- | --- |
 | `audit.registros_auditoria` | `tenant_id` | `platform.tenants` | 0..1 a 0..N | no | CASCADE |
 | `audit.registros_auditoria` | `usuario_id` | `platform.usuarios` | 0..1 a 0..N | no | SET NULL |
-### `elius` (81 relaciones)
+### `elius` (89 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |
 | --- | --- | --- | --- | --- | --- |
@@ -162,6 +163,14 @@ El modelo tiene **192 relaciones**, todas de uno a muchos. No hay relaciones 1 a
 | `elius.fragmentos_conocimiento` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
 | `elius.fragmentos_conocimiento` | `documento_id` | `elius.documentos_conocimiento` | 1 a 0..N | sí | CASCADE |
 | `elius.eventos_salida` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
+| `elius.tickets` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
+| `elius.tickets` | `creado_por` | `platform.usuarios` | 0..1 a 0..N | no | SET NULL |
+| `elius.tickets` | `contacto_id` | `elius.contactos` | 0..1 a 0..N | sí | SET NULL |
+| `elius.tickets` | `asignado_a` | `platform.usuarios` | 0..1 a 0..N | no | SET NULL |
+| `elius.tickets` | `resuelto_por` | `platform.usuarios` | 0..1 a 0..N | no | SET NULL |
+| `elius.ticket_notas` | `tenant_id` | `platform.tenants` | 1 a 0..N | no | CASCADE |
+| `elius.ticket_notas` | `ticket_id` | `elius.tickets` | 1 a 0..N | sí | CASCADE |
+| `elius.ticket_notas` | `autor_id` | `platform.usuarios` | 0..1 a 0..N | no | SET NULL |
 ### `ext` (15 relaciones)
 
 | Tabla hija | Columna | Tabla padre | Cardinalidad | Compuesta | Al borrar el padre |

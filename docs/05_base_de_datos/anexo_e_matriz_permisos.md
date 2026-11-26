@@ -7,23 +7,23 @@ Niveles: **lectura** < **escritura** < **total**. *con_autorizacion* = Soporte s
 | Plugin | Permiso | Super Admin | Soporte | Administrador | Operador | Analista | Eli |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | núcleo | `auditoria` | — | — | lectura | — | — | — |
-| núcleo | `catalogo` | — | con_autorizacion | total | lectura | lectura | lectura |
-| núcleo | `configuracion` | — | con_autorizacion | total | — | — | lectura |
-| núcleo | `conocimiento` | — | con_autorizacion | total | lectura | lectura | lectura |
-| núcleo | `contactos` | — | con_autorizacion | total | escritura | lectura | escritura |
-| núcleo | `conversaciones` | — | con_autorizacion | total | escritura | lectura | escritura |
-| núcleo | `ext` | — | con_autorizacion | total | escritura | — | — |
-| núcleo | `ordenes` | — | con_autorizacion | total | escritura | lectura | escritura |
-| núcleo | `pagos` | — | con_autorizacion | total | escritura | lectura | escritura |
+| núcleo | `catalogo` | — | — | total | lectura | lectura | lectura |
+| núcleo | `configuracion` | — | — | total | — | — | lectura |
+| núcleo | `conocimiento` | — | — | total | lectura | lectura | lectura |
+| núcleo | `contactos` | — | — | total | escritura | lectura | escritura |
+| núcleo | `conversaciones` | — | — | total | escritura | lectura | escritura |
+| núcleo | `ext` | — | — | total | escritura | — | — |
+| núcleo | `ordenes` | — | — | total | escritura | lectura | escritura |
+| núcleo | `pagos` | — | — | total | escritura | lectura | escritura |
 | núcleo | `plataforma` | total | lectura | — | — | — | — |
-| núcleo | `reportes` | — | con_autorizacion | total | — | lectura | escritura |
-| núcleo | `reservas` | — | con_autorizacion | total | escritura | lectura | escritura |
-| núcleo | `usuarios` | — | con_autorizacion | total | — | — | — |
+| núcleo | `reportes` | — | — | total | — | lectura | escritura |
+| núcleo | `reservas` | — | — | total | escritura | lectura | escritura |
+| núcleo | `usuarios` | — | — | total | — | — | — |
 | airline | `airline.documentos` ★ | — | — | total | — | — | — |
-| airline | `airline.reservas` | — | con_autorizacion | total | escritura | lectura | escritura |
-| airline | `airline.vuelos` | — | con_autorizacion | total | lectura | lectura | lectura |
-| restaurant | `restaurant.cocina` | — | con_autorizacion | total | escritura | lectura | escritura |
-| restaurant | `restaurant.menu` | — | con_autorizacion | total | lectura | lectura | lectura |
+| airline | `airline.reservas` | — | — | total | escritura | lectura | escritura |
+| airline | `airline.vuelos` | — | — | total | lectura | lectura | lectura |
+| restaurant | `restaurant.cocina` | — | — | total | escritura | lectura | escritura |
+| restaurant | `restaurant.menu` | — | — | total | lectura | lectura | lectura |
 | restaurant | `restaurant.reversos` ★ | — | — | total | — | — | — |
 | vet | `vet.historia_clinica` ★ | — | — | total | — | — | — |
-| vet | `vet.pacientes` | — | con_autorizacion | total | escritura | lectura | escritura |
+| vet | `vet.pacientes` | — | — | total | escritura | lectura | escritura |

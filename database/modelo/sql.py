@@ -57,7 +57,8 @@ def generar():
         if t["externa"] or t.get("manual"):
             continue  # platform.usuarios = auth.users de Supabase
         n = nombre_completo(t)
-        cols = [columna_sql(t, c, tipo, flags) for c, tipo, flags, _d in t["columnas"]]
+        propias = t["columnas"][:len(t["columnas"]) - t.get("migradas", 0)]   # sin las que agregó una migración posterior
+        cols = [columna_sql(t, c, tipo, flags) for c, tipo, flags, _d in propias]
         restr = []
         if t["tenant"]:
             restr.append(f"  constraint uq_{t['nombre'][:45]}_tenant_id unique (tenant_id, id)")
@@ -67,7 +68,7 @@ def generar():
         out.append(",\n".join(cols + restr))
         out.append(");\n")
         comentarios.append(f"comment on table {n} is {q(t['descripcion'] + ' [' + t['tipo'] + ']')};")
-        for c, _tipo, flags, d in t["columnas"]:
+        for c, _tipo, flags, d in propias:
             marcas = [m for m, txt in (("S", "SENSIBLE"), ("R", "RESTRINGIDO"), ("P", "PERSONAL"))
                       if m in flags.split()]
             extra = " [" + ", ".join({"S": "SENSIBLE", "R": "RESTRINGIDO", "P": "PERSONAL"}[m]

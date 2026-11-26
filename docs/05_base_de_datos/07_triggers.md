@@ -1,13 +1,13 @@
 # Triggers
 
-Hay **179 triggers**: dos genéricos repetidos en muchas tablas y **31 específicos** que hacen cumplir reglas de negocio que un `CHECK` no puede, porque necesitan consultar otras filas o tablas. El inventario exacto que sale de la base está en el [anexo A](anexo_a_inventario_triggers.md); el código, en `database/supabase/migrations/…0500_triggers.sql`.
+Hay **364 triggers**: dos genéricos repetidos en muchas tablas (82 y 71) y **42 específicos** (211 instalaciones, porque algunos como la baja lógica se repiten por tabla) que hacen cumplir reglas de negocio que un `CHECK` no puede, porque necesitan consultar otras filas o tablas. El inventario exacto que sale de la base está en el [anexo A](anexo_a_inventario_triggers.md); el código, en `database/supabase/migrations/…0500_triggers.sql`.
 
 ## Triggers genéricos
 
 | Trigger | Tablas | Qué hace |
 | --- | --- | --- |
-| `t01_actualizado_en` | 79 | `BEFORE UPDATE`: pone `actualizado_en = now()` |
-| `t02_auditoria` | 69 | `AFTER INSERT/UPDATE/DELETE`: escribe en `audit.registros_auditoria` el tenant, el usuario, su rol, el origen (app, eli, soporte, sistema), la tabla, la fila y los datos antes y después (RN-P15, DT-12) |
+| `t01_actualizado_en` | 82 | `BEFORE UPDATE`: pone `actualizado_en = now()` |
+| `t02_auditoria` | 71 | `AFTER INSERT/UPDATE/DELETE`: escribe en `audit.registros_auditoria` el tenant, el usuario, su rol, el origen (app, eli, soporte, sistema), la tabla, la fila y los datos antes y después (RN-P15, DT-12) |
 
 La auditoría no se aplica a las tablas de alto volumen o técnicas, como mensajes, consumo de IA, embudo, eventos, fragmentos y notificaciones del webhook. Ahí auditar cada fila multiplicaría el tamaño sin aportar trazabilidad útil.
 

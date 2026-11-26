@@ -1,6 +1,6 @@
 # Restricciones
 
-Hay **110 `CHECK`, 109 `UNIQUE`, 1 restricción de exclusión y 326 índices**. Se usan restricciones declarativas siempre que la regla se pueda expresar sin consultar otras filas, porque el motor las garantiza en cualquier camino de escritura, incluso uno que no pase por la aplicación. Lo que necesita mirar otras tablas va como trigger ([07_triggers.md](07_triggers.md)).
+Hay **120 `CHECK`, 113 `UNIQUE`, 1 restricción de exclusión y 340 índices**. Se usan restricciones declarativas siempre que la regla se pueda expresar sin consultar otras filas, porque el motor las garantiza en cualquier camino de escritura, incluso uno que no pase por la aplicación. Lo que necesita mirar otras tablas va como trigger ([07_triggers.md](07_triggers.md)).
 
 ## Dónde están
 
@@ -45,6 +45,6 @@ Rechaza una fila si ya existe otra **del mismo tenant, del mismo recurso y con u
 
 ## Llaves foráneas compuestas
 
-95 de las 191 llaves son compuestas: `FOREIGN KEY (tenant_id, contacto_id) REFERENCES elius.contactos (tenant_id, id)`. Para eso cada tabla de negocio tiene `UNIQUE (tenant_id, id)`. La razón: **las verificaciones de llaves foráneas no pasan por RLS**, así que sin esto una reserva de un negocio podría apuntar al contacto de otro. Lo prueba la sección 3 de las pruebas.
+97 de las 196 llaves son compuestas: `FOREIGN KEY (tenant_id, contacto_id) REFERENCES elius.contactos (tenant_id, id)`. Para eso cada tabla de negocio tiene `UNIQUE (tenant_id, id)`. La razón: **las verificaciones de llaves foráneas no pasan por RLS**, así que sin esto una reserva de un negocio podría apuntar al contacto de otro. Lo prueba la sección 3 de las pruebas.
 
 Cuando la FK es opcional se usa `ON DELETE SET NULL (columna)`, una sintaxis de PostgreSQL 15 que limpia solo la referencia y deja `tenant_id` intacto.

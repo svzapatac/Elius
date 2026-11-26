@@ -35,6 +35,14 @@ def tabla(esquema, nombre, tipo, descripcion, columnas, unicos=(), tenant=True,
                        resuelve=resuelve, externa=externa, manual=manual))
 
 
+def columnas_migradas(esquema, nombre, columnas):
+    """Columnas que agregó una migración posterior sobre una tabla ya generada: salen en los diagramas y el
+    diccionario, pero el generador de SQL no las vuelve a crear (ya las crea la migración)."""
+    t = next(x for x in TABLAS if x["esquema"] == esquema and x["nombre"] == nombre)
+    t["columnas"] += columnas
+    t["migradas"] = t.get("migradas", 0) + len(columnas)
+
+
 # =============================================================================
 # PLATFORM — lógica del tenant (metadatos del SaaS)
 # =============================================================================
@@ -898,3 +906,79 @@ def fks(t):
             if f.startswith("fk:"):
                 out.append((c, f[3:], "null" in flags.split()))
     return out
+
+
+# =============================================================================
+# CAMBIOS POSTERIORES (migraciones 43 a 49, 26-nov-2026)
+# =============================================================================
+# --- Soporte con tickets (migración 0100): tablas escritas a mano, solo se leen por vistas y procedimientos ---
+tabla(E, "tickets", "entidad", "Tickets de soporte: lo que el Administrador, el Operador o Soporte reportan, con categoría, prioridad y solución", [
+    ("id", "uuid", "pk", "Identificador único"),
+    ("tenant_id", "uuid", "fk:platform.tenants", "Negocio dueño del ticket"),
+    ("numero", "int", "", "Consecutivo por negocio"),
+    ("codigo", "text", "", "Código visible, TCK-0001"),
+    ("categoria", "text", "", "01 General · 02 Reservas · 03 Pedidos · 04 Pagos · 05 Contabilidad · 06 Usuarios · 07 Integraciones"),
+    ("prioridad", "text", "", "baja, media, alta, critica"),
+    ("estado", "text", "", "abierto, en_proceso, resuelto"),
+    ("asunto", "text", "", "Resumen (mínimo 5 caracteres)"),
+    ("descripcion", "text", "", "Detalle del problema"),
+    ("origen", "text", "", "panel, reporte, soporte, demo"),
+    ("creado_por", "uuid", "fk:platform.usuarios null", "Quién lo creó"),
+    ("creado_por_rol", "text", "null", "Rol con el que lo creó"),
+    ("contacto_id", "uuid", "fk:elius.contactos null", "Cliente al que se refiere (opcional)"),
+    ("asignado_a", "uuid", "fk:platform.usuarios null", "Quién de Soporte lo atiende"),
+    ("resuelto_por", "uuid", "fk:platform.usuarios null", "Quién lo resolvió"),
+    ("solucion", "text", "null", "Qué se hizo (obligatoria al resolver)"),
+    ("resuelto_en", "timestamptz", "null", "Cuándo se resolvió"),
+    ("creado_en", "timestamptz", "", "Fecha de creación"),
+    ("actualizado_en", "timestamptz", "", "Fecha de la última modificación"),
+], unicos=[("tenant_id", "numero")], manual=True)
+
+tabla(E, "ticket_notas", "entidad", "Cronología de un ticket: notas, cambios de estado, solución y datos corregidos", [
+    ("id", "uuid", "pk", "Identificador único"),
+    ("tenant_id", "uuid", "fk:platform.tenants", "Negocio dueño"),
+    ("ticket_id", "uuid", "fk:elius.tickets", "Ticket al que pertenece"),
+    ("autor_id", "uuid", "fk:platform.usuarios null", "Quién escribió"),
+    ("autor_rol", "text", "", "Rol de quien escribió"),
+    ("tipo", "text", "", "nota, estado, solucion, dato_corregido, usuario"),
+    ("texto", "text", "", "Contenido"),
+    ("creado_en", "timestamptz", "", "Fecha de creación"),
+    ("actualizado_en", "timestamptz", "", "Fecha de la última modificación"),
+], manual=True)
+
+tabla(E, "manual_soporte", "referencia", "Manual de Soporte: pasos para resolver cada categoría de ticket (igual para todos los negocios)", [
+    ("id", "uuid", "pk", "Identificador único"),
+    ("categoria", "text", "", "01 a 07, igual que los tickets"),
+    ("titulo", "text", "", "Título del procedimiento"),
+    ("pasos", "text", "", "Pasos a seguir"),
+    ("orden", "int", "", "Orden dentro de la categoría"),
+    ("creado_en", "timestamptz", "", "Fecha de creación"),
+    ("actualizado_en", "timestamptz", "", "Fecha de la última modificación"),
+], tenant=False, manual=True)
+
+# --- Baja lógica / Papelera (migración 0300) y coherencia de reservas (0400, 0600) ---
+columnas_migradas(E, "ordenes", [
+    ("eliminado_en", "timestamptz", "null", "Baja lógica: el Administrador envía el pedido a la Papelera; solo el CIS adm lo borra de verdad"),
+])
+columnas_migradas(E, "reservas", [
+    ("eliminado_en", "timestamptz", "null", "Baja lógica: el Administrador envía la reserva a la Papelera"),
+    ("marcada_por", "uuid", "null", "Quién marcó Llegó / No llegó (lo pone un trigger)"),
+])
+
+# --- Conexiones directas por rol y auditoría completa (migraciones del 25-nov) ---
+tabla(P, "accesos_bd", "referencia", "Usuarios de base de datos con login (uno por rol) y la identidad de la aplicación que representan", [
+    ("usuario_bd", "text", "pk", "Nombre del usuario de PostgreSQL"),
+    ("usuario_id", "uuid", "fk:platform.usuarios", "Usuario de la aplicación que representa"),
+    ("descripcion", "text", "", "Qué rol y negocio representa"),
+    ("creado_en", "timestamptz", "", "Cuándo se creó"),
+], tenant=False, manual=True)
+
+columnas_migradas("audit", "registros_auditoria", [
+    ("usuario_email", "text", "null P", "Correo de quien hizo el cambio"),
+    ("instancia", "text", "null", "Servidor de base de datos desde el que se hizo"),
+    ("base_datos", "text", "null", "Base de datos usada"),
+    ("puerto", "integer", "null", "Puerto de la conexión"),
+    ("ip_cliente", "text", "null P", "Dirección IP de quien se conectó"),
+    ("login_bd", "text", "null", "Usuario de base de datos con el que se conectó"),
+    ("aplicacion", "text", "null", "Programa que se conectó (panel, DBeaver, psql…)"),
+])

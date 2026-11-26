@@ -216,6 +216,13 @@ Table audit.registros_auditoria [note: 'Bitácora de cambios de todas las tablas
   datos_nuevos "jsonb" [null, note: 'Valores después [RESTRINGIDO]']
   creado_en "timestamptz" [not null, note: 'Fecha de creación']
   actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  usuario_email "text" [null, note: 'Correo de quien hizo el cambio [PERSONAL]']
+  instancia "text" [null, note: 'Servidor de base de datos desde el que se hizo']
+  base_datos "text" [null, note: 'Base de datos usada']
+  puerto "integer" [null, note: 'Puerto de la conexión']
+  ip_cliente "text" [null, note: 'Dirección IP de quien se conectó [PERSONAL]']
+  login_bd "text" [null, note: 'Usuario de base de datos con el que se conectó']
+  aplicacion "text" [null, note: 'Programa que se conectó (panel, DBeaver, psql…)']
 }
 
 Table platform.ajustes_globales [note: 'Ajustes de toda la plataforma (tema ntfy, llaves VAPID públicas, URL y token del servicio de notificaciones). Sin acceso desde el panel (referencia)'] {
@@ -463,6 +470,8 @@ Table elius.reservas [note: 'Citas, reservas de mesa y reservas aéreas (entidad
   id_evento_calendario "text" [null, note: 'Evento en Google Calendar']
   creado_en "timestamptz" [not null, note: 'Fecha de creación']
   actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  eliminado_en "timestamptz" [null, note: 'Baja lógica: el Administrador envía la reserva a la Papelera']
+  marcada_por "uuid" [null, note: 'Quién marcó Llegó / No llegó (lo pone un trigger)']
   indexes {
     (tenant_id, codigo) [unique]
   }
@@ -502,6 +511,7 @@ Table elius.ordenes [note: 'Ventas: pedidos, compras de productos, tiquetes (ent
   colocada_en "timestamptz" [not null, note: 'Hora del pedido']
   creado_en "timestamptz" [not null, note: 'Fecha de creación']
   actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  eliminado_en "timestamptz" [null, note: 'Baja lógica: el Administrador envía el pedido a la Papelera; solo el CIS adm lo borra de verdad']
   indexes {
     (tenant_id, numero) [unique]
   }
@@ -1194,6 +1204,60 @@ Table plugin_airline.equipajes [note: 'Equipaje registrado en un tiquete (entida
   actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
 }
 
+Table elius.tickets [note: 'Tickets de soporte: lo que el Administrador, el Operador o Soporte reportan, con categoría, prioridad y solución (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Negocio dueño del ticket']
+  numero "int" [not null, note: 'Consecutivo por negocio']
+  codigo "text" [not null, note: 'Código visible, TCK-0001']
+  categoria "text" [not null, note: '01 General · 02 Reservas · 03 Pedidos · 04 Pagos · 05 Contabilidad · 06 Usuarios · 07 Integraciones']
+  prioridad "text" [not null, note: 'baja, media, alta, critica']
+  estado "text" [not null, note: 'abierto, en_proceso, resuelto']
+  asunto "text" [not null, note: 'Resumen (mínimo 5 caracteres)']
+  descripcion "text" [not null, note: 'Detalle del problema']
+  origen "text" [not null, note: 'panel, reporte, soporte, demo']
+  creado_por "uuid" [null, note: 'Quién lo creó']
+  creado_por_rol "text" [null, note: 'Rol con el que lo creó']
+  contacto_id "uuid" [null, note: 'Cliente al que se refiere (opcional)']
+  asignado_a "uuid" [null, note: 'Quién de Soporte lo atiende']
+  resuelto_por "uuid" [null, note: 'Quién lo resolvió']
+  solucion "text" [null, note: 'Qué se hizo (obligatoria al resolver)']
+  resuelto_en "timestamptz" [null, note: 'Cuándo se resolvió']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+  indexes {
+    (tenant_id, numero) [unique]
+  }
+}
+
+Table elius.ticket_notas [note: 'Cronología de un ticket: notas, cambios de estado, solución y datos corregidos (entidad)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  tenant_id "uuid" [not null, note: 'Negocio dueño']
+  ticket_id "uuid" [not null, note: 'Ticket al que pertenece']
+  autor_id "uuid" [null, note: 'Quién escribió']
+  autor_rol "text" [not null, note: 'Rol de quien escribió']
+  tipo "text" [not null, note: 'nota, estado, solucion, dato_corregido, usuario']
+  texto "text" [not null, note: 'Contenido']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table elius.manual_soporte [note: 'Manual de Soporte: pasos para resolver cada categoría de ticket (igual para todos los negocios) (referencia)'] {
+  id "uuid" [pk, not null, note: 'Identificador único']
+  categoria "text" [not null, note: '01 a 07, igual que los tickets']
+  titulo "text" [not null, note: 'Título del procedimiento']
+  pasos "text" [not null, note: 'Pasos a seguir']
+  orden "int" [not null, note: 'Orden dentro de la categoría']
+  creado_en "timestamptz" [not null, note: 'Fecha de creación']
+  actualizado_en "timestamptz" [not null, note: 'Fecha de la última modificación']
+}
+
+Table platform.accesos_bd [note: 'Usuarios de base de datos con login (uno por rol) y la identidad de la aplicación que representan (referencia)'] {
+  usuario_bd "text" [pk, not null, note: 'Nombre del usuario de PostgreSQL']
+  usuario_id "uuid" [not null, note: 'Usuario de la aplicación que representa']
+  descripcion "text" [not null, note: 'Qué rol y negocio representa']
+  creado_en "timestamptz" [not null, note: 'Cuándo se creó']
+}
+
 Ref: platform.tenants.plan_id > platform.planes.id
 Ref: platform.permisos.plugin_id > platform.plugins.id
 Ref: platform.rol_permisos.rol_id > platform.roles.id
@@ -1386,6 +1450,15 @@ Ref: plugin_airline.tiquetes.reserva_pasajero_id > plugin_airline.reserva_pasaje
 Ref: plugin_airline.tiquetes.tramo_id > plugin_airline.tramos_reserva.id
 Ref: plugin_airline.equipajes.tenant_id > platform.tenants.id
 Ref: plugin_airline.equipajes.tiquete_id > plugin_airline.tiquetes.id
+Ref: elius.tickets.tenant_id > platform.tenants.id
+Ref: elius.tickets.creado_por > platform.usuarios.id
+Ref: elius.tickets.contacto_id > elius.contactos.id
+Ref: elius.tickets.asignado_a > platform.usuarios.id
+Ref: elius.tickets.resuelto_por > platform.usuarios.id
+Ref: elius.ticket_notas.tenant_id > platform.tenants.id
+Ref: elius.ticket_notas.ticket_id > elius.tickets.id
+Ref: elius.ticket_notas.autor_id > platform.usuarios.id
+Ref: platform.accesos_bd.usuario_id > platform.usuarios.id
 
 TableGroup modelo_general_platform {
   platform.planes
@@ -1406,6 +1479,7 @@ TableGroup modelo_general_platform {
   audit.registros_auditoria
   platform.ajustes_globales
   platform.push_suscripciones
+  platform.accesos_bd
 }
 
 TableGroup modelo_general_elius {
@@ -1442,6 +1516,9 @@ TableGroup modelo_general_elius {
   elius.documentos_conocimiento
   elius.fragmentos_conocimiento
   elius.eventos_salida
+  elius.tickets
+  elius.ticket_notas
+  elius.manual_soporte
 }
 
 TableGroup modelo_general_ext {

@@ -8647,3 +8647,9 @@ where inicio >= (date_trunc('day', now() at time zone 'America/Bogota') at time 
   and inicio <  ((date_trunc('day', now() at time zone 'America/Bogota') + interval '1 day') at time zone 'America/Bogota')
   and estado in ('pendiente_pago', 'confirmada', 'asistio');
 
+-- ===== 50_accesos_bd_sin_uno_a_uno.sql =====
+-- 0800 · Regla R1 del curso: no hay relaciones 1 a 1. accesos_bd.usuario_id era único (1-1 con el usuario);
+-- ahora una persona puede tener varios usuarios de conexión directa (1 a muchos). Nada dependía de esa unicidad.
+alter table platform.accesos_bd drop constraint if exists accesos_bd_usuario_id_key;
+create index if not exists ix_accesos_bd_usuario on platform.accesos_bd (usuario_id);
+

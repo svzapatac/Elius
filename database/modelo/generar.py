@@ -284,6 +284,8 @@ if __name__ == "__main__":
         "02d_elius_configuracion": ("elius · conocimiento de Eli, configuración y eventos",
             {"documentos_conocimiento", "fragmentos_conocimiento", "eventos_salida",
              "parametros_negocio", "suscripciones_push"}),
+        "02f_elius_soporte": ("elius · soporte con tickets",
+            {"tickets", "ticket_notas", "manual_soporte", "contactos"}),
     }
     cubiertas = set().union(*[g[1] for g in grupos_nucleo.values()])
     faltan = {t["nombre"] for t in TABLAS if t["esquema"] == "elius"} - cubiertas

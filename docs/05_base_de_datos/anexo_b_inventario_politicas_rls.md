@@ -2,7 +2,7 @@
 
 > Archivo generado por `database/modelo/documentar.py`. No editar a mano.
 
-Hay **288 políticas**. `PERMISSIVE` se suman con OR; `RESTRICTIVE` se suman con AND (solo la usan las tablas de la extensión de Chrome, regla RN-E01).
+Hay **290 políticas**. `PERMISSIVE` se suman con OR; `RESTRICTIVE` se suman con AND (solo la usan las tablas de la extensión de Chrome, regla RN-E01).
 
 | Tabla | Política | Operación | Tipo | Condición |
 | --- | --- | --- | --- | --- |
@@ -111,6 +111,7 @@ Hay **288 políticas**. `PERMISSIVE` se suman con OR; `RESTRICTIVE` se suman con
 | `elius.ordenes` | `del_ordenes` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ordenes'::text, 'total'::text) AS puede))` |
 | `elius.ordenes` | `ins_ordenes` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ordenes'::text, 'escritura'::text) AS puede))` |
 | `elius.ordenes` | `sel_ordenes` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ordenes'::text, 'lectura'::text) AS puede))` |
+| `elius.ordenes` | `sin_eliminados` | SELECT | RESTRICTIVE | `(eliminado_en IS NULL)` |
 | `elius.ordenes` | `upd_ordenes` | UPDATE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ordenes'::text, 'escritura'::text) AS puede))` |
 | `elius.pagos` | `del_pagos` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('pagos'::text, 'total'::text) AS puede))` |
 | `elius.pagos` | `ins_pagos` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('pagos'::text, 'escritura'::text) AS puede))` |
@@ -135,8 +136,9 @@ Hay **288 políticas**. `PERMISSIVE` se suman con OR; `RESTRICTIVE` se suman con
 | `elius.reservas` | `del_reservas` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('reservas'::text, 'total'::text) AS puede))` |
 | `elius.reservas` | `ins_reservas` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('reservas'::text, 'escritura'::text) AS puede))` |
 | `elius.reservas` | `sel_reservas` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('reservas'::text, 'lectura'::text) AS puede))` |
+| `elius.reservas` | `sin_eliminados` | SELECT | RESTRICTIVE | `(eliminado_en IS NULL)` |
 | `elius.reservas` | `upd_reservas` | UPDATE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('reservas'::text, 'escritura'::text) AS puede))` |
-| `elius.suscripciones_push` | `push_backend` | SELECT | PERMISSIVE | `((auth.uid() IS NULL) AND (tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)))` |
+| `elius.suscripciones_push` | `push_backend` | SELECT | PERMISSIVE | `((app.uid() IS NULL) AND (tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)))` |
 | `elius.suscripciones_push` | `push_propias` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND (membresia_id = ( SELECT app.mi_membresia() AS mi_membresia)))` |
 | `ext.conversaciones_capturadas` | `del_conversaciones_capturadas` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ext'::text, 'total'::text) AS puede))` |
 | `ext.conversaciones_capturadas` | `ins_conversaciones_capturadas` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('ext'::text, 'escritura'::text) AS puede))` |
@@ -167,37 +169,37 @@ Hay **288 políticas**. `PERMISSIVE` se suman con OR; `RESTRICTIVE` se suman con
 | `platform.accesos_especiales` | `accesos_especiales_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'total'::text) AS puede))` |
 | `platform.accesos_especiales` | `accesos_especiales_tenant` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'lectura'::text) AS puede))` |
 | `platform.accesos_soporte` | `accesos_soporte_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'total'::text) AS puede))` |
-| `platform.accesos_soporte` | `accesos_soporte_propios` | SELECT | PERMISSIVE | `(usuario_soporte_id = auth.uid())` |
+| `platform.accesos_soporte` | `accesos_soporte_propios` | SELECT | PERMISSIVE | `(usuario_soporte_id = app.uid())` |
 | `platform.asignaciones_plataforma` | `asignaciones_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.asignaciones_plataforma` | `asignaciones_propias` | SELECT | PERMISSIVE | `((usuario_id = auth.uid()) OR ( SELECT app.es_super_admin() AS es_super_admin))` |
-| `platform.consumos_periodo` | `consumos_backend` | ALL | PERMISSIVE | `((auth.uid() IS NULL) AND (tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)))` |
+| `platform.asignaciones_plataforma` | `asignaciones_propias` | SELECT | PERMISSIVE | `((usuario_id = app.uid()) OR ( SELECT app.es_super_admin() AS es_super_admin))` |
+| `platform.consumos_periodo` | `consumos_backend` | ALL | PERMISSIVE | `((app.uid() IS NULL) AND (tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)))` |
 | `platform.consumos_periodo` | `consumos_lectura` | SELECT | PERMISSIVE | `(((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('reportes'::text, 'lectura'::text) AS puede)) OR ( SELECT app.es_super_admin() AS es_s` |
 | `platform.invitaciones` | `invitaciones_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'total'::text) AS puede))` |
 | `platform.llaves_api` | `llaves_api_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('configuracion'::text, 'total'::text) AS puede))` |
 | `platform.membresias` | `membresias_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'total'::text) AS puede))` |
-| `platform.membresias` | `membresias_propias` | SELECT | PERMISSIVE | `(usuario_id = auth.uid())` |
+| `platform.membresias` | `membresias_propias` | SELECT | PERMISSIVE | `(usuario_id = app.uid())` |
 | `platform.membresias` | `membresias_tenant` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('usuarios'::text, 'lectura'::text) AS puede))` |
 | `platform.permisos` | `permisos_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.permisos` | `permisos_lectura` | SELECT | PERMISSIVE | `(auth.uid() IS NOT NULL)` |
+| `platform.permisos` | `permisos_lectura` | SELECT | PERMISSIVE | `(app.uid() IS NOT NULL)` |
 | `platform.planes` | `planes_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.planes` | `planes_lectura` | SELECT | PERMISSIVE | `(auth.uid() IS NOT NULL)` |
+| `platform.planes` | `planes_lectura` | SELECT | PERMISSIVE | `(app.uid() IS NOT NULL)` |
 | `platform.plugins` | `plugins_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.plugins` | `plugins_lectura` | SELECT | PERMISSIVE | `(auth.uid() IS NOT NULL)` |
+| `platform.plugins` | `plugins_lectura` | SELECT | PERMISSIVE | `(app.uid() IS NOT NULL)` |
 | `platform.rol_permisos` | `rol_permisos_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.rol_permisos` | `rol_permisos_lectura` | SELECT | PERMISSIVE | `(auth.uid() IS NOT NULL)` |
+| `platform.rol_permisos` | `rol_permisos_lectura` | SELECT | PERMISSIVE | `(app.uid() IS NOT NULL)` |
 | `platform.roles` | `roles_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `platform.roles` | `roles_lectura` | SELECT | PERMISSIVE | `(auth.uid() IS NOT NULL)` |
+| `platform.roles` | `roles_lectura` | SELECT | PERMISSIVE | `(app.uid() IS NOT NULL)` |
 | `platform.tenant_plugins` | `tenant_plugins_gestion` | ALL | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('configuracion'::text, 'total'::text) AS puede))` |
 | `platform.tenant_plugins` | `tenant_plugins_lectura` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) OR ( SELECT app.es_super_admin() AS es_super_admin))` |
 | `platform.tenants` | `tenants_editar` | UPDATE | PERMISSIVE | `((id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('configuracion'::text, 'total'::text) AS puede))` |
-| `platform.tenants` | `tenants_mios` | SELECT | PERMISSIVE | `((id IN ( SELECT m.tenant_id FROM platform.membresias m WHERE ((m.usuario_id = auth.uid()) AND (m.estado = 'activo'::text)))) OR (id = ( SELECT app.current_tenant_id() AS current_t` |
+| `platform.tenants` | `tenants_mios` | SELECT | PERMISSIVE | `((id IN ( SELECT m.tenant_id FROM platform.membresias m WHERE ((m.usuario_id = app.uid()) AND (m.estado = 'activo'::text)))) OR (id = ( SELECT app.current_tenant_id() AS current_te` |
 | `platform.tenants` | `tenants_super_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
 | `plugin_airline.aeronaves` | `del_aeronaves` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.vuelos'::text, 'total'::text) AS puede))` |
 | `plugin_airline.aeronaves` | `ins_aeronaves` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.vuelos'::text, 'escritura'::text) AS puede))` |
 | `plugin_airline.aeronaves` | `sel_aeronaves` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.vuelos'::text, 'lectura'::text) AS puede))` |
 | `plugin_airline.aeronaves` | `upd_aeronaves` | UPDATE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.vuelos'::text, 'escritura'::text) AS puede))` |
 | `plugin_airline.aeropuertos` | `aeropuertos_admin` | ALL | PERMISSIVE | `( SELECT app.es_super_admin() AS es_super_admin)` |
-| `plugin_airline.aeropuertos` | `aeropuertos_lectura` | SELECT | PERMISSIVE | `((auth.uid() IS NOT NULL) OR (auth.role() = 'service_role'::text) OR (SESSION_USER = 'elius_app'::name))` |
+| `plugin_airline.aeropuertos` | `aeropuertos_lectura` | SELECT | PERMISSIVE | `((app.uid() IS NOT NULL) OR (auth.role() = 'service_role'::text) OR (SESSION_USER = 'elius_app'::name))` |
 | `plugin_airline.equipajes` | `del_equipajes` | DELETE | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.reservas'::text, 'total'::text) AS puede))` |
 | `plugin_airline.equipajes` | `ins_equipajes` | INSERT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.reservas'::text, 'escritura'::text) AS puede))` |
 | `plugin_airline.equipajes` | `sel_equipajes` | SELECT | PERMISSIVE | `((tenant_id = ( SELECT app.current_tenant_id() AS current_tenant_id)) AND ( SELECT app.puede('airline.reservas'::text, 'lectura'::text) AS puede))` |
