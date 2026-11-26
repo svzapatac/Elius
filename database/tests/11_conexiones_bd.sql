@@ -484,5 +484,22 @@ select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'ro
 set role authenticated;
 select pg_temp.ok((select marcada_por_correo from elius.v_agenda_calendario where reserva_id = :'r31b') = 'trabajador.restaurante@elius.local', 'El Administrador ve quién marcó la llegada');
 select pg_temp.ok((select responsable_correo from elius.v_agenda_calendario where reserva_id = :'r31b') = 'trabajador.restaurante@elius.local', 'Sin responsable previo, quien marca queda como responsable');
+-- 34 · Tomar la reserva no se pega: el Administrador no la toma, el Operador sí y queda su registro
+reset role;
+select elius.agendar_reserva(:'c31', 'otro', now() + interval '9 days', now() + interval '9 days 1 hour', 1, '{}', 'Tomar sin trabarse') as r34 \gset
+update elius.reservas set estado = 'confirmada' where id = :'r34';
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.tomar_reserva(''' || :'r34' || ''')') <> 'ok', 'El Administrador no toma reservas (no bloquea al Operador)');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.tomar_reserva(''' || :'r34' || ''')') = 'ok', 'El Operador toma la reserva');
+select pg_temp.ok((select responsable_id is not null and responsable_correo = 'trabajador.restaurante@elius.local' from elius.v_agenda_calendario where reserva_id = :'r34'), 'Queda el registro del Operador (responsable_id y correo)');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok(pg_temp.intenta('select elius.liberar_reserva(''' || :'r34' || ''')') = 'ok', 'El Administrador libera la reserva');
+select pg_temp.ok((select responsable_id is null from elius.v_agenda_calendario where reserva_id = :'r34'), 'Liberada: vuelve a estar sin responsable');
 reset role;
 select set_config('request.jwt.claims', '', false);
