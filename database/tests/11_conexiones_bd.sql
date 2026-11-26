@@ -475,5 +475,14 @@ set role authenticated;
 select elius.crear_ticket('01', 'media', 'Duda sobre el cierre de caja', '') as tk32b \gset
 select pg_temp.ok((select count(*) from elius.v_mis_reportes where id in (:'tk32', :'tk32b')) = 2, 'Administrador: crea tickets y ve los de todo el negocio');
 select pg_temp.ok(pg_temp.intenta('select elius.consola_sql(''select 1'')') = 'ok', 'Administrador: conserva la consola SQL');
+-- 33 · Se guarda quién marcó la reserva y el Administrador lo ve (automático)
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'u_trab', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+update elius.reservas set estado = 'confirmada' where id = :'r31b';
+update elius.reservas set estado = 'asistio', llegada_en = now() where id = :'r31b';
+select set_config('request.jwt.claims', json_build_object('sub', :'u_admin', 'role', 'authenticated', 'tenant_id', :'t_r27')::text, false) \gset
+set role authenticated;
+select pg_temp.ok((select marcada_por_correo from elius.v_agenda_calendario where reserva_id = :'r31b') = 'trabajador.restaurante@elius.local', 'El Administrador ve quién marcó la llegada');
+select pg_temp.ok((select responsable_correo from elius.v_agenda_calendario where reserva_id = :'r31b') = 'trabajador.restaurante@elius.local', 'Sin responsable previo, quien marca queda como responsable');
 reset role;
 select set_config('request.jwt.claims', '', false);
